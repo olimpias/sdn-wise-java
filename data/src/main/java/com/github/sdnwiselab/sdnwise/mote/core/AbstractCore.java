@@ -182,7 +182,7 @@ public abstract class AbstractCore {
                 .setLhs(DST_INDEX)
                 .setRhsLocation(SDN_WISE_CONST)
                 .setRhs(this.myAddress.intValue()));
-        toSink.addWindow(Window.fromString("P.TYPE == 3"));
+        toSink.addWindow(Window.fromString("P.TYP == 3"));
         toSink.addAction(new ForwardUnicastAction(myAddress));
         toSink.getStats().setPermanent();
         flowTable.add(0, toSink);

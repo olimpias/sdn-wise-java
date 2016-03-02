@@ -204,7 +204,7 @@ public class SdnWise {
                 "HelloWorld.class");
 
         FlowTableEntry e1 = FlowTableEntry.fromString(
-                "if (P.DST_LOW == 8) {"
+                "if (P.DST == 8) {"
                 + " FUNCTION 1 0 0 0 0 0 0;"
                 + " FORWARD_U 8;"
                 + "}");
