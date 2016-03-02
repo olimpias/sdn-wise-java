@@ -29,18 +29,13 @@ import java.util.logging.*;
  */
 public class NetworkPacket implements Cloneable {
 
-    /**
-     * The maximum number of hops allowed in the network.
-     */
-    public byte SDN_WISE_DFLT_TTL_MAX = 100;
 
     /**
      * The maximum length of a NetworkPAcket.
      */
     public final static byte MAX_PACKET_LENGTH = 116;
 
-    public final static byte 
-            NET_INDEX = 0,
+    public final static byte NET_INDEX = 0,
             LEN_INDEX = 1,
             DST_INDEX = 2,
             SRC_INDEX = 4,
@@ -48,9 +43,8 @@ public class NetworkPacket implements Cloneable {
             TTL_INDEX = 7,
             NXH_INDEX = 8,
             PLD_INDEX = 10;
-    
-    public final static byte 
-            DATA = 0,
+
+    public final static byte DATA = 0,
             BEACON = 1,
             REPORT = 2,
             REQUEST = 3,
@@ -60,6 +54,53 @@ public class NetworkPacket implements Cloneable {
             REG_PROXY = 7;
 
     public final static byte SDN_WISE_DFLT_HDR_LEN = 10;
+    public static int getNetworkPacketByteFromName(String b) {
+        switch (b) {
+            case "LEN":
+                return 1;
+            case "NET":
+                return 0;
+            case "SRC":
+                return 4;
+            case "DST":
+                return 2;
+            case "TYP":
+                return 6;
+            case "TTL":
+                return 7;
+            case "NXH":
+                return 8;
+            default:
+                return Integer.parseInt(b);
+        }
+    }
+    public static boolean isSdnWise(byte[] data) {
+        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
+    }
+    public static String getNetworkPacketByteName(int b) {
+        switch (b) {
+            case (0):
+                return "NET";
+            case (1):
+                return "LEN";
+            case (2):
+                return "DST";
+            case (4):
+                return "SRC";
+            case (6):
+                return "TYPE";
+            case (7):
+                return "TTL";
+            case (8):
+                return "NXH";
+            default:
+                return String.valueOf(b);
+        }
+    }
+    /**
+     * The maximum number of hops allowed in the network.
+     */
+    public byte SDN_WISE_DFLT_TTL_MAX = 100;
 
     private final byte[] data;
 
@@ -119,13 +160,6 @@ public class NetworkPacket implements Cloneable {
         setArray(tmpData);
     }
 
-    private byte[] fromIntArrayToByteArray(int[] array) {
-        byte[] dataToByte = new byte[array.length];
-        for (int i = 0; i < array.length; i++) {
-            dataToByte[i] = (byte) array[i];
-        }
-        return dataToByte;
-    }
 
     public final void setArray(int[] array) {
         setArray(fromIntArrayToByteArray(array));
@@ -139,10 +173,10 @@ public class NetworkPacket implements Cloneable {
                 this.setLen(array[LEN_INDEX]);
                 this.setNet(array[NET_INDEX]);
                 this.setSrc(array[SRC_INDEX], array[SRC_INDEX + 1]);
-                this.setDst(array[DST_INDEX], array[DST_INDEX +1]);
+                this.setDst(array[DST_INDEX], array[DST_INDEX + 1]);
                 this.setTyp(array[TYP_INDEX]);
                 this.setTtl(array[TTL_INDEX]);
-                this.setNxh(array[NXH_INDEX], array[NXH_INDEX +1]);
+                this.setNxh(array[NXH_INDEX], array[NXH_INDEX + 1]);
                 this.setPayload(Arrays.copyOfRange(array, SDN_WISE_DFLT_HDR_LEN,
                         this.getLen()));
             } else {
@@ -208,7 +242,7 @@ public class NetworkPacket implements Cloneable {
      * @return the NodeAddress of the source node
      */
     public final NodeAddress getSrc() {
-        return new NodeAddress(data[SRC_INDEX], data[SRC_INDEX+1]);
+        return new NodeAddress(data[SRC_INDEX], data[SRC_INDEX + 1]);
     }
 
     /**
@@ -241,7 +275,7 @@ public class NetworkPacket implements Cloneable {
      * @return the NodeAddress of the destination node
      */
     public final NodeAddress getDst() {
-        return new NodeAddress(data[DST_INDEX], data[DST_INDEX+1]);
+        return new NodeAddress(data[DST_INDEX], data[DST_INDEX + 1]);
     }
 
     /**
@@ -253,7 +287,7 @@ public class NetworkPacket implements Cloneable {
      */
     public final NetworkPacket setDst(byte valueH, byte valueL) {
         data[DST_INDEX] = valueH;
-        data[DST_INDEX+1] = valueL;
+        data[DST_INDEX + 1] = valueL;
         return this;
     }
 
@@ -329,7 +363,7 @@ public class NetworkPacket implements Cloneable {
      * @return the NodeAddress of the the next hop towards the destination node
      */
     public final NodeAddress getNxh() {
-        return new NodeAddress(data[NXH_INDEX], data[NXH_INDEX+1]);
+        return new NodeAddress(data[NXH_INDEX], data[NXH_INDEX + 1]);
     }
 
     /**
@@ -341,7 +375,7 @@ public class NetworkPacket implements Cloneable {
      */
     public final NetworkPacket setNxh(byte valueH, byte valueL) {
         data[NXH_INDEX] = valueH;
-        data[NXH_INDEX+1] = valueL;
+        data[NXH_INDEX + 1] = valueL;
         return this;
     }
 
@@ -365,6 +399,80 @@ public class NetworkPacket implements Cloneable {
     public final NetworkPacket setNxh(String address) {
         NetworkPacket.this.setNxh(new NodeAddress(address));
         return this;
+    }
+    /**
+     * Gets the payload size of the packet.
+     *
+     * @return the packet payload size.
+     */
+    public final int getPayloadSize() {
+        return (this.getLen() - SDN_WISE_DFLT_HDR_LEN);
+    }
+    /**
+     * Returns a String representation of the NetworkPacket.
+     *
+     * @return a String representation of the NetworkPacket
+     */
+    @Override
+    public String toString() {
+        return Arrays.toString(this.toIntArray());
+    }
+    /**
+     * Returns a byte array representation of the NetworkPacket.
+     *
+     * @return a byte array representation of the NetworkPacket
+     */
+    public final byte[] toByteArray() {
+        return Arrays.copyOf(data, this.getLen());
+    }
+    /**
+     * Returns an int array representation of the NetworkPacket.
+     *
+     * @return a int array representation of the NetworkPacket
+     */
+    public final int[] toIntArray() {
+        int[] tmp = new int[this.getLen()];
+        for (int i = 0; i < tmp.length; i++) {
+            tmp[i] = Byte.toUnsignedInt(data[i]);
+        }
+        return tmp;
+    }
+    @Override
+    public NetworkPacket clone() throws CloneNotSupportedException {
+        super.clone();
+        return new NetworkPacket(data.clone());
+    }
+    public String getTypeToString() {
+        switch (getTyp()) {
+            case DATA:
+                return "DATA";
+            case BEACON:
+                return "BEACON";
+            case REPORT:
+                return "REPORT";
+            case REQUEST:
+                return "REQUEST";
+            case RESPONSE:
+                return "RESPONSE";
+            case OPEN_PATH:
+                return "OPEN_PATH";
+            case CONFIG:
+                return "CONFIG";
+            case REG_PROXY:
+                return "REG_PROXY";
+            default:
+                return String.valueOf(getTyp());
+        }
+    }
+    public boolean isSdnWise() {
+        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
+    }
+    private byte[] fromIntArrayToByteArray(int[] array) {
+        byte[] dataToByte = new byte[array.length];
+        for (int i = 0; i < array.length; i++) {
+            dataToByte[i] = (byte) array[i];
+        }
+        return dataToByte;
     }
 
     /**
@@ -409,14 +517,6 @@ public class NetworkPacket implements Cloneable {
         return this;
     }
 
-    /**
-     * Gets the payload size of the packet.
-     *
-     * @return the packet payload size.
-     */
-    public final int getPayloadSize() {
-        return (this.getLen() - SDN_WISE_DFLT_HDR_LEN);
-    }
 
     /**
      * Sets a single payload byte.
@@ -529,89 +629,4 @@ public class NetworkPacket implements Cloneable {
                 SDN_WISE_DFLT_HDR_LEN + end);
     }
 
-    /**
-     * Returns a String representation of the NetworkPacket.
-     *
-     * @return a String representation of the NetworkPacket
-     */
-    @Override
-    public String toString() {
-        return Arrays.toString(this.toIntArray());
-    }
-
-    /**
-     * Returns a byte array representation of the NetworkPacket.
-     *
-     * @return a byte array representation of the NetworkPacket
-     */
-    public final byte[] toByteArray() {
-        return Arrays.copyOf(data, this.getLen());
-    }
-
-    /**
-     * Returns an int array representation of the NetworkPacket.
-     *
-     * @return a int array representation of the NetworkPacket
-     */
-    public final int[] toIntArray() {
-        int[] tmp = new int[this.getLen()];
-        for (int i = 0; i < tmp.length; i++) {
-            tmp[i] = Byte.toUnsignedInt(data[i]);
-        }
-        return tmp;
-    }
-
-    @Override
-    public NetworkPacket clone() throws CloneNotSupportedException {
-        super.clone();
-        return new NetworkPacket(data.clone());
-    }
-    
-    public String getTypeToString() {
-        switch (getTyp()){
-            case DATA: return "DATA";
-            case BEACON: return "BEACON";
-            case REPORT: return "REPORT";
-            case REQUEST: return "REQUEST";
-            case RESPONSE: return "RESPONSE";
-            case OPEN_PATH: return "OPEN_PATH";
-            case CONFIG: return "CONFIG";
-            case REG_PROXY: return "REG_PROXY";
-            default: return String.valueOf(getTyp());
-        }
-    }
-
-    public static int getNetworkPacketByteFromName(String b) {
-        switch (b) {
-            case "LEN": return 1;
-            case "NET": return 0;
-            case "SRC": return 4;
-            case "DST": return 2;
-            case "TYP": return 6;
-            case "TTL": return 7;
-            case "NXH": return 8;
-            default: return Integer.parseInt(b);
-        }
-    }
-
-    public static boolean isSdnWise(byte[] data) {
-        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
-    }
-
-    public boolean isSdnWise() {
-        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
-    }
-
-    public static String getNetworkPacketByteName(int b) {
-        switch (b) {
-            case (0): return "NET";
-            case (1): return "LEN";
-            case (2): return "DST";
-            case (4): return "SRC";
-            case (6): return "TYPE";
-            case (7): return "TTL";
-            case (8): return "NXH";
-            default: return String.valueOf(b);
-        }
-    }
 }
