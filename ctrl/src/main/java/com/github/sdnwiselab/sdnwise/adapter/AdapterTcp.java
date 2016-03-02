@@ -208,10 +208,10 @@ public class AdapterTcp extends AbstractAdapter {
                         int netId = Byte.toUnsignedInt(dis.readByte());
                         int len = Byte.toUnsignedInt(dis.readByte());
                         byte[] data = new byte[len];
-                        data[SDN_WISE_NET_ID] = (byte) netId;
-                        data[SDN_WISE_LEN] = (byte) len;
+                        data[NET_INDEX] = (byte) netId;
+                        data[LEN_INDEX] = (byte) len;
                         if (len > 0) {
-                            dis.readFully(data, SDN_WISE_LEN + 1, len - 2);
+                            dis.readFully(data, LEN_INDEX + 1, len - 2);
                         }
                         setChanged();
                         notifyObservers(data);
@@ -258,9 +258,9 @@ public class AdapterTcp extends AbstractAdapter {
                     int len = Byte.toUnsignedInt(dis.readByte());
                     if (len > 0) {
                         byte[] data = new byte[len];
-                        data[SDN_WISE_NET_ID] = (byte) netId;
-                        data[SDN_WISE_LEN] = (byte) len;
-                        dis.readFully(data, SDN_WISE_LEN + 1, len - 2);
+                        data[NET_INDEX] = (byte) netId;
+                        data[LEN_INDEX] = (byte) len;
+                        dis.readFully(data, LEN_INDEX + 1, len - 2);
                         setChanged();
                         notifyObservers(data);
                     }

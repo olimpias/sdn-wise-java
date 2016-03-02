@@ -16,7 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.packet;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.REG_PROXY;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REG_PROXY;
 import com.github.sdnwiselab.sdnwise.util.*;
 import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
 import java.math.BigInteger;
@@ -80,13 +80,13 @@ public class RegProxyPacket extends NetworkPacket {
             long switchPort,
             InetSocketAddress inetAddr) {
         super(netId, src, BROADCAST_ADDR);
-        setType(REG_PROXY);
+        setTyp(REG_PROXY);
         setSwitchMac(switchMac);
         setSwitchDpid(switchDpid);
         setSwitchPort(switchPort);
         setSrc(src);
         setDst(src);
-        setNxhop(src);
+        setNxh(src);
         setInetSocketAddress(inetAddr);
     }
 

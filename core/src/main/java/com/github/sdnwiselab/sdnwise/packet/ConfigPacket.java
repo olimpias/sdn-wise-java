@@ -16,7 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.packet;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.CONFIG;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.CONFIG;
 import com.github.sdnwiselab.sdnwise.util.*;
 
 /**
@@ -73,7 +73,7 @@ public class ConfigPacket extends NetworkPacket {
 
     public ConfigPacket(int netId, NodeAddress src, NodeAddress dst) {
         super(netId, src, dst);
-        this.setType(CONFIG);
+        this.setTyp(CONFIG);
     }
 
     public ConfigPacket(NetworkPacket data) {

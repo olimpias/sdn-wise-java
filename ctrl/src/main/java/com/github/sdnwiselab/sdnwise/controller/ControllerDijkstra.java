@@ -63,8 +63,8 @@ public class ControllerDijkstra extends AbstractController {
 
         log(Level.INFO, data.toString());
 
-        String destination = data.getNetId() + "." + data.getDst();
-        String source = data.getNetId() + "." + req.getSrc();
+        String destination = data.getNet() + "." + data.getDst();
+        String source = data.getNet() + "." + req.getSrc();
 
         if (!source.equals(destination)) {
 
@@ -93,14 +93,14 @@ public class ControllerDijkstra extends AbstractController {
                     results.put(data.getDst(), path);
                 }
                 if (path.size() > 1) {
-                    sendPath((byte) data.getNetId(), path.getFirst(), path);
+                    sendPath((byte) data.getNet(), path.getFirst(), path);
                     data.setSrc(req.getSrc());
-                    data.setNxhop(getSinkAddress());
+                    data.setNxh(getSinkAddress());
                     sendNetworkPacket(data);
 
                 } else {
                     // TODO send a rule in order to say "wait I dont have a path"
-                    //sendMessage(data.getNetId(), data.getDst(),(byte) 4, new byte[10]);
+                    //sendMessage(data.getNet(), data.getDst(),(byte) 4, new byte[10]);
                 }
             }
         }

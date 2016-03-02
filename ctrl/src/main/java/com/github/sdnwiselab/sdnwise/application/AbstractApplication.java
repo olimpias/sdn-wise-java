@@ -21,7 +21,7 @@ import com.github.sdnwiselab.sdnwise.controller.AbstractController;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
 import com.github.sdnwiselab.sdnwise.packet.DataPacket;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.DATA;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.Observable;
@@ -65,7 +65,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     public abstract void graphUpdate();
 
     private void managePacket(NetworkPacket data) {
-        if (data.getType() == DATA) {
+        if (data.getTyp() == DATA) {
             receivePacket(new DataPacket(data));
         }
     }
@@ -115,7 +115,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
         if (message.length != 0) {
             DataPacket dp = new DataPacket(netId, new NodeAddress("0.0"), destination);
             dp.setPayload(message)
-                    .setNxhop("0.0");
+                    .setNxh("0.0");
             lower.send(dp.toByteArray());
         }
     }

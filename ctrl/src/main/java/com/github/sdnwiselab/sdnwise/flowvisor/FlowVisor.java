@@ -19,9 +19,8 @@ package com.github.sdnwiselab.sdnwise.flowvisor;
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
-import com.github.sdnwiselab.sdnwise.packet.DataPacket;
-import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
-import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
+import com.github.sdnwiselab.sdnwise.packet.*;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -106,7 +105,7 @@ public class FlowVisor extends ControlPlaneLayer {
             // the controller
             byte[] data = (byte[]) arg;
             NetworkPacket np = new NetworkPacket(data);
-            switch (np.getType()) {
+            switch (np.getTyp()) {
                 case DATA:
                     manageData(data);
                     break;

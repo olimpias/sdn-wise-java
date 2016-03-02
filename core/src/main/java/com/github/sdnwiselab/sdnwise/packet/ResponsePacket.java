@@ -17,7 +17,7 @@
 package com.github.sdnwiselab.sdnwise.packet;
 
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.RESPONSE;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.RESPONSE;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.Arrays;
 
@@ -58,7 +58,7 @@ public class ResponsePacket extends NetworkPacket {
      */
     public ResponsePacket(int netId, NodeAddress src, NodeAddress dst, FlowTableEntry rule) {
         super(netId, src, dst);
-        this.setType(RESPONSE);
+        this.setTyp(RESPONSE);
         this.setRule(rule);
     }
 

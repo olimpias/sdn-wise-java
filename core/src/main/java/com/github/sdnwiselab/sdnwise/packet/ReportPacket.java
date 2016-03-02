@@ -16,7 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.packet;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.REPORT;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REPORT;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class ReportPacket extends BeaconPacket {
     public ReportPacket(int netId, NodeAddress src, NodeAddress dst, int distanceFromSink, int battery) {
         super(netId, src, dst, distanceFromSink, battery);
         setDst(dst);
-        this.setType(REPORT);
+        this.setTyp(REPORT);
     }
 
     /**

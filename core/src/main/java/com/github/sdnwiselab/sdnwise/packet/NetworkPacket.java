@@ -32,54 +32,32 @@ public class NetworkPacket implements Cloneable {
     /**
      * The maximum number of hops allowed in the network.
      */
-    public final static byte SDN_WISE_DFLT_TTL_MAX = 100;
+    public byte SDN_WISE_DFLT_TTL_MAX = 100;
 
     /**
      * The maximum length of a NetworkPAcket.
      */
-    public final static byte SDN_WISE_MAX_LEN = 116;
+    public final static byte MAX_PACKET_LENGTH = 116;
 
-    public final static byte SDN_WISE_NET_ID = 0,
-            SDN_WISE_LEN = 1,
-            SDN_WISE_DST_H = 2,
-            SDN_WISE_DST_L = 3,
-            SDN_WISE_SRC_H = 4,
-            SDN_WISE_SRC_L = 5,
-            SDN_WISE_TYPE = 6,
-            SDN_WISE_TTL = 7,
-            SDN_WISE_NXHOP_H = 8,
-            SDN_WISE_NXHOP_L = 9;
-
-    public enum PacketType {
-        DATA(0),
-        BEACON(1),
-        REPORT(2),
-        REQUEST(3),
-        RESPONSE(4),
-        OPEN_PATH(5),
-        CONFIG(6),
-        REG_PROXY(7),
-        GEO_DATA(10),
-        GEO_COORDINATES(11),
-        GEO_REPORT(12),
-        GEO_ROUTING(13);
-
-        private final byte value;
-        private final static PacketType[] actionTypeValues = PacketType.values();
-
-        public static PacketType fromByte(byte value) {
-            if (value >= 0 && value < 14) {
-                return actionTypeValues[value];
-            } else {
-                return actionTypeValues[3];
-            }
-        }
-
-        private PacketType(int value) {
-            this.value = (byte) value;
-        }
-
-    }
+    public final static byte 
+            NET_INDEX = 0,
+            LEN_INDEX = 1,
+            DST_INDEX = 2,
+            SRC_INDEX = 4,
+            TYP_INDEX = 6,
+            TTL_INDEX = 7,
+            NXH_INDEX = 8,
+            PLD_INDEX = 10;
+    
+    public final static byte 
+            DATA = 0,
+            BEACON = 1,
+            REPORT = 2,
+            REQUEST = 3,
+            RESPONSE = 4,
+            OPEN_PATH = 5,
+            CONFIG = 6,
+            REG_PROXY = 7;
 
     public final static byte SDN_WISE_DFLT_HDR_LEN = 10;
 
@@ -91,7 +69,7 @@ public class NetworkPacket implements Cloneable {
      * @param data the data contained in the NetworkPacket
      */
     public NetworkPacket(byte[] data) {
-        this.data = new byte[SDN_WISE_MAX_LEN];
+        this.data = new byte[MAX_PACKET_LENGTH];
         setArray(data);
     }
 
@@ -104,8 +82,8 @@ public class NetworkPacket implements Cloneable {
      * @param dst
      */
     public NetworkPacket(int netId, NodeAddress src, NodeAddress dst) {
-        this.data = new byte[SDN_WISE_MAX_LEN];
-        setNetId((byte) netId);
+        this.data = new byte[MAX_PACKET_LENGTH];
+        setNet((byte) netId);
         setSrc(src);
         setDst(dst);
         setTtl(SDN_WISE_DFLT_TTL_MAX);
@@ -119,20 +97,20 @@ public class NetworkPacket implements Cloneable {
      * @param data the data contained in the NetworkPacket
      */
     public NetworkPacket(int[] data) {
-        this.data = new byte[SDN_WISE_MAX_LEN];
+        this.data = new byte[MAX_PACKET_LENGTH];
         setArray(fromIntArrayToByteArray(data));
     }
 
     public NetworkPacket(DataInputStream dis) {
-        this.data = new byte[SDN_WISE_MAX_LEN];
-        byte[] tmpData = new byte[SDN_WISE_MAX_LEN];
+        this.data = new byte[MAX_PACKET_LENGTH];
+        byte[] tmpData = new byte[MAX_PACKET_LENGTH];
         try {
             int netId = Byte.toUnsignedInt(dis.readByte());
             int len = Byte.toUnsignedInt(dis.readByte());
             if (len > 0) {
-                tmpData[SDN_WISE_NET_ID] = (byte) netId;
-                tmpData[SDN_WISE_LEN] = (byte) len;
-                dis.readFully(tmpData, SDN_WISE_LEN + 1, len - 2);
+                tmpData[NET_INDEX] = (byte) netId;
+                tmpData[LEN_INDEX] = (byte) len;
+                dis.readFully(tmpData, LEN_INDEX + 1, len - 2);
 
             }
         } catch (IOException ex) {
@@ -155,16 +133,16 @@ public class NetworkPacket implements Cloneable {
 
     public final void setArray(byte[] array) {
         if (isSdnWise(array)) {
-            if (array.length <= SDN_WISE_MAX_LEN && array.length
+            if (array.length <= MAX_PACKET_LENGTH && array.length
                     >= SDN_WISE_DFLT_HDR_LEN) {
 
-                this.setLen(array[SDN_WISE_LEN]);
-                this.setNetId(array[SDN_WISE_NET_ID]);
-                this.setSrc(array[SDN_WISE_SRC_H], array[SDN_WISE_SRC_L]);
-                this.setDst(array[SDN_WISE_DST_H], array[SDN_WISE_DST_L]);
-                this.setType(PacketType.fromByte(array[SDN_WISE_TYPE]));
-                this.setTtl(array[SDN_WISE_TTL]);
-                this.setNxhop(array[SDN_WISE_NXHOP_H], array[SDN_WISE_NXHOP_L]);
+                this.setLen(array[LEN_INDEX]);
+                this.setNet(array[NET_INDEX]);
+                this.setSrc(array[SRC_INDEX], array[SRC_INDEX + 1]);
+                this.setDst(array[DST_INDEX], array[DST_INDEX +1]);
+                this.setTyp(array[TYP_INDEX]);
+                this.setTtl(array[TTL_INDEX]);
+                this.setNxh(array[NXH_INDEX], array[NXH_INDEX +1]);
                 this.setPayload(Arrays.copyOfRange(array, SDN_WISE_DFLT_HDR_LEN,
                         this.getLen()));
             } else {
@@ -182,7 +160,7 @@ public class NetworkPacket implements Cloneable {
      */
     public final int getLen() {
         if (this.isSdnWise()) {
-            return Byte.toUnsignedInt(data[SDN_WISE_LEN]);
+            return Byte.toUnsignedInt(data[LEN_INDEX]);
         } else {
             return data.length;
         }
@@ -196,8 +174,8 @@ public class NetworkPacket implements Cloneable {
      */
     public final NetworkPacket setLen(byte value) {
         int v = Byte.toUnsignedInt(value);
-        if (v <= SDN_WISE_MAX_LEN && v > 0) {
-            data[SDN_WISE_LEN] = value;
+        if (v <= MAX_PACKET_LENGTH && v > 0) {
+            data[LEN_INDEX] = value;
         } else {
             throw new IllegalArgumentException("Invalid length: " + v);
         }
@@ -209,8 +187,8 @@ public class NetworkPacket implements Cloneable {
      *
      * @return an integer representing the NetworkId of the message
      */
-    public final int getNetId() {
-        return Byte.toUnsignedInt(data[SDN_WISE_NET_ID]);
+    public final int getNet() {
+        return Byte.toUnsignedInt(data[NET_INDEX]);
     }
 
     /**
@@ -219,8 +197,8 @@ public class NetworkPacket implements Cloneable {
      * @param value the networkId of the packet.
      * @return the packet itself.
      */
-    public final NetworkPacket setNetId(byte value) {
-        data[SDN_WISE_NET_ID] = value;
+    public final NetworkPacket setNet(byte value) {
+        data[NET_INDEX] = value;
         return this;
     }
 
@@ -230,7 +208,7 @@ public class NetworkPacket implements Cloneable {
      * @return the NodeAddress of the source node
      */
     public final NodeAddress getSrc() {
-        return new NodeAddress(data[SDN_WISE_SRC_H], data[SDN_WISE_SRC_L]);
+        return new NodeAddress(data[SRC_INDEX], data[SRC_INDEX+1]);
     }
 
     /**
@@ -241,8 +219,8 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself.
      */
     public final NetworkPacket setSrc(byte valueH, byte valueL) {
-        data[SDN_WISE_SRC_H] = valueH;
-        data[SDN_WISE_SRC_L] = valueL;
+        data[SRC_INDEX] = valueH;
+        data[SRC_INDEX + 1] = valueL;
         return this;
     }
 
@@ -263,7 +241,7 @@ public class NetworkPacket implements Cloneable {
      * @return the NodeAddress of the destination node
      */
     public final NodeAddress getDst() {
-        return new NodeAddress(data[SDN_WISE_DST_H], data[SDN_WISE_DST_L]);
+        return new NodeAddress(data[DST_INDEX], data[DST_INDEX+1]);
     }
 
     /**
@@ -274,8 +252,8 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself.
      */
     public final NetworkPacket setDst(byte valueH, byte valueL) {
-        data[SDN_WISE_DST_H] = valueH;
-        data[SDN_WISE_DST_L] = valueL;
+        data[DST_INDEX] = valueH;
+        data[DST_INDEX+1] = valueL;
         return this;
     }
 
@@ -295,18 +273,18 @@ public class NetworkPacket implements Cloneable {
      *
      * @return an integer representing the type of the message
      */
-    public final PacketType getType() {
-        return PacketType.fromByte(data[SDN_WISE_TYPE]);
+    public final int getTyp() {
+        return data[TYP_INDEX];
     }
 
     /**
      * Sets the type of the message.
      *
-     * @param type an integer representing the type of the message
+     * @param value an integer representing the type of the message
      * @return
      */
-    public final NetworkPacket setType(PacketType type) {
-        data[SDN_WISE_TYPE] = type.value;
+    public final NetworkPacket setTyp(byte value) {
+        data[TYP_INDEX] = value;
         return this;
     }
 
@@ -317,7 +295,7 @@ public class NetworkPacket implements Cloneable {
      * @return an integer representing the Time To Live of the message
      */
     public final int getTtl() {
-        return Byte.toUnsignedInt(data[SDN_WISE_TTL]);
+        return Byte.toUnsignedInt(data[TTL_INDEX]);
     }
 
     /**
@@ -328,7 +306,7 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself.
      */
     public final NetworkPacket setTtl(byte value) {
-        data[SDN_WISE_TTL] = value;
+        data[TTL_INDEX] = value;
         return this;
     }
 
@@ -339,8 +317,8 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself.
      */
     public final NetworkPacket decrementTtl() {
-        if (data[SDN_WISE_TTL] > 0) {
-            data[SDN_WISE_TTL]--;
+        if (data[TTL_INDEX] > 0) {
+            data[TTL_INDEX]--;
         }
         return this;
     }
@@ -350,8 +328,8 @@ public class NetworkPacket implements Cloneable {
      *
      * @return the NodeAddress of the the next hop towards the destination node
      */
-    public final NodeAddress getNxhop() {
-        return new NodeAddress(data[SDN_WISE_NXHOP_H], data[SDN_WISE_NXHOP_L]);
+    public final NodeAddress getNxh() {
+        return new NodeAddress(data[NXH_INDEX], data[NXH_INDEX+1]);
     }
 
     /**
@@ -361,9 +339,9 @@ public class NetworkPacket implements Cloneable {
      * @param valueL low value of the address of the next hop.
      * @return packet itself.
      */
-    public final NetworkPacket setNxhop(byte valueH, byte valueL) {
-        data[SDN_WISE_NXHOP_H] = valueH;
-        data[SDN_WISE_NXHOP_L] = valueL;
+    public final NetworkPacket setNxh(byte valueH, byte valueL) {
+        data[NXH_INDEX] = valueH;
+        data[NXH_INDEX+1] = valueL;
         return this;
     }
 
@@ -373,8 +351,8 @@ public class NetworkPacket implements Cloneable {
      * @param address the NodeAddress address of the next hop.
      * @return packet itself.
      */
-    public final NetworkPacket setNxhop(NodeAddress address) {
-        setNxhop(address.getHigh(), address.getLow());
+    public final NetworkPacket setNxh(NodeAddress address) {
+        NetworkPacket.this.setNxh(address.getHigh(), address.getLow());
         return this;
     }
 
@@ -384,8 +362,8 @@ public class NetworkPacket implements Cloneable {
      * @param address a string representing the address of the next hop.
      * @return packet itself.
      */
-    public final NetworkPacket setNxhop(String address) {
-        setNxhop(new NodeAddress(address));
+    public final NetworkPacket setNxh(String address) {
+        NetworkPacket.this.setNxh(new NodeAddress(address));
         return this;
     }
 
@@ -406,7 +384,7 @@ public class NetworkPacket implements Cloneable {
      * @return the payload of the packet.
      */
     protected NetworkPacket setPayload(byte[] payload) {
-        if (payload.length + SDN_WISE_DFLT_HDR_LEN <= SDN_WISE_MAX_LEN) {
+        if (payload.length + SDN_WISE_DFLT_HDR_LEN <= MAX_PACKET_LENGTH) {
             System.arraycopy(payload, 0, data, SDN_WISE_DFLT_HDR_LEN, payload.length);
             this.setLen((byte) (payload.length + SDN_WISE_DFLT_HDR_LEN));
         } else {
@@ -422,7 +400,7 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself.
      */
     protected final NetworkPacket setPayloadSize(int size) {
-        if (SDN_WISE_DFLT_HDR_LEN + size <= SDN_WISE_MAX_LEN) {
+        if (SDN_WISE_DFLT_HDR_LEN + size <= MAX_PACKET_LENGTH) {
             this.setLen((byte) (SDN_WISE_DFLT_HDR_LEN + size));
         } else {
             throw new IllegalArgumentException("Index cannot be greater than "
@@ -449,7 +427,7 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself.
      */
     protected final NetworkPacket setPayloadAt(byte newData, int index) {
-        if (SDN_WISE_DFLT_HDR_LEN + index < SDN_WISE_MAX_LEN) {
+        if (SDN_WISE_DFLT_HDR_LEN + index < MAX_PACKET_LENGTH) {
             data[SDN_WISE_DFLT_HDR_LEN + index] = newData;
             if ((index + SDN_WISE_DFLT_HDR_LEN) >= this.getLen()) {
                 this.setLen((byte) (SDN_WISE_DFLT_HDR_LEN + index + 1));
@@ -588,70 +566,52 @@ public class NetworkPacket implements Cloneable {
         super.clone();
         return new NetworkPacket(data.clone());
     }
-
+    
     public String getTypeToString() {
-        return this.getType().name();
+        switch (getTyp()){
+            case DATA: return "DATA";
+            case BEACON: return "BEACON";
+            case REPORT: return "REPORT";
+            case REQUEST: return "REQUEST";
+            case RESPONSE: return "RESPONSE";
+            case OPEN_PATH: return "OPEN_PATH";
+            case CONFIG: return "CONFIG";
+            case REG_PROXY: return "REG_PROXY";
+            default: return String.valueOf(getTyp());
+        }
     }
 
     public static int getNetworkPacketByteFromName(String b) {
         switch (b) {
-            case "LENGTH":
-                return 1;
-            case "NET_ID":
-                return 0;
-            case "SRC_HIGH":
-                return 4;
-            case "SRC_LOW":
-                return 5;
-            case "DST_HIGH":
-                return 2;
-            case "DST_LOW":
-                return 3;
-            case "TYPE":
-                return 6;
-            case "TTL":
-                return 7;
-            case "NEXT_HOP_HIGH":
-                return 8;
-            case "NEXT_HOP_LOW":
-                return 9;
-            default:
-                return Integer.parseInt(b);
+            case "LEN": return 1;
+            case "NET": return 0;
+            case "SRC": return 4;
+            case "DST": return 2;
+            case "TYP": return 6;
+            case "TTL": return 7;
+            case "NXH": return 8;
+            default: return Integer.parseInt(b);
         }
     }
 
     public static boolean isSdnWise(byte[] data) {
-        return (Byte.toUnsignedInt(data[SDN_WISE_NET_ID]) < 63);
+        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
 
     public boolean isSdnWise() {
-        return (Byte.toUnsignedInt(data[SDN_WISE_NET_ID]) < 63);
+        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
 
     public static String getNetworkPacketByteName(int b) {
         switch (b) {
-            case (0):
-                return "NET_ID";
-            case (1):
-                return "LENGTH";
-            case (2):
-                return "DST_HIGH";
-            case (3):
-                return "DST_LOW";
-            case (4):
-                return "SRC_HIGH";
-            case (5):
-                return "SRC_LOW";
-            case (6):
-                return "TYPE";
-            case (7):
-                return "TTL";
-            case (8):
-                return "NEXT_HOP_HIGH";
-            case (9):
-                return "NEXT_HOP_LOW";
-            default:
-                return String.valueOf(b);
+            case (0): return "NET";
+            case (1): return "LEN";
+            case (2): return "DST";
+            case (4): return "SRC";
+            case (6): return "TYPE";
+            case (7): return "TTL";
+            case (8): return "NXH";
+            default: return String.valueOf(b);
         }
     }
 }

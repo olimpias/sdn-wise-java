@@ -16,7 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.packet;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.REQUEST;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REQUEST;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.Utils.concatByteArray;
 
@@ -29,7 +29,7 @@ public class RequestPacket extends NetworkPacket {
 
     private static final byte SDN_WISE_REQUEST_HEADER_LEN = 3;
     private static final byte SDN_WISE_REQUEST_PAYLOAD_LEN
-            = NetworkPacket.SDN_WISE_MAX_LEN
+            = NetworkPacket.MAX_PACKET_LENGTH
             - (SDN_WISE_DFLT_HDR_LEN + SDN_WISE_REQUEST_HEADER_LEN);
 
     /**
@@ -70,7 +70,7 @@ public class RequestPacket extends NetworkPacket {
             int total,
             byte[] data) {
         super(netId, src, dst);
-        this.setType(REQUEST);
+        this.setTyp(REQUEST);
         this.setId(id);
         this.setTotal(total);
         this.setPart(part);

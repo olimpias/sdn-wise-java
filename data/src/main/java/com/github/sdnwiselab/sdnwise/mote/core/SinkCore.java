@@ -16,6 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.core;
 
+import com.github.sdnwiselab.sdnwise.packet.RegProxyPacket;
 import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
 import com.github.sdnwiselab.sdnwise.packet.*;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;

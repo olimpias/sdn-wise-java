@@ -23,6 +23,7 @@ import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigFunctionPacket.createPackets;
 import com.github.sdnwiselab.sdnwise.packet.*;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.io.*;
@@ -97,7 +98,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
     public void managePacket(NetworkPacket data) {
 
-        switch (data.getType()) {
+        switch (data.getTyp()) {
             case REPORT:
                 networkGraph.updateMap(new ReportPacket(data));
                 break;
@@ -149,12 +150,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
                 String key;
                 if (cp.getConfigId() == (GET_RULE_INDEX)) {
-                    key = cp.getNetId() + " "
+                    key = cp.getNet() + " "
                             + cp.getSrc() + " "
                             + cp.getConfigId() + " "
                             + cp.getValue();
                 } else {
-                    key = cp.getNetId() + " "
+                    key = cp.getNet() + " "
                             + cp.getSrc() + " "
                             + cp.getConfigId();
                 }
@@ -210,7 +211,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final void sendPath(byte netId, NodeAddress destination,
             List<NodeAddress> path) {
         OpenPathPacket op = new OpenPathPacket(netId, sinkAddress, destination, path);
-        op.setNxhop(sinkAddress);
+        op.setNxh(sinkAddress);
         sendNetworkPacket(op);
     }
 
@@ -238,7 +239,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress newAddress) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setNodeAddressValue(newAddress)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -253,7 +254,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress destination) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setReadNodeAddressValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -275,7 +276,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final void resetNode(byte netId, NodeAddress destination) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setResetValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -292,7 +293,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             byte newNetId) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setNetworkIdValue(newNetId)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -306,7 +307,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final int getNodeNetId(byte netId, NodeAddress destination) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setReadNetworkIdValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -330,7 +331,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             short period) {
         ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
         cp.setBeaconPeriodValue(period)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -345,7 +346,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final int getNodeBeaconPeriod(byte netId, NodeAddress destination) {
         ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
         cp.setReadBeaconPeriodValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -370,7 +371,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             short period) {
         ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
         cp.setReportPeriodValue(period)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -385,7 +386,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final int getNodeReportPeriod(byte netId, NodeAddress destination) {
         ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
         cp.setReadReportPeriodValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -409,7 +410,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress destination, short period) {
         ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
         cp.setUpdateTablePeriodValue(period)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -425,7 +426,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress destination) {
         ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
         cp.setReadUpdateTablePeriodValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -449,7 +450,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             byte newTtl) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setDefaultTtlMaxValue(newTtl)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -465,7 +466,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final int getNodeTtlMax(byte netId, NodeAddress destination) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setReadDefaultTtlMaxValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -489,7 +490,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             byte newRssi) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setDefaultRssiMinValue(newRssi)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -505,7 +506,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final int getNodeRssiMin(byte netId, NodeAddress destination) {
         ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
         cp.setReadDefaultRssiMinValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -529,7 +530,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress newAddr) {
         ConfigAcceptedIdPacket cp = new ConfigAcceptedIdPacket(netId, sinkAddress, destination);
         cp.setAddAcceptedAddressValue(newAddr)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -546,7 +547,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress newAddr) {
         ConfigAcceptedIdPacket cp = new ConfigAcceptedIdPacket(netId, sinkAddress, destination);
         cp.setRemoveAcceptedAddressValue(newAddr)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -562,7 +563,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress destination) {
         ConfigAcceptedIdPacket cp = new ConfigAcceptedIdPacket(netId, sinkAddress, destination);
         cp.setReadAcceptedAddressesValue()
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -586,15 +587,15 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         /*
          ConfigPacket cp = new ConfigPacket();
          cp.setAddRuleValue(rule)
-         .setNetId(netId)
+         .setNet(netId)
          .setDst(destination)
          .setSrc(sinkAddress)
-         .setNxhop(sinkAddress);
+         .setNxh(sinkAddress);
          sendNetworkPacket(cp);
          */
 
         ResponsePacket rp = new ResponsePacket(netId, sinkAddress, destination, rule);
-        rp.setNxhop(sinkAddress);
+        rp.setNxh(sinkAddress);
         sendNetworkPacket(rp);
     }
 
@@ -610,7 +611,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress destination, int index) {
         ConfigRulePacket cp = new ConfigRulePacket(netId, sinkAddress, destination);
         cp.setRemoveRuleAtPositionValue(index)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -626,7 +627,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             FlowTableEntry rule) {
         ConfigRulePacket cp = new ConfigRulePacket(netId, sinkAddress, destination);
         cp.setRemoveRuleValue(rule)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         sendNetworkPacket(cp);
     }
 
@@ -660,7 +661,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             NodeAddress destination, int index) {
         ConfigRulePacket cp = new ConfigRulePacket(netId, sinkAddress, destination);
         cp.setGetRuleAtIndexValue(index)
-                .setNxhop(sinkAddress);
+                .setNxh(sinkAddress);
         ConfigPacket response;
         try {
             response = sendQuery(cp);
@@ -720,12 +721,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         String key;
 
         if (cp.getConfigId() == (GET_RULE_INDEX)) {
-            key = cp.getNetId() + " "
+            key = cp.getNet() + " "
                     + cp.getDst() + " "
                     + cp.getConfigId() + " "
                     + cp.getValue();
         } else {
-            key = cp.getNetId() + " "
+            key = cp.getNet() + " "
                     + cp.getDst() + " "
                     + cp.getConfigId();
         }

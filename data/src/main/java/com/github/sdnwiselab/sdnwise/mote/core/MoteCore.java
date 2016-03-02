@@ -22,10 +22,10 @@ import com.github.sdnwiselab.sdnwise.flowtable.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.SDN_WISE_DST_H;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
 
 /**
  *
@@ -77,7 +77,7 @@ public class MoteCore extends AbstractCore {
                         .setOperator(SDN_WISE_EQUAL)
                         .setSize(SDN_WISE_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
-                        .setLhs(SDN_WISE_DST_H)
+                        .setLhs(DST_INDEX)
                         .setRhsLocation(SDN_WISE_CONST)
                         .setRhs(bp.getSinkAddress().intValue()));
                 toSink.addWindow(Window.fromString("P.TYPE == 3"));
@@ -98,7 +98,7 @@ public class MoteCore extends AbstractCore {
 
     @Override
     public final void controllerTX(NetworkPacket pck) {
-        pck.setNxhop(getNextHopVsSink());
+        pck.setNxh(getNextHopVsSink());
         radioTX(pck);
     }
 

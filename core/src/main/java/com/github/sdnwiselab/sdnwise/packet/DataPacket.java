@@ -16,7 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.packet;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.DATA;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
@@ -54,7 +54,7 @@ public class DataPacket extends NetworkPacket {
      */
     public DataPacket(int netId, NodeAddress src, NodeAddress dst) {
         super(netId, src, dst);
-        this.setType(DATA);
+        this.setTyp(DATA);
     }
 
     /**

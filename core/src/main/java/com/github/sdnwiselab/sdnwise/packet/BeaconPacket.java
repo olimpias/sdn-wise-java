@@ -16,7 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.packet;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.BEACON;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.BEACON;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
 
@@ -62,7 +62,7 @@ public class BeaconPacket extends NetworkPacket {
     public BeaconPacket(int netId, NodeAddress src, NodeAddress sink,
             int distanceFromSink, int battery) {
         super(netId, src, BROADCAST_ADDR);
-        setType(BEACON);
+        setTyp(BEACON);
         setSinkAddress(sink);
         setDist((byte) distanceFromSink);
         setBatt((byte) battery);
@@ -127,7 +127,7 @@ public class BeaconPacket extends NetworkPacket {
      * @return the packet itself.
      */
     public final BeaconPacket setSinkAddress(NodeAddress addr) {
-        this.setNxhop(addr);
+        this.setNxh(addr);
         return this;
     }
 
@@ -137,6 +137,6 @@ public class BeaconPacket extends NetworkPacket {
      * @return the address of the Sink.
      */
     public final NodeAddress getSinkAddress() {
-        return this.getNxhop();
+        return this.getNxh();
     }
 }

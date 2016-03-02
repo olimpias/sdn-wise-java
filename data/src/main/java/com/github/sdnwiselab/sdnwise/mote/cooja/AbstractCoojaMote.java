@@ -33,7 +33,7 @@ package com.github.sdnwiselab.sdnwise.mote.cooja;
 import com.github.sdnwiselab.sdnwise.mote.core.*;
 import com.github.sdnwiselab.sdnwise.mote.logger.MoteFormatter;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.*;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
@@ -139,7 +139,7 @@ public abstract class AbstractCoojaMote extends AbstractApplicationMote {
             NetworkPacket np = new NetworkPacket(networkPacket);
             if (np.isSdnWise()) {
                 receivedBytes += np.getLen();
-                if (DATA == np.getType()) {
+                if (DATA == np.getTyp()) {
                     receivedDataBytes += np.getPayloadSize();
                 }
             }
@@ -194,7 +194,7 @@ public abstract class AbstractCoojaMote extends AbstractApplicationMote {
                 // send the NetworkPacket over the radio
                 if (np.isSdnWise()) {
                     sentBytes += np.getLen();
-                    if (DATA == np.getType()) {
+                    if (DATA == np.getTyp()) {
                         sentDataBytes += np.getPayloadSize();
                     }
                 }

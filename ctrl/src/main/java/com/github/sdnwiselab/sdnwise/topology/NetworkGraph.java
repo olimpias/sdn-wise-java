@@ -77,7 +77,7 @@ public class NetworkGraph extends Observable {
     }
 
     public final synchronized void updateMap(RequestPacket req, int netId, String node1, List<String> neig) {
-        String origin = req.getNetId() + "." + req.getSrc();
+        String origin = req.getNet() + "." + req.getSrc();
 
         long now = System.currentTimeMillis();
         boolean modified = checkConsistency(now);
@@ -148,7 +148,7 @@ public class NetworkGraph extends Observable {
         long now = System.currentTimeMillis();
         boolean modified = checkConsistency(now);
 
-        int netId = packet.getNetId();
+        int netId = packet.getNet();
         int batt = packet.getBatt();
         String nodeId = packet.getSrc().toString();
         String fullNodeId = netId + "." + nodeId;

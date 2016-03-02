@@ -109,8 +109,8 @@ public abstract class AbstractCore {
 
     public void rxRadioPacket(NetworkPacket np, int rssi) {
         if (np.getDst().isBroadcast()
-                || np.getNxhop().equals(myAddress)
-                || acceptedId.contains(np.getNxhop())
+                || np.getNxh().equals(myAddress)
+                || acceptedId.contains(np.getNxh())
                 || !np.isSdnWise()) {
             try {
                 rxQueue.put(new Pair<>(np, rssi));
@@ -179,7 +179,7 @@ public abstract class AbstractCore {
                 .setOperator(SDN_WISE_EQUAL)
                 .setSize(SDN_WISE_SIZE_2)
                 .setLhsLocation(SDN_WISE_PACKET)
-                .setLhs(SDN_WISE_DST_H)
+                .setLhs(DST_INDEX)
                 .setRhsLocation(SDN_WISE_CONST)
                 .setRhs(this.myAddress.intValue()));
         toSink.addWindow(Window.fromString("P.TYPE == 3"));
@@ -228,10 +228,10 @@ public abstract class AbstractCore {
         if (!packet.isSdnWise()) {
             runFlowMatch(packet);
         } else if (packet.getLen() > SDN_WISE_DFLT_HDR_LEN
-                && packet.getNetId() == myNetId
+                && packet.getNet() == myNetId
                 && packet.getTtl() != 0) {
 
-            switch (packet.getType()) {
+            switch (packet.getTyp()) {
                 case DATA:
                     rxData(new DataPacket(packet));
                     break;
@@ -302,7 +302,7 @@ public abstract class AbstractCore {
                         .setOperator(SDN_WISE_EQUAL)
                         .setSize(SDN_WISE_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
-                        .setLhs(SDN_WISE_DST_H)
+                        .setLhs(DST_INDEX)
                         .setRhsLocation(SDN_WISE_CONST)
                         .setRhs(path.get(0).intValue()));
 
@@ -319,7 +319,7 @@ public abstract class AbstractCore {
                         .setOperator(SDN_WISE_EQUAL)
                         .setSize(SDN_WISE_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
-                        .setLhs(SDN_WISE_DST_H)
+                        .setLhs(DST_INDEX)
                         .setRhsLocation(SDN_WISE_CONST)
                         .setRhs(path.get(path.size() - 1).intValue()));
 
@@ -330,7 +330,7 @@ public abstract class AbstractCore {
                 insertRule(rule, p);
 
                 opp.setDst(path.get(i + 1));
-                opp.setNxhop(path.get(i + 1));
+                opp.setNxh(path.get(i + 1));
                 radioTX(opp);
             }
 
@@ -453,7 +453,7 @@ public abstract class AbstractCore {
 
                 case FORWARD_U:
                 case FORWARD_B:
-                    np.setNxhop(((AbstractForwardAction) action).getNextHop());
+                    np.setNxh(((AbstractForwardAction) action).getNextHop());
                     radioTX(np);
                     break;
                 case SET:
@@ -598,7 +598,7 @@ public abstract class AbstractCore {
     protected final void rxData(DataPacket packet) {
         if (isAcceptedIdPacket(packet)) {
             SDN_WISE_Callback(packet);
-        } else if (isAcceptedIdAddress(packet.getNxhop())) {
+        } else if (isAcceptedIdAddress(packet.getNxh())) {
             runFlowMatch(packet);
         }
     }
@@ -839,7 +839,7 @@ public abstract class AbstractCore {
                 battery.getByteLevel());
 
         rp.setNeigh(neighbors_number)
-                .setNxhop(getNextHopVsSink());
+                .setNxh(getNextHopVsSink());
 
         for (int j = 0; j < neighbors_number; j++) {
             rp.setNeighbourAddressAt(neighborTable.get(j).getAddr(), j)

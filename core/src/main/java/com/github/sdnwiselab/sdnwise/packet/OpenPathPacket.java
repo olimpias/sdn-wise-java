@@ -17,7 +17,7 @@
 package com.github.sdnwiselab.sdnwise.packet;
 
 import com.github.sdnwiselab.sdnwise.flowtable.Window;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.OPEN_PATH;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.OPEN_PATH;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.*;
 
@@ -51,7 +51,7 @@ public class OpenPathPacket extends NetworkPacket {
      */
     public OpenPathPacket(int netId, NodeAddress src, NodeAddress dst, List<NodeAddress> path) {
         super(netId, src, dst);
-        this.setType(OPEN_PATH);
+        this.setTyp(OPEN_PATH);
         this.setPayloadAt((byte) 0, WINDOWS_SIZE_INDEX);
         this.setPath(path);
     }

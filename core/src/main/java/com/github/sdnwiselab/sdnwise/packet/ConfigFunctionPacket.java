@@ -28,7 +28,7 @@ public class ConfigFunctionPacket extends ConfigPacket {
 
     private static final byte SDN_WISE_CNF_FUNCTION_HEADER_LEN = 5;
     private static final byte SDN_WISE_CNF_FUNCTION_PAYLOAD_LEN
-            = NetworkPacket.SDN_WISE_MAX_LEN
+            = NetworkPacket.MAX_PACKET_LENGTH
             - (SDN_WISE_DFLT_HDR_LEN + SDN_WISE_CNF_FUNCTION_HEADER_LEN);
 
     public ConfigFunctionPacket(NetworkPacket data) {
@@ -103,7 +103,7 @@ public class ConfigFunctionPacket extends ConfigPacket {
                     System.arraycopy(buf, pointer, payload, 0, SDN_WISE_CNF_FUNCTION_PAYLOAD_LEN);
                     pointer += SDN_WISE_CNF_FUNCTION_PAYLOAD_LEN;
                     ConfigFunctionPacket np = new ConfigFunctionPacket(netId, src, dest);
-                    np.setNxhop(nextHop);
+                    np.setNxh(nextHop);
                     np.setAddFunctionAtPositionValue(id, i + 1, totalPackets, payload);
                     ll.add(np);
                 }
@@ -113,7 +113,7 @@ public class ConfigFunctionPacket extends ConfigPacket {
                 byte[] payload = new byte[remaining];
                 System.arraycopy(buf, pointer, payload, 0, remaining);
                 ConfigFunctionPacket np = new ConfigFunctionPacket(netId, src, dest);
-                np.setNxhop(nextHop);
+                np.setNxh(nextHop);
                 np.setAddFunctionAtPositionValue(id, i + 1, totalPackets, payload);
                 ll.add(np);
             }

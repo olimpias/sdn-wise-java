@@ -21,7 +21,7 @@ import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
 import com.github.sdnwiselab.sdnwise.mote.core.*;
 import com.github.sdnwiselab.sdnwise.mote.logger.*;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.PacketType.DATA;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.io.*;
 import java.net.*;
@@ -60,7 +60,7 @@ public abstract class AbstractMote implements Runnable {
             int port,
             String neighborFilePath,
             String level) {
-        buf = new byte[NetworkPacket.SDN_WISE_MAX_LEN];
+        buf = new byte[NetworkPacket.MAX_PACKET_LENGTH];
 
         this.neighborFilePath = neighborFilePath;
         this.neighbourList = new HashMap<>();
@@ -128,7 +128,7 @@ public abstract class AbstractMote implements Runnable {
                         rssi = 255;
                     }
 
-                    if (DATA == np.getType()) {
+                    if (DATA == np.getTyp()) {
                         receivedDataBytes += np.getPayloadSize();
                     }
                 }
@@ -146,7 +146,7 @@ public abstract class AbstractMote implements Runnable {
 
         if (np.isSdnWise()) {
             sentBytes += np.getLen();
-            if (DATA == np.getType()) {
+            if (DATA == np.getTyp()) {
                 sentDataBytes += np.getPayloadSize();
             }
         }
@@ -155,7 +155,7 @@ public abstract class AbstractMote implements Runnable {
 
         logger.log(Level.FINE, "RTX {0}", np);
 
-        NodeAddress tmpNxHop = np.getNxhop();
+        NodeAddress tmpNxHop = np.getNxh();
         NodeAddress tmpDst = np.getDst();
 
         if (tmpDst.isBroadcast() || tmpNxHop.isBroadcast()) {
