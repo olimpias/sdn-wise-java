@@ -48,13 +48,16 @@ public class DataPacket extends NetworkPacket {
      * This constructor initialize a data packet. The type of the packet is set
      * to SDN_WISE_DATA.
      *
-     * @param netId
-     * @param src
-     * @param dst
+     * @param net the Network ID of the node
+     * @param src the NodeAddress address of the source node
+     * @param dst the NodeAddress address of the destination node
+     * @param payload the byte[] containing the payload of the packet
      */
-    public DataPacket(int netId, NodeAddress src, NodeAddress dst) {
-        super(netId, src, dst);
+    public DataPacket(int net, NodeAddress src, NodeAddress dst, byte[] payload) 
+    {
+        super(net, src, dst);
         this.setTyp(DATA);
+        this.setPayload(payload);
     }
 
     /**
@@ -73,7 +76,7 @@ public class DataPacket extends NetworkPacket {
     }
 
     @Override
-    public DataPacket setPayload(byte[] payload) {
+    public final DataPacket setPayload(byte[] payload) {
         super.setPayload(payload);
         return this;
     }

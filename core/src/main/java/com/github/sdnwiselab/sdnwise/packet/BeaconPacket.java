@@ -27,8 +27,8 @@ import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
  */
 public class BeaconPacket extends NetworkPacket {
 
-    private final static byte SDN_WISE_DIST = 0,
-            SDN_WISE_BATT = 1;
+    private final static byte DIST_INDEX = 0,
+            BATT_INDEX = 1;
 
     /**
      * This constructor initialize a beacon packet starting from a byte array.
@@ -53,19 +53,19 @@ public class BeaconPacket extends NetworkPacket {
      * This constructor initialize a beacon packet. The type of the packet is
      * set to SDN_WISE_BEACON and the destination address is BROADCAST_ADDR.
      *
-     * @param netId
+     * @param net
      * @param src
      * @param sink
-     * @param distanceFromSink
+     * @param distance
      * @param battery
      */
-    public BeaconPacket(int netId, NodeAddress src, NodeAddress sink,
-            int distanceFromSink, int battery) {
-        super(netId, src, BROADCAST_ADDR);
+    public BeaconPacket(int net, NodeAddress src, NodeAddress sink,
+            int distance, int battery) {
+        super(net, src, BROADCAST_ADDR);
         setTyp(BEACON);
         setSinkAddress(sink);
-        setDist((byte) distanceFromSink);
-        setBatt((byte) battery);
+        setDistance((byte) distance);
+        setBattery((byte) battery);
     }
 
     /**
@@ -83,8 +83,8 @@ public class BeaconPacket extends NetworkPacket {
      *
      * @return the number of hops between the source node and the sink.
      */
-    public final int getDist() {
-        return Byte.toUnsignedInt(getPayloadAt(SDN_WISE_DIST));
+    public final int getDistance() {
+        return Byte.toUnsignedInt(getPayloadAt(DIST_INDEX));
     }
 
     /**
@@ -93,8 +93,8 @@ public class BeaconPacket extends NetworkPacket {
      * @param value the number of hops.
      * @return the packet itself.
      */
-    public final BeaconPacket setDist(byte value) {
-        this.setPayloadAt(value, SDN_WISE_DIST);
+    public final BeaconPacket setDistance(byte value) {
+        this.setPayloadAt(value, DIST_INDEX);
         return this;
     }
 
@@ -104,8 +104,8 @@ public class BeaconPacket extends NetworkPacket {
      *
      * @return an estimation of the residual charge of the batteries of the node
      */
-    public final int getBatt() {
-        return Byte.toUnsignedInt(getPayloadAt(SDN_WISE_BATT));
+    public final int getBattery() {
+        return Byte.toUnsignedInt(getPayloadAt(BATT_INDEX));
     }
 
     /**
@@ -115,8 +115,8 @@ public class BeaconPacket extends NetworkPacket {
      * @param value the value of the battery level.
      * @return the packet itself.
      */
-    public final BeaconPacket setBatt(byte value) {
-        this.setPayloadAt(value, SDN_WISE_BATT);
+    public final BeaconPacket setBattery(byte value) {
+        this.setPayloadAt(value, BATT_INDEX);
         return this;
     }
 

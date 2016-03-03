@@ -69,7 +69,7 @@ public class MoteCore extends AbstractCore {
     @Override
     public void rxBeacon(BeaconPacket bp, int rssi) {
         if (rssi > rssi_min) {
-            if (bp.getDist() < this.getSinkDistance()
+            if (bp.getDistance() < this.getSinkDistance()
                     && (rssi > getSinkRssi())) {
                 setActive(true);
                 FlowTableEntry toSink = new FlowTableEntry();
@@ -84,9 +84,9 @@ public class MoteCore extends AbstractCore {
                 toSink.addAction(new ForwardUnicastAction(bp.getSrc()));
                 flowTable.set(0, toSink);
 
-                setSinkDistance(bp.getDist() + 1);
+                setSinkDistance(bp.getDistance() + 1);
                 setSinkRssi(rssi);
-            } else if ((bp.getDist() + 1) == this.getSinkDistance()
+            } else if ((bp.getDistance() + 1) == this.getSinkDistance()
                     && getNextHopVsSink().equals(bp.getSrc())) {
                 flowTable.get(0).getStats().restoreTtl();
                 flowTable.get(0).getWindows().get(0)

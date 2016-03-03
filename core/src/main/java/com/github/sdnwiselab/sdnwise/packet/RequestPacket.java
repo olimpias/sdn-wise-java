@@ -27,10 +27,14 @@ import static com.github.sdnwiselab.sdnwise.util.Utils.concatByteArray;
  */
 public class RequestPacket extends NetworkPacket {
 
-    private static final byte SDN_WISE_REQUEST_HEADER_LEN = 3;
-    private static final byte SDN_WISE_REQUEST_PAYLOAD_LEN
+    private static final byte REQUEST_HEADER_SIZE = 3;
+    private static final byte REQUEST_PAYLOAD_SIZE
             = NetworkPacket.MAX_PACKET_LENGTH
-            - (SDN_WISE_DFLT_HDR_LEN + SDN_WISE_REQUEST_HEADER_LEN);
+            - (SDN_WISE_DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
+    
+    private final static byte ID_INDEX = 0,
+            PART_INDEX = 1,
+            TOTAL_INDEX = 2;
 
     /**
      * This constructor initialize a data packet starting from a byte array.
@@ -50,26 +54,14 @@ public class RequestPacket extends NetworkPacket {
         super(data.toByteArray());
     }
 
-    /**
-     * This constructor initialize a data packet. The type of the packet is set
-     * to SDN_WISE_DATA.
-     *
-     * @param netId
-     * @param src
-     * @param dst
-     * @param id
-     * @param part
-     * @param total
-     * @param data
-     */
-    public RequestPacket(int netId,
+    private RequestPacket(int net,
             NodeAddress src,
             NodeAddress dst,
             int id,
             int part,
             int total,
             byte[] data) {
-        super(netId, src, dst);
+        super(net, src, dst);
         this.setTyp(REQUEST);
         this.setId(id);
         this.setTotal(total);
@@ -88,26 +80,26 @@ public class RequestPacket extends NetworkPacket {
     }
 
     public static RequestPacket[] createPackets(
-            int netId,
+            int net,
             NodeAddress src,
             NodeAddress dest,
             byte id,
             byte[] buf) {
 
-        int i = (buf.length > SDN_WISE_REQUEST_PAYLOAD_LEN) ? 2 : 1;
+        int i = (buf.length > REQUEST_PAYLOAD_SIZE) ? 2 : 1;
 
-        int remaining = buf.length % SDN_WISE_REQUEST_PAYLOAD_LEN;
+        int remaining = buf.length % REQUEST_PAYLOAD_SIZE;
         RequestPacket[] ll = new RequestPacket[i];
 
-        byte[] payload = new byte[i == 1 ? remaining : SDN_WISE_REQUEST_PAYLOAD_LEN];
+        byte[] payload = new byte[i == 1 ? remaining : REQUEST_PAYLOAD_SIZE];
         System.arraycopy(buf, 0, payload, 0, payload.length);
-        RequestPacket np = new RequestPacket(netId, src, dest, id, 0, i, payload);
+        RequestPacket np = new RequestPacket(net, src, dest, id, 0, i, payload);
         ll[0] = np;
 
         if (i > 1) {
             payload = new byte[remaining];
-            System.arraycopy(buf, SDN_WISE_REQUEST_PAYLOAD_LEN, payload, 0, remaining);
-            np = new RequestPacket(netId, src, dest, id, 1, i, payload);
+            System.arraycopy(buf, REQUEST_PAYLOAD_SIZE, payload, 0, remaining);
+            np = new RequestPacket(net, src, dest, id, 1, i, payload);
             ll[1] = np;
         }
 
@@ -123,38 +115,38 @@ public class RequestPacket extends NetworkPacket {
     }
 
     private void setId(int id) {
-        this.setPayloadAt((byte) id, 0);
+        this.setPayloadAt((byte) id, ID_INDEX);
     }
 
     public int getId() {
-        return this.getPayloadAt(0);
+        return this.getPayloadAt(ID_INDEX);
     }
 
     private void setPart(int part) {
-        this.setPayloadAt((byte) part, 1);
+        this.setPayloadAt((byte) part, PART_INDEX);
     }
 
     public int getPart() {
-        return this.getPayloadAt(1);
+        return this.getPayloadAt(PART_INDEX);
     }
 
     private void setTotal(int total) {
-        this.setPayloadAt((byte) total, 2);
+        this.setPayloadAt((byte) total, TOTAL_INDEX);
     }
 
     public int getTotal() {
-        return this.getPayloadAt(2);
+        return this.getPayloadAt(TOTAL_INDEX);
     }
 
     private void setData(byte[] data) {
-        this.setPayload(data, 0, 3, data.length);
+        this.setPayload(data, 0, TOTAL_INDEX+1, data.length);
     }
 
     public byte[] getData() {
-        return this.getPayloadFromTo(3, getPayloadSize());
+        return this.getPayloadFromTo(TOTAL_INDEX+1, getPayloadSize());
     }
 
     public int getDataSize() {
-        return this.getPayloadSize() - 3;
+        return this.getPayloadSize() - (TOTAL_INDEX+1);
     }
 }

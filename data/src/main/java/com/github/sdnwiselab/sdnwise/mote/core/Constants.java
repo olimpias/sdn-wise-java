@@ -25,8 +25,7 @@ public class Constants {
 
     // routing
     public final static int SDN_WISE_DFLT_RSSI_MIN = 180;
-    public final static byte SDN_WISE_DFLT_TTL_MAX = 100;
-
+    
     // tables
     public final static int SDN_WISE_RLS_MAX = 10000;
     public final static byte SDN_WISE_NEIGHBORS_MAX = 15;

@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.logging.*;
 
 /**
- * This class represents a generic SDN-WISE message.
+ * This class represents a generic SDN-WISE packet.
  *
  * @author Sebastiano Milardo
  * @version 0.1
@@ -35,6 +35,9 @@ public class NetworkPacket implements Cloneable {
      */
     public final static byte MAX_PACKET_LENGTH = 116;
 
+    /**
+     * The indexes of the different fields in the packet.
+     */
     public final static byte NET_INDEX = 0,
             LEN_INDEX = 1,
             DST_INDEX = 2,
@@ -44,6 +47,9 @@ public class NetworkPacket implements Cloneable {
             NXH_INDEX = 8,
             PLD_INDEX = 10;
 
+    /**
+     * The possible values of the type of a packet.
+     */
     public final static byte DATA = 0,
             BEACON = 1,
             REPORT = 2,
@@ -53,7 +59,19 @@ public class NetworkPacket implements Cloneable {
             CONFIG = 6,
             REG_PROXY = 7;
 
+    /**
+     * An SDN-WISE header is always 10 bytes long.
+     */
     public final static byte SDN_WISE_DFLT_HDR_LEN = 10;
+    
+    /**
+     * The maximum number of hops allowed in the network.
+     */
+    public final static byte SDN_WISE_DFLT_TTL_MAX = 100;
+    
+     /**
+     * Returns the index of a byte in the header given a string.
+     */
     public static int getNetworkPacketByteFromName(String b) {
         switch (b) {
             case "LEN":
@@ -74,9 +92,21 @@ public class NetworkPacket implements Cloneable {
                 return Integer.parseInt(b);
         }
     }
+    
+    /**
+     * Check if a byte array is an SDN-WISE packet.
+     * @param data a byte array
+     * @return a boolean depending if is an SDN-WISE packet or not
+     */
     public static boolean isSdnWise(byte[] data) {
         return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
+    
+    /**
+     * Returns a string representation of a byte of the header.
+     * @param b an integer representing the index of a byte in the header
+     * @return a string representation of a byte of the header
+     */  
     public static String getNetworkPacketByteName(int b) {
         switch (b) {
             case (0):
@@ -97,10 +127,8 @@ public class NetworkPacket implements Cloneable {
                 return String.valueOf(b);
         }
     }
-    /**
-     * The maximum number of hops allowed in the network.
-     */
-    public byte SDN_WISE_DFLT_TTL_MAX = 100;
+    
+
 
     private final byte[] data;
 
@@ -118,13 +146,13 @@ public class NetworkPacket implements Cloneable {
      * Creates an empty NetworkPacket. The TTL and LEN values are set to
      * default.
      *
-     * @param netId
+     * @param net
      * @param src
      * @param dst
      */
-    public NetworkPacket(int netId, NodeAddress src, NodeAddress dst) {
+    public NetworkPacket(int net, NodeAddress src, NodeAddress dst) {
         this.data = new byte[MAX_PACKET_LENGTH];
-        setNet((byte) netId);
+        setNet((byte) net);
         setSrc(src);
         setDst(dst);
         setTtl(SDN_WISE_DFLT_TTL_MAX);
@@ -159,7 +187,6 @@ public class NetworkPacket implements Cloneable {
         }
         setArray(tmpData);
     }
-
 
     public final void setArray(int[] array) {
         setArray(fromIntArrayToByteArray(array));

@@ -130,12 +130,12 @@ public class FlowVisor extends ControlPlaneLayer {
         controllerMapping.entrySet().stream().forEach((set) -> {
             ReportPacket pkt = new ReportPacket(
                     Arrays.copyOf(data, data.length));
-            HashMap<NodeAddress, Byte> map = pkt.getNeighborsHashMap();
+            HashMap<NodeAddress, Byte> map = pkt.getNeighbors();
             if (set.getValue().contains(pkt.getSrc())) {
                 boolean mod = false;
-                final int numNeigh = pkt.getNeigh();
+                final int numNeigh = pkt.getNeigborsSize();
                 for (int i = 0; i < numNeigh; i++) {
-                    NodeAddress tmp = pkt.getNeighbourAddress(i);
+                    NodeAddress tmp = pkt.getNeighborAddress(i);
                     if (!set.getValue().contains(tmp)) {
                         map.remove(tmp);
                         mod = true;
@@ -143,7 +143,7 @@ public class FlowVisor extends ControlPlaneLayer {
                 }
 
                 if (mod) {
-                    pkt.setNeighborsHashMap(map);
+                    pkt.setNeighbors(map);
                 }
 
                 ((AdapterUdp) upper).send(pkt.toByteArray(), set.getKey().getAddress().getHostAddress(),

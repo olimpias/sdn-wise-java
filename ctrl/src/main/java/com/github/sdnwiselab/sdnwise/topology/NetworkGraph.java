@@ -76,7 +76,7 @@ public class NetworkGraph extends Observable {
         return graph;
     }
 
-    public final synchronized void updateMap(RequestPacket req, int netId, String node1, List<String> neig) {
+    public final synchronized void updateMap(RequestPacket req, int net, String node1, List<String> neig) {
         String origin = req.getNet() + "." + req.getSrc();
 
         long now = System.currentTimeMillis();
@@ -85,7 +85,7 @@ public class NetworkGraph extends Observable {
         Node ori = getNode(origin);
         if (ori == null) {
             ori = addNode(origin);
-            setupNode(ori, 0, now, req.getId(), req.getSrc());
+            setupNode(ori, 0, now, req.getNet(), req.getSrc());
         }
 
         String fullNodeId = node1;
@@ -93,13 +93,13 @@ public class NetworkGraph extends Observable {
 
         if (node == null) {
             node = addNode(fullNodeId);
-            setupNode(node, 255, now, netId, null);
+            setupNode(node, 255, now, net, null);
 
             for (String node2 : neig) {
                 String other = node2;
                 if (getNode(other) == null) {
                     Node tmp = addNode(other);
-                    setupNode(tmp, 255, now, netId, null);
+                    setupNode(tmp, 255, now, net, null);
                 }
 
                 Edge edge = addEdge(other + "-" + fullNodeId, other, fullNodeId, true);
@@ -114,7 +114,7 @@ public class NetworkGraph extends Observable {
                 String other = node2;
                 if (getNode(other) == null) {
                     Node tmp = addNode(other);
-                    setupNode(tmp, 255, now, netId, null);
+                    setupNode(tmp, 255, now, net, null);
                 }
 
                 Edge edge = getEdge(other + "-" + fullNodeId);
@@ -149,7 +149,7 @@ public class NetworkGraph extends Observable {
         boolean modified = checkConsistency(now);
 
         int netId = packet.getNet();
-        int batt = packet.getBatt();
+        int batt = packet.getBattery();
         String nodeId = packet.getSrc().toString();
         String fullNodeId = netId + "." + nodeId;
         NodeAddress addr = packet.getSrc();
@@ -160,15 +160,15 @@ public class NetworkGraph extends Observable {
             node = addNode(fullNodeId);
             setupNode(node, batt, now, netId, addr);
 
-            for (int i = 0; i < packet.getNeigh(); i++) {
-                NodeAddress otheraddr = packet.getNeighbourAddress(i);
+            for (int i = 0; i < packet.getNeigborsSize(); i++) {
+                NodeAddress otheraddr = packet.getNeighborAddress(i);
                 String other = netId + "." + otheraddr.toString();
                 if (getNode(other) == null) {
                     Node tmp = addNode(other);
                     setupNode(tmp, 0, now, netId, otheraddr);
                 }
 
-                int newLen = 255 - packet.getNeighbourWeight(i);
+                int newLen = 255 - packet.getLinkQuality(i);
                 String edgeId = other + "-" + fullNodeId;
                 Edge edge = addEdge(edgeId, other, node.getId(), true);
                 setupEdge(edge, newLen);
@@ -182,15 +182,15 @@ public class NetworkGraph extends Observable {
                 oldEdges.add(e);
             }
 
-            for (int i = 0; i < packet.getNeigh(); i++) {
-                NodeAddress otheraddr = packet.getNeighbourAddress(i);
+            for (int i = 0; i < packet.getNeigborsSize(); i++) {
+                NodeAddress otheraddr = packet.getNeighborAddress(i);
                 String other = netId + "." + otheraddr.toString();
                 if (getNode(other) == null) {
                     Node tmp = addNode(other);
                     setupNode(tmp, 0, now, netId, otheraddr);
                 }
 
-                int newLen = 255 - packet.getNeighbourWeight(i);
+                int newLen = 255 - packet.getLinkQuality(i);
 
                 String edgeId = other + "-" + fullNodeId;
                 Edge edge = getEdge(edgeId);

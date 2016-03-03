@@ -306,7 +306,7 @@ public abstract class AbstractCore {
                         .setRhsLocation(SDN_WISE_CONST)
                         .setRhs(path.get(0).intValue()));
 
-                rule.getWindows().addAll(opp.getOptionalWindows());
+                rule.getWindows().addAll(opp.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i - 1)));
 
                 int p = searchRule(rule);
@@ -323,7 +323,7 @@ public abstract class AbstractCore {
                         .setRhsLocation(SDN_WISE_CONST)
                         .setRhs(path.get(path.size() - 1).intValue()));
 
-                rule.getWindows().addAll(opp.getOptionalWindows());
+                rule.getWindows().addAll(opp.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i + 1)));
 
                 int p = searchRule(rule);
@@ -609,11 +609,11 @@ public abstract class AbstractCore {
         if (index != (SDN_WISE_NEIGHBORS_MAX + 1)) {
             if (index != -1) {
                 neighborTable.get(index).setRssi(rssi);
-                neighborTable.get(index).setBatt(bp.getBatt());
+                neighborTable.get(index).setBatt(bp.getBattery());
             } else {
                 neighborTable.get(neighbors_number).setAddr(bp.getSrc());
                 neighborTable.get(neighbors_number).setRssi(rssi);
-                neighborTable.get(neighbors_number).setBatt(bp.getBatt());
+                neighborTable.get(neighbors_number).setBatt(bp.getBattery());
                 neighbors_number++;
             }
         }
@@ -838,12 +838,12 @@ public abstract class AbstractCore {
                 sinkDistance,
                 battery.getByteLevel());
 
-        rp.setNeigh(neighbors_number)
+        rp.setNeighbors(neighbors_number)
                 .setNxh(getNextHopVsSink());
 
         for (int j = 0; j < neighbors_number; j++) {
-            rp.setNeighbourAddressAt(neighborTable.get(j).getAddr(), j)
-                    .setNeighbourWeightAt((byte) neighborTable.get(j).getRssi(), j);
+            rp.setNeighborAddressAt(neighborTable.get(j).getAddr(), j)
+                    .setLinkQualityAt((byte) neighborTable.get(j).getRssi(), j);
         }
         initNeighborTable();
         return rp;

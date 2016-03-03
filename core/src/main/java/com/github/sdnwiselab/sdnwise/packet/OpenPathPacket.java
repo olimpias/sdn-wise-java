@@ -44,13 +44,13 @@ public class OpenPathPacket extends NetworkPacket {
      * This constructor initialize an open path packet. The type of the packet
      * is set to SDN_WISE_OPEN_PATH.
      *
-     * @param netId
+     * @param net
      * @param src
      * @param dst
      * @param path
      */
-    public OpenPathPacket(int netId, NodeAddress src, NodeAddress dst, List<NodeAddress> path) {
-        super(netId, src, dst);
+    public OpenPathPacket(int net, NodeAddress src, NodeAddress dst, List<NodeAddress> path) {
+        super(net, src, dst);
         this.setTyp(OPEN_PATH);
         this.setPayloadAt((byte) 0, WINDOWS_SIZE_INDEX);
         this.setPath(path);
@@ -115,7 +115,7 @@ public class OpenPathPacket extends NetworkPacket {
         return list;
     }
 
-    public final OpenPathPacket setOptionalWindows(List<Window> conditions) {
+    public final OpenPathPacket setWindows(List<Window> conditions) {
         List<NodeAddress> tmp = getPath();
 
         this.setPayloadAt((byte) conditions.size(), WINDOWS_SIZE_INDEX);
@@ -130,7 +130,7 @@ public class OpenPathPacket extends NetworkPacket {
         return this;
     }
 
-    public final List<Window> getOptionalWindows() {
+    public final List<Window> getWindows() {
         LinkedList<Window> w = new LinkedList<>();
 
         int nWindows = this.getPayloadAt(WINDOWS_SIZE_INDEX);

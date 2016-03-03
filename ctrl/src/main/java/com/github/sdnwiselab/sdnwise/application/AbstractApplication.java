@@ -107,15 +107,14 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * This method sends a generic message to a node. The message is represented
      * by an array of bytes.
      *
-     * @param netId network id of the destination node
+     * @param net network id of the destination node
      * @param destination network address of the destination node
      * @param message the content of the message to be sent
      */
-    public final void sendMessage(byte netId, NodeAddress destination, byte[] message) {
+    public final void sendMessage(byte net, NodeAddress destination, byte[] message) {
         if (message.length != 0) {
-            DataPacket dp = new DataPacket(netId, new NodeAddress("0.0"), destination);
-            dp.setPayload(message)
-                    .setNxh("0.0");
+            DataPacket dp = new DataPacket(net, new NodeAddress("0.0"), destination, message);
+            dp.setNxh(controller.getSinkAddress());
             lower.send(dp.toByteArray());
         }
     }

@@ -689,10 +689,10 @@ public final class ControllerGui extends javax.swing.JFrame {
 
             byte id = ((Integer) this.jSpinnerNetID.getValue()).byteValue();
 
-            DataPacket dp = new DataPacket(id, src, dest);
-            dp.setPayload((jTextField1.getText())
-                    .getBytes(UTF8_CHARSET))
-                    .setNxh(src);
+            DataPacket dp = new DataPacket(id, src, dest,
+                    jTextField1.getText()
+                    .getBytes(UTF8_CHARSET));
+            dp.setNxh(src);
             controller.sendNetworkPacket(dp);
         } catch (ParseException ex) {
             Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);

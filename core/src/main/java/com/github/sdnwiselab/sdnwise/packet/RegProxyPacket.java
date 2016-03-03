@@ -18,12 +18,10 @@ package com.github.sdnwiselab.sdnwise.packet;
 
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REG_PROXY;
 import com.github.sdnwiselab.sdnwise.util.*;
-import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
 import java.math.BigInteger;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.logging.*;
 
 /**
  *
@@ -31,18 +29,15 @@ import java.util.logging.*;
  */
 public class RegProxyPacket extends NetworkPacket {
 
-    private static final Logger LOGGER = Logger.getLogger(RegProxyPacket.class.getName());
-
-    private final static int D_PID_LEN = 8;
-    private final static int MAC_LEN = 6;
-    private final static int PORT_LEN = 8;
-    private final static int IP_LEN = 4;
-
-    public final static int SDN_WISE_DPID = 0,
-            SDN_WISE_MAC = SDN_WISE_DPID + D_PID_LEN,
-            SDN_WISE_PORT = SDN_WISE_MAC + MAC_LEN,
-            SDN_WISE_IP = SDN_WISE_PORT + PORT_LEN,
-            SDN_WISE_TCP = SDN_WISE_IP + IP_LEN;
+    private final static int DPID_LEN = 8,
+            MAC_LEN = 6,
+            PORT_LEN = 8,
+            IP_LEN = 4,
+            DPID_INDEX = 0,
+            MAC_INDEX = DPID_INDEX + DPID_LEN,
+            PORT_INDEX = MAC_INDEX + MAC_LEN,
+            IP_INDEX = PORT_INDEX + PORT_LEN,
+            TCP_INDEX = IP_INDEX + IP_LEN;
 
     /**
      * This constructor initialize a beacon packet starting from a byte array.
@@ -65,27 +60,26 @@ public class RegProxyPacket extends NetworkPacket {
 
     /**
      * This constructor initialize a beacon packet. The type of the packet is
-     * set to SDN_WISE_BEACON and the destination address is BROADCAST_ADDR.
+     * set to REG_PROXY and the destination address is src beacuse this message
+     * is only sent by sinks.
      *
-     * @param netId
+     * @param net
      * @param src
      * @param switchDpid
      * @param switchMac
      * @param switchPort
      * @param inetAddr
      */
-    public RegProxyPacket(int netId, NodeAddress src,
+    public RegProxyPacket(int net, NodeAddress src,
             String switchDpid,
             String switchMac,
             long switchPort,
             InetSocketAddress inetAddr) {
-        super(netId, src, BROADCAST_ADDR);
+        super(net, src, src);
         setTyp(REG_PROXY);
         setSwitchMac(switchMac);
         setSwitchDpid(switchDpid);
         setSwitchPort(switchPort);
-        setSrc(src);
-        setDst(src);
         setNxh(src);
         setInetSocketAddress(inetAddr);
     }
@@ -107,14 +101,14 @@ public class RegProxyPacket extends NetworkPacket {
         }
         for (int i = 0; i < MAC_LEN; i++) {
             this.setPayloadAt((byte) Integer.parseInt(elements[i], 16),
-                    SDN_WISE_MAC + i);
+                    MAC_INDEX + i);
         }
         return this;
     }
 
     public final String getSwitchMac() {
         StringBuilder sb = new StringBuilder(18);
-        byte[] mac = this.getPayloadFromTo(SDN_WISE_MAC, SDN_WISE_MAC + MAC_LEN);
+        byte[] mac = this.getPayloadFromTo(MAC_INDEX, MAC_INDEX + MAC_LEN);
         for (byte b : mac) {
             if (sb.length() > 0) {
                 sb.append(':');
@@ -126,24 +120,24 @@ public class RegProxyPacket extends NetworkPacket {
 
     public final RegProxyPacket setSwitchDpid(String ofSwitchId) {
         byte[] dpid = ofSwitchId.getBytes(Charset.forName("UTF-8"));
-        int len = Math.min(D_PID_LEN, dpid.length);
-        this.setPayload(dpid, 0, SDN_WISE_DPID, len);
+        int len = Math.min(DPID_LEN, dpid.length);
+        this.setPayload(dpid, 0, DPID_INDEX, len);
         return this;
     }
 
     public final String getSwitchDpid() {
-        return new String(this.getPayloadFromTo(SDN_WISE_DPID, SDN_WISE_MAC));
+        return new String(this.getPayloadFromTo(DPID_INDEX, MAC_INDEX));
     }
 
     public final RegProxyPacket setSwitchPort(long port) {
         byte[] bytes = ByteBuffer
                 .allocate(Long.SIZE / Byte.SIZE).putLong(port).array();
-        this.setPayload(bytes, (byte) 0, SDN_WISE_PORT, PORT_LEN);
+        this.setPayload(bytes, (byte) 0, PORT_INDEX, PORT_LEN);
         return this;
     }
 
     public final long getSwitchPort() {
-        return new BigInteger(this.getPayloadFromTo(SDN_WISE_PORT, SDN_WISE_PORT + PORT_LEN)).longValue();
+        return new BigInteger(this.getPayloadFromTo(PORT_INDEX, PORT_INDEX + PORT_LEN)).longValue();
     }
 
     public final RegProxyPacket setInetSocketAddress(InetSocketAddress isa) {
@@ -153,20 +147,20 @@ public class RegProxyPacket extends NetworkPacket {
     }
 
     private RegProxyPacket setInetSocketAddress(byte[] ip, int port) {
-        this.setPayload(ip, 0, SDN_WISE_IP, IP_LEN);
-        this.setPayloadAt((byte) (port), SDN_WISE_TCP + 1);
-        this.setPayloadAt((byte) (port >> 8), SDN_WISE_TCP);
+        this.setPayload(ip, 0, IP_INDEX, IP_LEN);
+        this.setPayloadAt((byte) (port), TCP_INDEX + 1);
+        this.setPayloadAt((byte) (port >> 8), TCP_INDEX);
         return this;
     }
 
     public final InetSocketAddress getInetSocketAddress() {
         try {
-            byte[] ip = this.getPayloadFromTo(SDN_WISE_IP, SDN_WISE_IP + IP_LEN);
+            byte[] ip = this.getPayloadFromTo(IP_INDEX, IP_INDEX + IP_LEN);
             return new InetSocketAddress(InetAddress.getByAddress(ip),
-                    Utils.mergeBytes(getPayloadAt(SDN_WISE_TCP), getPayloadAt(SDN_WISE_TCP + 1)));
+                    Utils.mergeBytes(getPayloadAt(TCP_INDEX),
+                            getPayloadAt(TCP_INDEX + 1)));
         } catch (UnknownHostException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            return null;
         }
-        return null;
     }
 }

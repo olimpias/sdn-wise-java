@@ -21,9 +21,9 @@ import com.github.sdnwiselab.sdnwise.controlplane.*;
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigFunctionPacket.createPackets;
-import com.github.sdnwiselab.sdnwise.packet.*;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
+import com.github.sdnwiselab.sdnwise.packet.*;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.io.*;
@@ -60,7 +60,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     final static int CACHE_EXP_TIME = 5;
 
     private final ArrayBlockingQueue<NetworkPacket> bQ = new ArrayBlockingQueue<>(1000);
-    private final NodeAddress sinkAddress = new NodeAddress("0.1");
+    private NodeAddress sinkAddress;
+    private final InetSocketAddress id;
 
     final HashMap<NodeAddress, LinkedList<NodeAddress>> results = new HashMap<>();
     final Map<String, ConfigPacket> configCache = ExpiringMap.builder()
@@ -70,7 +71,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             .expiration(CACHE_EXP_TIME, TimeUnit.SECONDS)
             .build();
 
-    private final InetSocketAddress id;
     final NetworkGraph networkGraph;
 
     /**
@@ -82,6 +82,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     AbstractController(InetSocketAddress id, AbstractAdapter lower, NetworkGraph networkGraph) {
         super("CTRL", lower, null);
+        this.sinkAddress = new NodeAddress("0.1");
         ControlPlaneLogger.setupLogger(layerShortName);
         this.id = id;
         this.networkGraph = networkGraph;
@@ -161,7 +162,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                 }
                 configCache.put(key, cp);
                 break;
-
+            case REG_PROXY:
+                sinkAddress = data.getSrc();
             default:
                 break;
         }
@@ -215,15 +217,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         sendNetworkPacket(op);
     }
 
-    /**
-     * This method sends a generic message to a node. The message is represented
-     * by a NetworkPacket.
-     *
-     * @param packet the packet to be sent.
-     */
-    protected void sendNetworkPacket(NetworkPacket packet) {
-        lower.send(packet.toByteArray());
-    }
 
     /**
      * This method sets the address of a node. The new address value is passed
@@ -759,6 +752,15 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             requestCache.put(key, rp);
         }
         return null;
+    }
+    /**
+     * This method sends a generic message to a node. The message is represented
+     * by a NetworkPacket.
+     *
+     * @param packet the packet to be sent.
+     */
+    protected void sendNetworkPacket(NetworkPacket packet) {
+        lower.send(packet.toByteArray());
     }
 
     private class Worker implements Runnable {
