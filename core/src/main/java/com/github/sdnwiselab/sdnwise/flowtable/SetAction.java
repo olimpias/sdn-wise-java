@@ -29,16 +29,6 @@ import static com.github.sdnwiselab.sdnwise.util.Utils.*;
  */
 public final class SetAction extends AbstractAction {
 
-    /**
-     * -
-     * |
-     * |
-     * |
-     * |
-     * | Size | | | - | | | | | Type | | | - | Location2 | Location2 | Operator
-     * | Operator | Operator | Location1 | Location1 | Location0 - | | | | |
-     * Offset0 | | | - | | | | | Offset1 | | | - | | | | | Offset2 | | | -
-     */
     // operators
     public final static byte SDN_WISE_ADD = 0;
     public final static byte SDN_WISE_SUB = 1;

@@ -39,9 +39,7 @@ public class HelloWorld implements FunctionInterface {
             ArrayList<NodeAddress> acceptedId,
             ArrayBlockingQueue<NetworkPacket> flowTableQueue,
             ArrayBlockingQueue<NetworkPacket> txQueue,
-            int arg1,
-            int arg2,
-            int arg3,
+            byte[] args,
             NetworkPacket np
     ) {
         System.out.println("Hello, World!");

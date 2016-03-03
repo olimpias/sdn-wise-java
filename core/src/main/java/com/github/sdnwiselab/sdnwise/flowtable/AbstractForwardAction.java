@@ -24,12 +24,10 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
  */
 public abstract class AbstractForwardAction extends AbstractAction {
 
-    private final static byte NX_HOP_HIGH_INDEX = 0;
-    private final static byte NX_HOP_LOW_INDEX = 1;
-    private final static byte SIZE = 2;
+    private final static byte NXH_INDEX = 0;
 
     public AbstractForwardAction(ActionType actionType) {
-        super(actionType, SIZE);
+        super(actionType, 2);
     }
 
     public AbstractForwardAction(byte[] value) {
@@ -37,14 +35,12 @@ public abstract class AbstractForwardAction extends AbstractAction {
     }
 
     public final AbstractForwardAction setNextHop(NodeAddress addr) {
-        setValue(NX_HOP_HIGH_INDEX, addr.getHigh());
-        setValue(NX_HOP_LOW_INDEX, addr.getLow());
+        setValue(NXH_INDEX, addr.getHigh());
+        setValue(NXH_INDEX+1, addr.getLow());
         return this;
     }
 
     public final NodeAddress getNextHop() {
-        return new NodeAddress(
-                this.getValue(NX_HOP_HIGH_INDEX),
-                this.getValue(NX_HOP_LOW_INDEX));
+        return new NodeAddress(getValue(NXH_INDEX),getValue(NXH_INDEX+1));
     }
 }

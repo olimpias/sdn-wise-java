@@ -481,7 +481,7 @@ public abstract class AbstractCore {
                     break;
                 case FUNCTION:
                     FunctionAction ftac = (FunctionAction) action;
-                    FunctionInterface srvI = functions.get(ftac.getCallbackId());
+                    FunctionInterface srvI = functions.get(ftac.getId());
                     if (srvI != null) {
                         log(Level.INFO, "Function called: " + myAddress);
                         srvI.function(sensors,
@@ -491,9 +491,7 @@ public abstract class AbstractCore {
                                 acceptedId,
                                 ftQueue,
                                 txQueue,
-                                ftac.getArg0(),
-                                ftac.getArg1(),
-                                ftac.getArg2(),
+                                ftac.getArgs(),
                                 np
                         );
                     }

@@ -60,28 +60,28 @@ public class RegProxyPacket extends NetworkPacket {
 
     /**
      * This constructor initialize a beacon packet. The type of the packet is
-     * set to REG_PROXY and the destination address is src beacuse this message
-     * is only sent by sinks.
+ set to REG_PROXY and the destination isa is src beacuse this message
+ is only sent by sinks.
      *
      * @param net
      * @param src
-     * @param switchDpid
-     * @param switchMac
-     * @param switchPort
-     * @param inetAddr
+     * @param dPid
+     * @param mac
+     * @param port
+     * @param isa
      */
     public RegProxyPacket(int net, NodeAddress src,
-            String switchDpid,
-            String switchMac,
-            long switchPort,
-            InetSocketAddress inetAddr) {
+            String dPid,
+            String mac,
+            long port,
+            InetSocketAddress isa) {
         super(net, src, src);
         setTyp(REG_PROXY);
-        setSwitchMac(switchMac);
-        setSwitchDpid(switchDpid);
-        setSwitchPort(switchPort);
+        setMac(mac);
+        setDpid(dPid);
+        setPort(port);
         setNxh(src);
-        setInetSocketAddress(inetAddr);
+        setInetSocketAddress(isa);
     }
 
     /**
@@ -94,7 +94,7 @@ public class RegProxyPacket extends NetworkPacket {
         super(data);
     }
 
-    public final RegProxyPacket setSwitchMac(String mac) {
+    public final RegProxyPacket setMac(String mac) {
         String[] elements = mac.split(":");
         if (elements.length != MAC_LEN) {
             throw new IllegalArgumentException("Invalid MAC address");
@@ -106,7 +106,7 @@ public class RegProxyPacket extends NetworkPacket {
         return this;
     }
 
-    public final String getSwitchMac() {
+    public final String getMac() {
         StringBuilder sb = new StringBuilder(18);
         byte[] mac = this.getPayloadFromTo(MAC_INDEX, MAC_INDEX + MAC_LEN);
         for (byte b : mac) {
@@ -118,25 +118,25 @@ public class RegProxyPacket extends NetworkPacket {
         return sb.toString();
     }
 
-    public final RegProxyPacket setSwitchDpid(String ofSwitchId) {
-        byte[] dpid = ofSwitchId.getBytes(Charset.forName("UTF-8"));
+    public final RegProxyPacket setDpid(String dPid) {
+        byte[] dpid = dPid.getBytes(Charset.forName("UTF-8"));
         int len = Math.min(DPID_LEN, dpid.length);
         this.setPayload(dpid, 0, DPID_INDEX, len);
         return this;
     }
 
-    public final String getSwitchDpid() {
+    public final String getDpid() {
         return new String(this.getPayloadFromTo(DPID_INDEX, MAC_INDEX));
     }
 
-    public final RegProxyPacket setSwitchPort(long port) {
+    public final RegProxyPacket setPort(long port) {
         byte[] bytes = ByteBuffer
                 .allocate(Long.SIZE / Byte.SIZE).putLong(port).array();
         this.setPayload(bytes, (byte) 0, PORT_INDEX, PORT_LEN);
         return this;
     }
 
-    public final long getSwitchPort() {
+    public final long getPort() {
         return new BigInteger(this.getPayloadFromTo(PORT_INDEX, PORT_INDEX + PORT_LEN)).longValue();
     }
 

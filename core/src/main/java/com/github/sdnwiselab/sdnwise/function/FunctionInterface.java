@@ -46,9 +46,7 @@ public interface FunctionInterface {
      * @param flowTableQueue messages added in this queue will be matched in the
      * flow table.
      * @param txQueue messages added in this queue will be sent immediately.
-     * @param arg1 is a parameter passed by the action.
-     * @param arg2 is a parameter passed by the action.
-     * @param arg3 is a parameter passed by the action.
+     * @param args is an array of parameters passed by the action.
      * @param np the NetworkPacket that triggered this function.
      */
     public void function(
@@ -59,9 +57,7 @@ public interface FunctionInterface {
             ArrayList<NodeAddress> acceptedId,
             ArrayBlockingQueue<NetworkPacket> flowTableQueue,
             ArrayBlockingQueue<NetworkPacket> txQueue,
-            int arg1,
-            int arg2,
-            int arg3,
+            byte[] args,
             NetworkPacket np
     );
 }

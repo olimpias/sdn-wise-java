@@ -59,9 +59,7 @@ public class MoteCore extends AbstractCore {
                     acceptedId,
                     ftQueue,
                     txQueue,
-                    0,
-                    0,
-                    0,
+                    new byte[0],
                     packet);
         }
     }

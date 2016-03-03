@@ -42,7 +42,7 @@ public class ActionBuilder {
                 return new MatchAction();
 
             case ASK:
-                return new AskControllerAction();
+                return new AskAction();
 
             case FUNCTION:
                 return new FunctionAction(val);
@@ -66,7 +66,7 @@ public class ActionBuilder {
             case FUNCTION:
                 return new FunctionAction(array);
             case ASK:
-                return new AskControllerAction(array);
+                return new AskAction(array);
             case SET:
                 return new SetAction(array);
             case MATCH:

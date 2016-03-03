@@ -17,7 +17,7 @@
 package com.github.sdnwiselab.sdnwise.flowtable;
 
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.FUNCTION;
-import com.github.sdnwiselab.sdnwise.util.Utils;
+import java.util.Arrays;
 
 /**
  *
@@ -25,85 +25,54 @@ import com.github.sdnwiselab.sdnwise.util.Utils;
  */
 public class FunctionAction extends AbstractAction {
 
-    private final static byte SIZE = 7;
-
     // convert to array
-    private final static byte idIndex = 0;
-    private final static byte arg0Index = 1;
-    private final static byte arg1Index = 2;
-    private final static byte arg2Index = 3;
-    private final static byte arg3Index = 4;
-    private final static byte arg4Index = 5;
-    private final static byte arg5Index = 6;
-
+    private final static byte ID_INDEX = 0;
+    private final static byte ARGS_INDEX = 1;
+    
     public FunctionAction(byte[] value) {
         super(value);
     }
 
-    public final FunctionAction setCallbackId(int id) {
-        setValue(idIndex, id);
+    public final FunctionAction setId(int id) {
+        setValue(ID_INDEX, id);
         return this;
     }
 
-    public int getCallbackId() {
-        return getValue(idIndex);
+    public int getId() {
+        return getValue(ID_INDEX);
     }
 
-    public int getArg0() {
-        return Utils.mergeBytes(getValue(arg0Index), getValue(arg1Index));
+    public byte[] getArgs(){
+        return Arrays.copyOfRange(action, ARGS_INDEX, size);
     }
-
-    public int getArg1() {
-        return Utils.mergeBytes(getValue(arg2Index), getValue(arg3Index));
-    }
-
-    public int getArg2() {
-        return Utils.mergeBytes(getValue(arg4Index), getValue(arg5Index));
-    }
-
-    public FunctionAction setArg0(int argument) {
-        byte[] tmp = Utils.splitInteger(argument);
-        setValue(arg0Index, tmp[0]);
-        setValue(arg1Index, tmp[1]);
+    
+    public FunctionAction setArgs(byte[] args){
+        System.arraycopy(args, 0, action, ARGS_INDEX, args.length);
         return this;
     }
-
-    public FunctionAction setArg1(int argument) {
-        byte[] tmp = Utils.splitInteger(argument);
-        setValue(arg2Index, tmp[0]);
-        setValue(arg3Index, tmp[1]);
-        return this;
-    }
-
-    public FunctionAction setArg2(int argument) {
-        byte[] tmp = Utils.splitInteger(argument);
-        setValue(arg4Index, tmp[0]);
-        setValue(arg5Index, tmp[1]);
-        return this;
-    }
-
+    
     @Override
     public String toString() {
-        return FUNCTION.name() + " " + getCallbackId() + " "
-                + getValue(arg0Index) + " "
-                + getValue(arg1Index) + " "
-                + getValue(arg2Index) + " "
-                + getValue(arg3Index) + " "
-                + getValue(arg4Index) + " "
-                + getValue(arg5Index);
+        StringBuilder sb = new StringBuilder(FUNCTION.name());
+        sb.append(" ").append(getId()).append(" ");
+        for (int i = 0; i<size; i++){
+            sb.append(getValue(i+2)).append(" ");
+        }
+        return sb.toString();
     }
 
     public FunctionAction(String str) {
-        super(FUNCTION, SIZE);
+        super(FUNCTION, 0);
         String[] tmp = str.split(" ");
         if (tmp[0].equals(FUNCTION.name())) {
-            setCallbackId(Integer.parseInt(tmp[1]));
-            setValue(arg0Index, Integer.parseInt(tmp[2]));
-            setValue(arg1Index, Integer.parseInt(tmp[3]));
-            setValue(arg2Index, Integer.parseInt(tmp[4]));
-            setValue(arg3Index, Integer.parseInt(tmp[5]));
-            setValue(arg4Index, Integer.parseInt(tmp[6]));
-            setValue(arg5Index, Integer.parseInt(tmp[7]));
+            this.size = tmp.length-2;
+            this.action = new byte[size];
+            
+            setId(Integer.parseInt(tmp[1]));
+            
+            for (int i = 0; i<size; i++){
+                setValue(i, Integer.parseInt(tmp[i+2]));
+            }
         } else {
             throw new IllegalArgumentException();
         }

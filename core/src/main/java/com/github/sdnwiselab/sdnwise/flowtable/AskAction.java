@@ -18,15 +18,13 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.ASK;
 
-public final class AskControllerAction extends AbstractAction {
+public final class AskAction extends AbstractAction {
 
-    private static byte SIZE = 0;
-
-    public AskControllerAction() {
-        super(ASK, SIZE);
+    public AskAction() {
+        super(ASK, 0);
     }
 
-    public AskControllerAction(byte[] value) {
+    public AskAction(byte[] value) {
         super(value);
     }
 

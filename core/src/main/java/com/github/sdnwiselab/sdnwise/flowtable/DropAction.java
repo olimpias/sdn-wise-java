@@ -20,14 +20,11 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.
 
 public final class DropAction extends AbstractAction {
 
-    private static byte SIZE = 0;
-
+    public DropAction() {
+        super(DROP, 0);
+    }
+    
     public DropAction(byte[] value) {
         super(value);
     }
-
-    public DropAction() {
-        super(DROP, SIZE);
-    }
-
 }

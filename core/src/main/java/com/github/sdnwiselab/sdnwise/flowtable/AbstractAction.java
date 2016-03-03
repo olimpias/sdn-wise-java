@@ -26,6 +26,8 @@ import java.util.Arrays;
  */
 public abstract class AbstractAction implements FlowTableInterface {
 
+    public int size;
+    
     // actions
     public enum ActionType {
         NULL(0),
@@ -49,8 +51,8 @@ public abstract class AbstractAction implements FlowTableInterface {
         }
     }
 
-    final static int TYPE_INDEX = 0;
-    final byte[] action;
+    protected final static int TYPE_INDEX = 0;
+    protected byte[] action;
 
     /**
      * Constructor for the FlowTableAction object.
@@ -61,7 +63,8 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param actionType
      * @param size
      */
-    public AbstractAction(ActionType actionType, byte size) {
+    public AbstractAction(ActionType actionType, int size) {
+        this.size = size;
         action = new byte[size + 1];
         setType(actionType);
     }
@@ -107,26 +110,7 @@ public abstract class AbstractAction implements FlowTableInterface {
         hash = 61 * hash + Arrays.hashCode(this.action);
         return hash;
     }
-
-    public AbstractAction setArgs(byte[] args, int offset) {
-        if (args.length + offset < this.action.length - 1) {
-            for (int i = 0; i < args.length; i++) {
-                setValue(i + 1 + offset, args[i]);
-            }
-        } else {
-            throw new ArrayIndexOutOfBoundsException("Reduce the number of args or the offset");
-        }
-        return this;
-    }
-
-    public byte[] getArgs(int start, int len) {
-        byte[] tmp = new byte[len];
-        for (int i = 0; i < len; i++) {
-            tmp[i] = (byte) getValue(i + 1 + start);
-        }
-        return tmp;
-    }
-
+    
     /**
      * Setter method to set the type of AbstractAction. The possible types of
      * actions are SDN_WISE_FORWARD_U, SDN_WISE_FORWARD_B, SDN_WISE_DROP,
