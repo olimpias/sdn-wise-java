@@ -61,18 +61,18 @@ public class ConfigRulePacket extends ConfigPacket {
     }
 
     public final ConfigRulePacket setRemoveRuleAtPositionValue(int index) {
-        setWrite().setConfigId(REMOVE_RULE_INDEX).setValue(index);
+        setWrite().setConfigId(REMOVE_RULE_AT).setValue(index);
         return this;
     }
 
     public final ConfigRulePacket setGetRuleAtIndexValue(int index) {
-        setRead().setConfigId(GET_RULE_INDEX).setValue(index);
+        setRead().setConfigId(GET_RULE_AT).setValue(index);
         return this;
     }
 
     public FlowTableEntry getRule() {
         FlowTableEntry rule = null;
-        if (getConfigId() == GET_RULE_INDEX) {
+        if (getConfigId() == GET_RULE_AT) {
             rule = new FlowTableEntry(this.copyPayloadOfRange(3, this.getPayloadSize()));
         }
         return rule;

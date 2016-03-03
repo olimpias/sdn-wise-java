@@ -34,11 +34,11 @@ public class ConfigNodePacket extends ConfigPacket {
     }
 
     public final ConfigPacket setReadNodeAddressValue() {
-        return setRead().setConfigId(ADDRESS);
+        return setRead().setConfigId(MY_ADDRESS);
     }
 
     public final ConfigPacket setReadNetworkIdValue() {
-        return setRead().setConfigId(NET_ID);
+        return setRead().setConfigId(MY_NET);
     }
 
     public final ConfigPacket setReadDefaultTtlMaxValue() {
@@ -50,11 +50,11 @@ public class ConfigNodePacket extends ConfigPacket {
     }
 
     public final ConfigPacket setNodeAddressValue(NodeAddress newAddr) {
-        return setWrite().setConfigId(ADDRESS).setValue(newAddr.getHigh(), newAddr.getLow());
+        return setWrite().setConfigId(MY_ADDRESS).setValue(newAddr.getHigh(), newAddr.getLow());
     }
 
     public final ConfigPacket setNetworkIdValue(byte id) {
-        return setWrite().setConfigId(NET_ID).setValue((byte) 0, id);
+        return setWrite().setConfigId(MY_NET).setValue((byte) 0, id);
     }
 
     public final ConfigPacket setResetValue() {
@@ -62,7 +62,7 @@ public class ConfigNodePacket extends ConfigPacket {
     }
 
     public final NodeAddress getNodeAddress() {
-        if (getConfigId() == ADDRESS) {
+        if (getConfigId() == MY_ADDRESS) {
             return new NodeAddress(getValue());
         } else {
             return null;
@@ -70,7 +70,7 @@ public class ConfigNodePacket extends ConfigPacket {
     }
 
     public final int getNetworkIdValue() {
-        if (getConfigId() == NET_ID) {
+        if (getConfigId() == MY_NET) {
             return getPayloadAt(2);
         } else {
             return -1;

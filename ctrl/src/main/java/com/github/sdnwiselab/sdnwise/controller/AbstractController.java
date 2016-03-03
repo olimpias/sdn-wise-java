@@ -116,8 +116,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                 ConfigPacket cp = new ConfigPacket(data);
 
                 switch (cp.getConfigId()) {
-                    case ADDRESS:
-                    case NET_ID:
+                    case MY_ADDRESS:
+                    case MY_NET:
                     case RESET:
                     case TTL_MAX:
                     case RSSI_MIN:
@@ -135,9 +135,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                         cp = new ConfigAcceptedIdPacket(data);
                         break;
                     case ADD_RULE:
-                    case GET_RULE_INDEX:
+                    case GET_RULE_AT:
                     case REMOVE_RULE:
-                    case REMOVE_RULE_INDEX:
+                    case REMOVE_RULE_AT:
                         cp = new ConfigRulePacket(data);
                         break;
                     case ADD_FUNCTION:
@@ -145,12 +145,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                         cp = new ConfigFunctionPacket(data);
                         break;
                     default:
-                        cp = new ConfigSecurityPacket(data);
                         break;
                 }
 
                 String key;
-                if (cp.getConfigId() == (GET_RULE_INDEX)) {
+                if (cp.getConfigId() == (GET_RULE_AT)) {
                     key = cp.getNet() + " "
                             + cp.getSrc() + " "
                             + cp.getConfigId() + " "
@@ -713,7 +712,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
         String key;
 
-        if (cp.getConfigId() == (GET_RULE_INDEX)) {
+        if (cp.getConfigId() == (GET_RULE_AT)) {
             key = cp.getNet() + " "
                     + cp.getDst() + " "
                     + cp.getConfigId() + " "

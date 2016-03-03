@@ -28,8 +28,8 @@ public class ConfigPacket extends NetworkPacket {
 
     // Configuration Properties
     public enum ConfigProperty {
-        ADDRESS(0),
-        NET_ID(1),
+        MY_ADDRESS(0),
+        MY_NET(1),
         BEACON_MAX(2),
         REPORT_MAX(3),
         UPDTABLE_MAX(4),
@@ -41,15 +41,12 @@ public class ConfigPacket extends NetworkPacket {
         LIST_ACCEPTED(10),
         ADD_RULE(11),
         REMOVE_RULE(12),
-        REMOVE_RULE_INDEX(13),
-        GET_RULE_INDEX(14),
+        REMOVE_RULE_AT(13),
+        GET_RULE_AT(14),
         RESET(15),
         ADD_FUNCTION(16),
-        REMOVE_FUNCTION(17),
-        SEC_CHANGE(18),
-        SEC_IP(19),
-        SEC_TOKEN(20);
-
+        REMOVE_FUNCTION(17);
+        
         private final byte value;
         private final static ConfigProperty[] configPropertyValues = ConfigProperty.values();
 

@@ -661,10 +661,10 @@ public abstract class AbstractCore {
         int value = packet.getValue();
         if (isWrite) {
             switch (id) {
-                case ADDRESS:
+                case MY_ADDRESS:
                     myAddress = new NodeAddress(value);
                     break;
-                case NET_ID:
+                case MY_NET:
                     myNetId = value;
                     break;
                 case BEACON_MAX:
@@ -698,7 +698,7 @@ public abstract class AbstractCore {
                         acceptedId.set(pos, new NodeAddress(65535));
                     }
                     break;
-                case REMOVE_RULE_INDEX:
+                case REMOVE_RULE_AT:
                     if (value != 0) {
                         flowTable.set(getActualFlowIndex(value), new FlowTableEntry());
                     }
@@ -741,10 +741,10 @@ public abstract class AbstractCore {
         } else {
             toBeSent = 1;
             switch (id) {
-                case ADDRESS:
+                case MY_ADDRESS:
                     packet.setValue(myAddress.intValue());
                     break;
-                case NET_ID:
+                case MY_NET:
                     packet.setValue(myNetId);
                     break;
                 case BEACON_MAX:
@@ -781,7 +781,7 @@ public abstract class AbstractCore {
                     }
                     controllerTX(packetList);
                     break;
-                case GET_RULE_INDEX:
+                case GET_RULE_AT:
                     toBeSent = 0;
                     ConfigRulePacket packetRule = new ConfigRulePacket(
                             myNetId,
