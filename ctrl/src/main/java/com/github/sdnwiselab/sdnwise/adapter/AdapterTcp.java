@@ -205,10 +205,10 @@ public class AdapterTcp extends AbstractAdapter {
                     InputStream in = clientSocket.getInputStream();
                     DataInputStream dis = new DataInputStream(in);
                     while (true) {
-                        int netId = Byte.toUnsignedInt(dis.readByte());
+                        int net = Byte.toUnsignedInt(dis.readByte());
                         int len = Byte.toUnsignedInt(dis.readByte());
                         byte[] data = new byte[len];
-                        data[NET_INDEX] = (byte) netId;
+                        data[NET_INDEX] = (byte) net;
                         data[LEN_INDEX] = (byte) len;
                         if (len > 0) {
                             dis.readFully(data, LEN_INDEX + 1, len - 2);
@@ -254,11 +254,11 @@ public class AdapterTcp extends AbstractAdapter {
                 InputStream in = socket.getInputStream();
                 DataInputStream dis = new DataInputStream(in);
                 while (true) {
-                    int netId = Byte.toUnsignedInt(dis.readByte());
+                    int net = Byte.toUnsignedInt(dis.readByte());
                     int len = Byte.toUnsignedInt(dis.readByte());
                     if (len > 0) {
                         byte[] data = new byte[len];
-                        data[NET_INDEX] = (byte) netId;
+                        data[NET_INDEX] = (byte) net;
                         data[LEN_INDEX] = (byte) len;
                         dis.readFully(data, LEN_INDEX + 1, len - 2);
                         setChanged();

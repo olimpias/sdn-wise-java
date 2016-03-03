@@ -123,13 +123,13 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * This method sends a generic message to a node. The message is represented
      * by string.
      *
-     * @param netId network id of the destination node
+     * @param net network id of the destination node
      * @param destination network address of the destination node
      * @param message the content of the message to be sent
      */
-    public final void sendMessage(byte netId, NodeAddress destination, String message) {
+    public final void sendMessage(byte net, NodeAddress destination, String message) {
         if (message != null && !message.isEmpty()) {
-            this.sendMessage(netId, destination, message.getBytes(UTF8_CHARSET));
+            this.sendMessage(net, destination, message.getBytes(UTF8_CHARSET));
         }
     }
 

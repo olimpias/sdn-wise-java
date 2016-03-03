@@ -174,10 +174,10 @@ public class NetworkPacket implements Cloneable {
         this.data = new byte[MAX_PACKET_LENGTH];
         byte[] tmpData = new byte[MAX_PACKET_LENGTH];
         try {
-            int netId = Byte.toUnsignedInt(dis.readByte());
+            int net = Byte.toUnsignedInt(dis.readByte());
             int len = Byte.toUnsignedInt(dis.readByte());
             if (len > 0) {
-                tmpData[NET_INDEX] = (byte) netId;
+                tmpData[NET_INDEX] = (byte) net;
                 tmpData[LEN_INDEX] = (byte) len;
                 dis.readFully(tmpData, LEN_INDEX + 1, len - 2);
 

@@ -204,14 +204,14 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * kind of message holds a list of nodes that will create a path inside the
      * network.
      *
-     * @param netId network id of the destination node.
+     * @param net network id of the destination node.
      * @param destination network address of the destination node.
      * @param path the list of all the NodeAddresses in the path.
      */
     @Override
-    public final void sendPath(byte netId, NodeAddress destination,
+    public final void sendPath(byte net, NodeAddress destination,
             List<NodeAddress> path) {
-        OpenPathPacket op = new OpenPathPacket(netId, sinkAddress, destination, path);
+        OpenPathPacket op = new OpenPathPacket(net, sinkAddress, destination, path);
         op.setNxh(sinkAddress);
         sendNetworkPacket(op);
     }
@@ -222,14 +222,14 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * using two bytes.
      *
      *
-     * @param netId network id of the destination node.
+     * @param net network id of the destination node.
      * @param destination network address of the destination node.
      * @param newAddress the new address.
      */
     @Override
-    public final void setNodeAddress(byte netId, NodeAddress destination,
+    public final void setNodeAddress(byte net, NodeAddress destination,
             NodeAddress newAddress) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
+        ConfigNodePacket cp = new ConfigNodePacket(net, sinkAddress, destination);
         cp.setNodeAddressValue(newAddress)
                 .setNxh(sinkAddress);
         sendNetworkPacket(cp);
@@ -238,13 +238,13 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     /**
      * This method reads the address of a node.
      *
-     * @param netId network id of the destination node
+     * @param net network id of the destination node
      * @param destination network address of the destination node
      * @return returns the NodeAddress of a node, null if it does exists.
      */
-    public final NodeAddress getNodeAddress(byte netId,
+    public final NodeAddress getNodeAddress(byte net,
             NodeAddress destination) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
+        ConfigNodePacket cp = new ConfigNodePacket(net, sinkAddress, destination);
         cp.setReadNodeAddressValue()
                 .setNxh(sinkAddress);
         ConfigPacket response;
@@ -261,12 +261,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * This method sets the Network ID of a node. The new value is passed using
      * a byte.
      *
-     * @param netId network id of the destination node
+     * @param net network id of the destination node
      * @param destination network address of the destination node
      */
     @Override
-    public final void resetNode(byte netId, NodeAddress destination) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
+    public final void resetNode(byte net, NodeAddress destination) {
+        ConfigNodePacket cp = new ConfigNodePacket(net, sinkAddress, destination);
         cp.setResetValue()
                 .setNxh(sinkAddress);
         sendNetworkPacket(cp);
