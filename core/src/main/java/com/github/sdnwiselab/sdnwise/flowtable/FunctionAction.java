@@ -56,7 +56,7 @@ public class FunctionAction extends AbstractAction {
         StringBuilder sb = new StringBuilder(FUNCTION.name());
         sb.append(" ").append(getId()).append(" ");
         for (int i = 0; i<size; i++){
-            sb.append(getValue(i+2)).append(" ");
+            sb.append(getValue(i)).append(" ");
         }
         return sb.toString();
     }
@@ -66,7 +66,7 @@ public class FunctionAction extends AbstractAction {
         String[] tmp = str.split(" ");
         if (tmp[0].equals(FUNCTION.name())) {
             this.size = tmp.length-2;
-            this.action = new byte[size];
+            this.action = new byte[size+1];
             
             setId(Integer.parseInt(tmp[1]));
             
