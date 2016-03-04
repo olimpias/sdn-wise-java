@@ -191,13 +191,13 @@ public class SdnWise {
          * node 3 to execute this function when it receives a packet directed 
          * to node 8.
          */
-        controller.sendFunction(
+        controller.addNodeFunction(
                 (byte) 1,
                 new NodeAddress(8),
                 (byte) 1,
                 "HelloWorld.class");
 
-        controller.sendFunction(
+        controller.addNodeFunction(
                 (byte) 1,
                 new NodeAddress(3),
                 (byte) 1,
@@ -208,7 +208,7 @@ public class SdnWise {
                 + " FUNCTION 1 0 0 0 0 0 0;"
                 + " FORWARD_U 8;"
                 + "}");
-        controller.addRule((byte) 1, new NodeAddress(3), e1);
+        controller.addNodeRule((byte) 1, new NodeAddress(3), e1);
 
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {

@@ -658,7 +658,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                 jSpinnerAddrH.commitEdit();
                 jSpinnerAddrL.commitEdit();
 
-                controller.removeRule(
+                controller.removeNodeRule(
                         ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                         new NodeAddress(
                                 (Integer) this.jSpinnerAddrH.getValue(),
