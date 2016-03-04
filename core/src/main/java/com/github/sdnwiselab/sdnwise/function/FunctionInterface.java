@@ -20,8 +20,7 @@ import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.Neighbor;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -38,7 +37,7 @@ public interface FunctionInterface {
      *
      * @param adcRegister an HashMap containing measurement info.
      * @param flowTable an ArrayList containing the FlowTable of the node.
-     * @param neighborTable an ArrayList containing the Neighbors table of the
+     * @param neighborTable a Set containing the Neighbors table of the
      * node.
      * @param statusRegister an int[] containing the status of the node.
      * @param acceptedId an ArrayList of NodeAddress containing the aliases for
@@ -52,9 +51,9 @@ public interface FunctionInterface {
     public void function(
             HashMap<String, Object> adcRegister,
             ArrayList<FlowTableEntry> flowTable,
-            ArrayList<Neighbor> neighborTable,
+            Set<Neighbor> neighborTable,
             ArrayList<Integer> statusRegister,
-            ArrayList<NodeAddress> acceptedId,
+            Set<NodeAddress> acceptedId,
             ArrayBlockingQueue<NetworkPacket> flowTableQueue,
             ArrayBlockingQueue<NetworkPacket> txQueue,
             byte[] args,

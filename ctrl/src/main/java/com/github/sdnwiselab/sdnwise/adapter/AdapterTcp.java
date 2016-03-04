@@ -99,7 +99,9 @@ public class AdapterTcp extends AbstractAdapter {
      */
     @Override
     public final void send(byte[] data) {
-        tcpElement.send(data);
+        if (tcpElement != null){
+            tcpElement.send(data);
+        }
     }
 
     private abstract class TcpElement extends Observable implements Runnable, Observer {

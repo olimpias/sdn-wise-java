@@ -632,10 +632,10 @@ public class NetworkPacket implements Cloneable {
      * @return the byte of the payload.
      */
     protected final byte[] getPayloadFromTo(int start, int stop) {
-        if (start >= stop) {
-            throw new IllegalArgumentException("Start must be less than stop");
+        if (start > stop) {
+            throw new IllegalArgumentException("Start must be equal or less than stop");
         }
-        if (stop <= 0) {
+        if (stop < 0) {
             throw new IllegalArgumentException("Stop must be greater than 0");
         }
         if (start + SDN_WISE_DFLT_HDR_LEN > this.getLen()) {

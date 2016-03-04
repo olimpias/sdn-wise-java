@@ -114,7 +114,16 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      *
      * @return a byte array of Node Address.
      */
-    public Byte[] getArray() {
+    public byte[] getArray() {
+        return new byte[]{addr[0], addr[1]};
+    }
+    
+    /**
+     * Get Node Address in Byte.
+     *
+     * @return a byte array of Node Address.
+     */
+    public Byte[] toByteArray() {
         return new Byte[]{addr[0], addr[1]};
     }
 

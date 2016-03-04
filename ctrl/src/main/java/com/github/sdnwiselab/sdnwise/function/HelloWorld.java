@@ -20,8 +20,7 @@ import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.Neighbor;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -34,9 +33,9 @@ public class HelloWorld implements FunctionInterface {
     public void function(
             HashMap<String, Object> adcRegister,
             ArrayList<FlowTableEntry> flowTable,
-            ArrayList<Neighbor> neighborTable,
+            Set<Neighbor> neighborTable,
             ArrayList<Integer> statusRegister,
-            ArrayList<NodeAddress> acceptedId,
+            Set<NodeAddress> acceptedId,
             ArrayBlockingQueue<NetworkPacket> flowTableQueue,
             ArrayBlockingQueue<NetworkPacket> txQueue,
             byte[] args,

@@ -38,7 +38,7 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @param newAddr the address
      */
-    void addAcceptedAddress(byte netId, NodeAddress destination, NodeAddress newAddr);
+    void addNodeAlias(byte netId, NodeAddress destination, NodeAddress newAddr);
 
     /**
      * This method installs a rule in the node.
@@ -56,7 +56,7 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @return returns the list of accepted Addresses
      */
-    List<NodeAddress> getAcceptedAddressesList(byte netId, NodeAddress destination);
+    List<NodeAddress> getNodeAliases(byte netId, NodeAddress destination);
 
     /**
      * Getter Method to obtain a ControllerId.
@@ -108,7 +108,7 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @return returns the maximum time to live, -1 if not found
      */
-    int getNodeTtlMax(byte netId, NodeAddress destination);
+    int getNodePacketTtl(byte netId, NodeAddress destination);
 
     /**
      * This method reads the Update table period of a node.
@@ -117,7 +117,7 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @return returns the updateTablePeriod, -1 if not found
      */
-    int getNodeUpdateTablePeriod(byte netId, NodeAddress destination);
+    int getNodeEntryTtl(byte netId, NodeAddress destination);
 
     /**
      * This method gets the WISE flow table entry of a node at position n
@@ -127,7 +127,7 @@ public interface ControllerInterface {
      * @param index position of the entry in the table
      * @return returns the list of the entries in the WISE Flow Table
      */
-    FlowTableEntry getRuleAtPosition(byte netId, NodeAddress destination, int index);
+    FlowTableEntry getNodeRule(byte netId, NodeAddress destination, int index);
 
     /**
      * This method gets the WISE flow table of a node
@@ -136,7 +136,7 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @return returns the list of the entries in the WISE Flow Table
      */
-    List<FlowTableEntry> getRules(byte netId, NodeAddress destination);
+    List<FlowTableEntry> getNodeRules(byte netId, NodeAddress destination);
 
     /**
      * Method called to update the graph of Network.
@@ -152,15 +152,6 @@ public interface ControllerInterface {
      */
     void manageRoutingRequest(RequestPacket req, NetworkPacket data);
 
-    /**
-     * This method removes an address in the list of addresses accepted by the
-     * node.
-     *
-     * @param netId network id of the destination node
-     * @param destination network address of the destination node
-     * @param newAddr the address
-     */
-    void removeAcceptedAddress(byte netId, NodeAddress destination, NodeAddress newAddr);
 
     /**
      * This method removes a rule in the node.
@@ -239,7 +230,7 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @param newNetId value of the new net ID
      */
-    void setNodeNetId(byte netId, NodeAddress destination, byte newNetId);
+    void setNodeNet(byte netId, NodeAddress destination, byte newNetId);
 
     /**
      * This method sets the report period of a node. The new value is passed
@@ -269,7 +260,7 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @param newTtl time to live in number of hops
      */
-    void setNodeTtlMax(byte netId, NodeAddress destination, byte newTtl);
+    void setNodePacketTtl(byte netId, NodeAddress destination, byte newTtl);
 
     /**
      * This method sets the update table period of a node. The new value is
@@ -279,12 +270,23 @@ public interface ControllerInterface {
      * @param destination network address of the destination node
      * @param period update table period in seconds (TODO check)
      */
-    void setNodeUpdateTablePeriod(byte netId, NodeAddress destination, short period);
+    void setNodeEntryTtl(byte netId, NodeAddress destination, short period);
 
     /**
      * Method called when the network starts. It could be used to configuration
      * rules or network at the beginning of the application.
      */
     void setupNetwork();
+    
+    /**
+     * This method removes an address in the list of addresses accepted by the
+     * node at position index.
+     *
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
+     * @param index the address.
+     */
+    void removeNodeAlias(byte net, NodeAddress dst, byte index);
+    
 
 }

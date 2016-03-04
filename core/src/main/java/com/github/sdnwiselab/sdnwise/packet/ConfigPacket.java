@@ -26,52 +26,67 @@ import com.github.sdnwiselab.sdnwise.util.*;
  */
 public class ConfigPacket extends NetworkPacket {
 
+    public boolean isWrite() {
+        return ((getPayloadAt((byte) 0) >> 7) == CNF_WRITE);
+    }
+
     // Configuration Properties
     public enum ConfigProperty {
-        MY_ADDRESS(0),
-        MY_NET(1),
-        BEACON_MAX(2),
-        REPORT_MAX(3),
-        UPDTABLE_MAX(4),
-        SLEEP_MAX(5),
-        TTL_MAX(6),
-        RSSI_MIN(7),
-        ADD_ACCEPTED(8),
-        REMOVE_ACCEPTED(9),
-        LIST_ACCEPTED(10),
-        ADD_RULE(11),
-        REMOVE_RULE(12),
-        REMOVE_RULE_AT(13),
-        GET_RULE_AT(14),
-        RESET(15),
-        ADD_FUNCTION(16),
-        REMOVE_FUNCTION(17);
+        RESET(0,0),
+        MY_NET(1,1),
+        MY_ADDRESS(2,2),
+        PACKET_TTL(3,1),
+        RSSI_MIN(4,1),
+        BEACON_PERIOD(5,2),
+        REPORT_PERIOD(6,2),
+        ENTRY_TTL(7,1),
+        ADD_ALIAS(8,2),
+        REM_ALIAS(9,1),
+        GET_ALIAS(10,1),
+        ADD_RULE(11,-1),
+        REM_RULE(12,1),
+        GET_RULE(13,1),
+        ADD_FUNCTION(14,-1),
+        REM_FUNCTION(15,1),
+        GET_FUNCTION(16,1);
         
         private final byte value;
+        public final int size;
+        
         private final static ConfigProperty[] configPropertyValues = ConfigProperty.values();
 
         public static ConfigProperty fromByte(byte value) {
             return configPropertyValues[value];
         }
 
-        private ConfigProperty(int value) {
+        private ConfigProperty(int value, int size) {
             this.value = (byte) value;
+            this.size = size;
         }
     }
 
-    public final static byte SDN_WISE_CNF_READ = 0,
-            SDN_WISE_CNF_WRITE = 1;
+    private final static byte CNF_WRITE = 1;
+            
 
-    private boolean isWrite;
-
+    
     public ConfigPacket(byte[] data) {
         super(data);
     }
 
-    public ConfigPacket(int netId, NodeAddress src, NodeAddress dst) {
+    public ConfigPacket(int netId, NodeAddress src, NodeAddress dst, ConfigProperty read) {
         super(netId, src, dst);
-        this.setTyp(CONFIG);
+        this.setConfigId(read)
+            .setTyp(CONFIG);
     }
+    
+    public ConfigPacket(int netId, NodeAddress src, NodeAddress dst, ConfigProperty write, byte[] value) {
+        super(netId, src, dst);
+        this.setConfigId(write)
+            .setWrite()
+            .setValue(value, write.size)
+            .setTyp(CONFIG);
+    }
+    
 
     public ConfigPacket(NetworkPacket data) {
         super(data.toByteArray());
@@ -81,58 +96,34 @@ public class ConfigPacket extends NetworkPacket {
         super(data);
     }
 
-    public boolean isWrite() {
-        return this.getPayloadAt(0) >> 7 != SDN_WISE_CNF_READ;
-    }
-
     public final ConfigProperty getConfigId() {
-        return ConfigProperty.fromByte((byte) (super.getPayloadAt((byte) 0) & 0x7F));
+        return ConfigProperty.fromByte((byte) (getPayloadAt((byte) 0) & 0x7F));
     }
 
-    protected ConfigPacket setRead() {
-        if (this.getPayloadSize() < 1) {
-            this.setPayloadSize((byte) 1);
-        }
-        isWrite = false;
-        setPayloadAt((byte) (this.getPayloadAt(0)), 0);
-        setPayloadAt((byte) 0, 1);
-        setPayloadAt((byte) 0, 2);
+    private ConfigPacket setWrite() {
+        setPayloadAt((byte) ((getPayloadAt(0)) | (CNF_WRITE << 7)), 0);
         return this;
     }
 
-    protected ConfigPacket setWrite() {
-        if (this.getPayloadSize() < 1) {
-            this.setPayloadSize((byte) 1);
-        }
-        isWrite = true;
-        setPayloadAt((byte) ((this.getPayloadAt(0)) | (SDN_WISE_CNF_WRITE << 7)), 0);
+    private ConfigPacket setConfigId(ConfigProperty id) {
+        setPayloadAt(id.value, 0);
         return this;
     }
 
-    protected ConfigPacket setConfigId(ConfigProperty property) {
-        byte id = property.value;
-        if (isWrite) {
-            setPayloadAt((byte) (id | (1 << 7)), 0);
-        } else {
-            setPayloadAt((byte) (id), 0);
+    public ConfigPacket setValue(byte[] bytes, int size) {
+        if (size != -1){
+            for (int i = 0; i<size; i++){
+                setPayloadAt(bytes[i], size);
+            }
+        }else{
+            for (int i = 0; i<bytes.length; i++){
+                setPayloadAt(bytes[i], size);
+            }
         }
         return this;
     }
 
-    public ConfigPacket setValue(byte high, byte low) {
-        super.setPayloadAt(high, 1);
-        super.setPayloadAt(low, 2);
-        return this;
+    public byte[] getValue() {
+        return getPayloadFromTo(1, getPayloadSize());
     }
-
-    public int getValue() {
-        return Utils.mergeBytes(getPayloadAt(1), getPayloadAt(2));
-    }
-
-    public ConfigPacket setValue(int value) {
-        super.setPayloadAt((byte) (value >> 8), (byte) 1);
-        super.setPayloadAt((byte) (value & 0xFF), (byte) 2);
-        return this;
-    }
-
 }

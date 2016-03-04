@@ -474,7 +474,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                                     (Integer) this.jSpinnerAddrL.getValue())));
 
             this.jSpinnerTTL.setValue(
-                    controller.getNodeTtlMax(
+                    controller.getNodePacketTtl(
                             ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                             new NodeAddress(
                                     (Integer) this.jSpinnerAddrH.getValue(),
@@ -516,7 +516,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                             (Integer) this.jSpinnerAddrL.getValue()),
                     ((Number) this.jSpinnerRSSI.getValue()).byteValue());
 
-            controller.setNodeTtlMax(
+            controller.setNodePacketTtl(
                     (byte) this.jSpinnerNetID.getValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
@@ -534,7 +534,7 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrH.commitEdit();
             jSpinnerAddrL.commitEdit();
             List<NodeAddress> list
-                    = controller.getAcceptedAddressesList(
+                    = controller.getNodeAliases(
                             ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                             new NodeAddress(
                                     (Integer) this.jSpinnerAddrH.getValue(),
@@ -547,7 +547,7 @@ public final class ControllerGui extends javax.swing.JFrame {
 
             if (list != null) {
                 list.stream().forEach((addr) -> {
-                    model.addRow(addr.getArray());
+                    model.addRow(addr.toByteArray());
                 });
             }
         } catch (ParseException ex) {
@@ -564,14 +564,12 @@ public final class ControllerGui extends javax.swing.JFrame {
                 jSpinnerAddrH.commitEdit();
                 jSpinnerAddrL.commitEdit();
 
-                controller.removeAcceptedAddress(
+                controller.removeNodeAlias(
                         ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                         new NodeAddress(
                                 (Integer) this.jSpinnerAddrH.getValue(),
                                 (Integer) this.jSpinnerAddrL.getValue()),
-                        new NodeAddress(
-                                ((Number) jTableAccepted.getValueAt(index, 0)).byteValue(),
-                                ((Number) jTableAccepted.getValueAt(index, 1)).byteValue()));
+                        (byte)(index & 0xFF));
 
                 ((DefaultTableModel) this.jTableAccepted.getModel()).removeRow(index);
 
@@ -601,7 +599,7 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrH.commitEdit();
             jSpinnerAddrL.commitEdit();
 
-            controller.addAcceptedAddress(
+            controller.addNodeAlias(
                     (byte) this.jSpinnerNetID.getValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
@@ -626,7 +624,7 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrH.commitEdit();
             jSpinnerAddrL.commitEdit();
 
-            List<FlowTableEntry> entryList = controller.getRules(
+            List<FlowTableEntry> entryList = controller.getNodeRules(
                     ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),

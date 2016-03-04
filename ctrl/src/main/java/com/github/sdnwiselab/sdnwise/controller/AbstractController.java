@@ -19,16 +19,15 @@ package com.github.sdnwiselab.sdnwise.controller;
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
-import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
-import static com.github.sdnwiselab.sdnwise.packet.ConfigFunctionPacket.createPackets;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.io.*;
+import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
 import java.net.*;
-import java.nio.file.Files;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
@@ -115,45 +114,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             case CONFIG:
                 ConfigPacket cp = new ConfigPacket(data);
 
-                switch (cp.getConfigId()) {
-                    case MY_ADDRESS:
-                    case MY_NET:
-                    case RESET:
-                    case TTL_MAX:
-                    case RSSI_MIN:
-                        cp = new ConfigNodePacket(data);
-                        break;
-                    case BEACON_MAX:
-                    case REPORT_MAX:
-                    case UPDTABLE_MAX:
-                    case SLEEP_MAX:
-                        cp = new ConfigTimerPacket(data);
-                        break;
-                    case ADD_ACCEPTED:
-                    case LIST_ACCEPTED:
-                    case REMOVE_ACCEPTED:
-                        cp = new ConfigAcceptedIdPacket(data);
-                        break;
-                    case ADD_RULE:
-                    case GET_RULE_AT:
-                    case REMOVE_RULE:
-                    case REMOVE_RULE_AT:
-                        cp = new ConfigRulePacket(data);
-                        break;
-                    case ADD_FUNCTION:
-                    case REMOVE_FUNCTION:
-                        cp = new ConfigFunctionPacket(data);
-                        break;
-                    default:
-                        break;
-                }
-
                 String key;
-                if (cp.getConfigId() == (GET_RULE_AT)) {
+                if (cp.getConfigId() == (GET_RULE)) {
                     key = cp.getNet() + " "
                             + cp.getSrc() + " "
                             + cp.getConfigId() + " "
-                            + cp.getValue();
+                            + cp.getValue()[0];
                 } else {
                     key = cp.getNet() + " "
                             + cp.getSrc() + " "
@@ -205,14 +171,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * network.
      *
      * @param net network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param dst network address of the destination node.
      * @param path the list of all the NodeAddresses in the path.
      */
     @Override
-    public final void sendPath(byte net, NodeAddress destination,
-            List<NodeAddress> path) {
-        OpenPathPacket op = new OpenPathPacket(net, sinkAddress, destination, path);
-        op.setNxh(sinkAddress);
+    public final void sendPath(byte net, NodeAddress dst, List<NodeAddress> path) {
+        OpenPathPacket op = new OpenPathPacket(net, sinkAddress, dst, path);
         sendNetworkPacket(op);
     }
 
@@ -223,15 +187,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      *
      *
      * @param net network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param dst network address of the destination node.
      * @param newAddress the new address.
      */
     @Override
-    public final void setNodeAddress(byte net, NodeAddress destination,
-            NodeAddress newAddress) {
-        ConfigNodePacket cp = new ConfigNodePacket(net, sinkAddress, destination);
-        cp.setNodeAddressValue(newAddress)
-                .setNxh(sinkAddress);
+    public final void setNodeAddress(byte net, NodeAddress dst, NodeAddress newAddress) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, MY_ADDRESS, newAddress.getArray());
         sendNetworkPacket(cp);
     }
 
@@ -239,22 +200,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * This method reads the address of a node.
      *
      * @param net network id of the destination node
-     * @param destination network address of the destination node
+     * @param dst network address of the destination node
      * @return returns the NodeAddress of a node, null if it does exists.
      */
-    public final NodeAddress getNodeAddress(byte net,
-            NodeAddress destination) {
-        ConfigNodePacket cp = new ConfigNodePacket(net, sinkAddress, destination);
-        cp.setReadNodeAddressValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
-        try {
-            response = sendQuery(cp);
-        } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
-            return null;
-        }
-        return ((ConfigNodePacket) response).getNodeAddress();
+    public final NodeAddress getNodeAddress(byte net, NodeAddress dst) {
+        return new NodeAddress(getNodeValue(net, dst, MY_ADDRESS));  
     }
 
     /**
@@ -262,13 +212,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * a byte.
      *
      * @param net network id of the destination node
-     * @param destination network address of the destination node
+     * @param dst network address of the destination node
      */
     @Override
-    public final void resetNode(byte net, NodeAddress destination) {
-        ConfigNodePacket cp = new ConfigNodePacket(net, sinkAddress, destination);
-        cp.setResetValue()
-                .setNxh(sinkAddress);
+    public final void resetNode(byte net, NodeAddress dst) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RESET);
         sendNetworkPacket(cp);
     }
 
@@ -276,173 +224,136 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * This method sets the Network ID of a node. The new value is passed using
      * a byte.
      *
-     * @param netId network id of the destination node
-     * @param destination network address of the destination node
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
      * @param newNetId value of the new net ID
      */
     @Override
-    public final void setNodeNetId(byte netId, NodeAddress destination,
-            byte newNetId) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
-        cp.setNetworkIdValue(newNetId)
-                .setNxh(sinkAddress);
+    public final void setNodeNet(byte net, NodeAddress dst, byte newNetId) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, MY_NET, new byte[]{newNetId});
         sendNetworkPacket(cp);
     }
 
-    /**
-     * This method reads the Network ID of a node.
-     *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
-     * @return returns the nedId, -1 if not found.
-     */
-    public final int getNodeNetId(byte netId, NodeAddress destination) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
-        cp.setReadNetworkIdValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
+    
+    private int getNodeValue(byte net, NodeAddress dst, ConfigProperty cfp) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, cfp);   
         try {
-            response = sendQuery(cp);
+            ConfigPacket response = sendQuery(cp);
+            byte res[] = ((ConfigPacket) response).getValue();
+            if (cfp.size == 1){
+                return res[0] & 0xFF;
+            }else{
+                return mergeBytes(res[0],res[1]);
+            }
         } catch (TimeoutException ex) {
             log(Level.SEVERE, ex.toString());
             return -1;
         }
-        return ((ConfigNodePacket) response).getNetworkIdValue();
+    }
+    
+    /**
+     * This method reads the Network ID of a node.
+     *
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
+     * @return returns the nedId, -1 if not found.
+     */
+    public final int getNodeNet(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, MY_NET);   
     }
 
     /**
      * This method sets the beacon period of a node. The new value is passed
      * using a short.
      *
-     * @param netId network id of the destination node
-     * @param destination network address of the destination node
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
      * @param period beacon period in seconds
      */
     @Override
-    public final void setNodeBeaconPeriod(byte netId, NodeAddress destination,
-            short period) {
-        ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
-        cp.setBeaconPeriodValue(period)
-                .setNxh(sinkAddress);
+    public final void setNodeBeaconPeriod(byte net, NodeAddress dst, short period) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, BEACON_PERIOD, 
+                ByteBuffer.allocate(Short.BYTES).putShort(period).array());
         sendNetworkPacket(cp);
     }
 
     /**
      * This method reads the beacon period of a node.
      *
-     * @param netId network id of the destination node
-     * @param destination network address of the destination node
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
      * @return returns the beacon period, -1 if not found
      */
     @Override
-    public final int getNodeBeaconPeriod(byte netId, NodeAddress destination) {
-        ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
-        cp.setReadBeaconPeriodValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
-        try {
-            response = sendQuery(cp);
-        } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
-            return -1;
-
-        }
-        return ((ConfigTimerPacket) response).getBeaconPeriodValue();
+    public final int getNodeBeaconPeriod(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, BEACON_PERIOD);  
     }
 
     /**
      * This method sets the report period of a node. The new value is passed
      * using a short.
      *
-     * @param netId network id of the destination node
-     * @param destination network address of the destination node
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
      * @param period report period in seconds
      */
     @Override
-    public final void setNodeReportPeriod(byte netId, NodeAddress destination,
-            short period) {
-        ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
-        cp.setReportPeriodValue(period)
-                .setNxh(sinkAddress);
+    public final void setNodeReportPeriod(byte net, NodeAddress dst, short period) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REPORT_PERIOD, 
+                ByteBuffer.allocate(Short.BYTES).putShort(period).array());
         sendNetworkPacket(cp);
     }
 
     /**
      * This method reads the report period of a node.
      *
-     * @param netId network id of the destination node
-     * @param destination network address of the destination node
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
      * @return returns the report period, -1 if not found
      */
     @Override
-    public final int getNodeReportPeriod(byte netId, NodeAddress destination) {
-        ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
-        cp.setReadReportPeriodValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
-        try {
-            response = sendQuery(cp);
-        } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
-            return -1;
-        }
-        return ((ConfigTimerPacket) response).getReportPeriodValue();
+    public final int getNodeReportPeriod(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, BEACON_PERIOD);
     }
 
     /**
      * This method sets the update table period of a node. The new value is
      * passed using a short.
      *
-     * @param netId network id of the destination node
-     * @param destination network address of the destination node
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
      * @param period update table period in seconds (TODO check)
      */
     @Override
-    public final void setNodeUpdateTablePeriod(byte netId,
-            NodeAddress destination, short period) {
-        ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
-        cp.setUpdateTablePeriodValue(period)
-                .setNxh(sinkAddress);
+    public final void setNodeEntryTtl(byte net, NodeAddress dst, short period) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, ENTRY_TTL, 
+                ByteBuffer.allocate(Short.BYTES).putShort(period).array());
         sendNetworkPacket(cp);
     }
 
     /**
      * This method reads the Update table period of a node.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @return returns the updateTablePeriod, -1 if not found.
      */
     @Override
-    public final int getNodeUpdateTablePeriod(byte netId,
-            NodeAddress destination) {
-        ConfigTimerPacket cp = new ConfigTimerPacket(netId, sinkAddress, destination);
-        cp.setReadUpdateTablePeriodValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
-        try {
-            response = sendQuery(cp);
-        } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
-            return -1;
-        }
-        return ((ConfigTimerPacket) response).getUpdateTablePeriodValue();
+    public final int getNodeEntryTtl(byte net, NodeAddress dst) {
+            return getNodeValue(net, dst, ENTRY_TTL); 
     }
 
     /**
      * This method sets the maximum time to live for each message sent by a
      * node. The new value is passed using a byte.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @param newTtl time to live in number of hops.
      */
     @Override
-    public final void setNodeTtlMax(byte netId, NodeAddress destination,
-            byte newTtl) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
-        cp.setDefaultTtlMaxValue(newTtl)
-                .setNxh(sinkAddress);
+    public final void setNodePacketTtl(byte net, NodeAddress dst, byte newTtl) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, PACKET_TTL, new byte[]{newTtl});
         sendNetworkPacket(cp);
     }
 
@@ -450,39 +361,26 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * This method reads the maximum time to live for each message sent by a
      * node.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @return returns the maximum time to live, -1 if not found.
      */
     @Override
-    public final int getNodeTtlMax(byte netId, NodeAddress destination) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
-        cp.setReadDefaultTtlMaxValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
-        try {
-            response = sendQuery(cp);
-        } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
-            return -1;
-        }
-        return ((ConfigNodePacket) response).getDefaultTtlMaxValue();
+    public final int getNodePacketTtl(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, PACKET_TTL); 
     }
 
     /**
      * This method sets the minimum RSSI in order to consider a node as a
      * neighbor.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @param newRssi new threshold rssi value.
      */
     @Override
-    public final void setNodeRssiMin(byte netId, NodeAddress destination,
-            byte newRssi) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
-        cp.setDefaultRssiMinValue(newRssi)
-                .setNxh(sinkAddress);
+    public final void setNodeRssiMin(byte net, NodeAddress dst, byte newRssi) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, PACKET_TTL, new byte[]{newRssi});
         sendNetworkPacket(cp);
     }
 
@@ -490,82 +388,67 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * This method reads the minimum RSSI in order to consider a node as a
      * neighbor.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @return returns the minimum RSSI, -1 if not found.
      */
     @Override
-    public final int getNodeRssiMin(byte netId, NodeAddress destination) {
-        ConfigNodePacket cp = new ConfigNodePacket(netId, sinkAddress, destination);
-        cp.setReadDefaultRssiMinValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
-        try {
-            response = sendQuery(cp);
-        } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
-            return -1;
-        }
-        return ((ConfigNodePacket) response).getDefaultRssiMinValue();
+    public final int getNodeRssiMin(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, RSSI_MIN); 
     }
 
     /**
      * This method adds a new address in the list of addresses accepted by the
      * node.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @param newAddr the address.
      */
     @Override
-    public final void addAcceptedAddress(byte netId, NodeAddress destination,
+    public final void addNodeAlias(byte net, NodeAddress dst,
             NodeAddress newAddr) {
-        ConfigAcceptedIdPacket cp = new ConfigAcceptedIdPacket(netId, sinkAddress, destination);
-        cp.setAddAcceptedAddressValue(newAddr)
-                .setNxh(sinkAddress);
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, ADD_ALIAS, newAddr.getArray());
         sendNetworkPacket(cp);
     }
 
     /**
      * This method removes an address in the list of addresses accepted by the
-     * node.
+     * node at position index.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
-     * @param newAddr the address.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
+     * @param index the address.
      */
     @Override
-    public final void removeAcceptedAddress(byte netId, NodeAddress destination,
-            NodeAddress newAddr) {
-        ConfigAcceptedIdPacket cp = new ConfigAcceptedIdPacket(netId, sinkAddress, destination);
-        cp.setRemoveAcceptedAddressValue(newAddr)
-                .setNxh(sinkAddress);
+    public final void removeNodeAlias(byte net, NodeAddress dst, byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_ALIAS, new byte[]{index});
         sendNetworkPacket(cp);
     }
 
     /**
      * This method returns the list of addresses accepted by the node.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @return returns the list of accepted Addresses.
      */
     @Override
-    public final List<NodeAddress> getAcceptedAddressesList(byte netId,
-            NodeAddress destination) {
-        ConfigAcceptedIdPacket cp = new ConfigAcceptedIdPacket(netId, sinkAddress, destination);
-        cp.setReadAcceptedAddressesValue()
-                .setNxh(sinkAddress);
-        ConfigPacket response;
-        try {
-            response = sendQuery(cp);
-        } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
-            return null;
-        }
-        return new ConfigAcceptedIdPacket(response).getAcceptedAddressesValues();
+    public final List<NodeAddress> getNodeAliases(byte net, NodeAddress dst) {
+        return null;
     }
 
+    /**
+     * This method returns the list of addresses accepted by the node.
+     *
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
+     * @return returns the list of accepted Addresses.
+     */
+    private NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
+        return null;
+    }
+    
     /**
      * This method installs a rule in the node
      *
@@ -574,17 +457,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @param rule the rule to be installed.
      */
     @Override
-    public final void addRule(byte netId, NodeAddress destination,
-            FlowTableEntry rule) {
-        /*
-         ConfigPacket cp = new ConfigPacket();
-         cp.setAddRuleValue(rule)
-         .setNet(netId)
-         .setDst(destination)
-         .setSrc(sinkAddress)
-         .setNxh(sinkAddress);
-         sendNetworkPacket(cp);
-         */
+    public final void addRule(byte netId, NodeAddress destination, FlowTableEntry rule) {
 
         ResponsePacket rp = new ResponsePacket(netId, sinkAddress, destination, rule);
         rp.setNxh(sinkAddress);
@@ -601,10 +474,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     @Override
     public final void removeRule(byte netId,
             NodeAddress destination, int index) {
-        ConfigRulePacket cp = new ConfigRulePacket(netId, sinkAddress, destination);
-        cp.setRemoveRuleAtPositionValue(index)
-                .setNxh(sinkAddress);
-        sendNetworkPacket(cp);
+        
     }
 
     /**
@@ -617,25 +487,21 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     @Override
     public final void removeRule(byte netId, NodeAddress destination,
             FlowTableEntry rule) {
-        ConfigRulePacket cp = new ConfigRulePacket(netId, sinkAddress, destination);
-        cp.setRemoveRuleValue(rule)
-                .setNxh(sinkAddress);
-        sendNetworkPacket(cp);
+        
     }
 
     /**
      * This method gets the WISE flow table of a node.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @return returns the list of the entries in the WISE Flow Table.
      */
     @Override
-    public final List<FlowTableEntry> getRules(byte netId,
-            NodeAddress destination) {
+    public final List<FlowTableEntry> getNodeRules(byte net,NodeAddress dst) {
         List<FlowTableEntry> list = new ArrayList<>(SDN_WISE_RLS_MAX);
         for (int i = 0; i < SDN_WISE_RLS_MAX; i++) {
-            list.add(i, getRuleAtPosition(netId, destination, i));
+            list.add(i, getNodeRule(net, dst, i));
         }
         return list;
     }
@@ -643,25 +509,21 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     /**
      * This method gets the WISE flow table entry of a node at position n.
      *
-     * @param netId network id of the destination node.
-     * @param destination network address of the destination node.
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
      * @param index position of the entry in the table.
      * @return returns the list of the entries in the WISE Flow Table.
      */
     @Override
-    public final FlowTableEntry getRuleAtPosition(byte netId,
-            NodeAddress destination, int index) {
-        ConfigRulePacket cp = new ConfigRulePacket(netId, sinkAddress, destination);
-        cp.setGetRuleAtIndexValue(index)
-                .setNxh(sinkAddress);
-        ConfigPacket response;
+    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
         try {
-            response = sendQuery(cp);
+            ConfigPacket response = sendQuery(cp);
+            return new FlowTableEntry(((ConfigPacket) response).getValue());
         } catch (TimeoutException ex) {
             log(Level.SEVERE, ex.toString());
             return null;
-        }
-        return ((ConfigRulePacket) response).getRule();
+        }  
     }
 
     @Override
@@ -671,7 +533,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             byte id,
             String className
     ) {
+        /*
         try {
+            
             URL main = FunctionInterface.class.getResource(className);
             File path = new File(main.getPath());
             byte[] buf = Files.readAllBytes(path.toPath());
@@ -685,9 +549,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                     this.sendNetworkPacket(llIterator.next());
                 }
             }
+            
         } catch (IOException | InterruptedException ex) {
             log(Level.SEVERE, ex.toString());
         }
+        */
     }
 
     /**
@@ -712,11 +578,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
         String key;
 
-        if (cp.getConfigId() == (GET_RULE_AT)) {
+        if (cp.getConfigId() == (GET_RULE)) {
             key = cp.getNet() + " "
                     + cp.getDst() + " "
                     + cp.getConfigId() + " "
-                    + cp.getValue();
+                    + cp.getValue()[0];
         } else {
             key = cp.getNet() + " "
                     + cp.getDst() + " "
@@ -759,6 +625,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @param packet the packet to be sent.
      */
     protected void sendNetworkPacket(NetworkPacket packet) {
+        packet.setNxh(sinkAddress);
         lower.send(packet.toByteArray());
     }
 

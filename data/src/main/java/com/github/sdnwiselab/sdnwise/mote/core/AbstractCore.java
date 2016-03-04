@@ -25,10 +25,11 @@ import com.github.sdnwiselab.sdnwise.flowtable.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
 import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
 import static com.github.sdnwiselab.sdnwise.mote.core.Constants.*;
-import static com.github.sdnwiselab.sdnwise.packet.ConfigAcceptedIdPacket.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.util.*;
-import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
+import static com.github.sdnwiselab.sdnwise.util.Utils.*;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
@@ -68,7 +69,6 @@ public abstract class AbstractCore {
 
     // Configuration parameters
     int flowTableSize,
-            neighbors_number,
             myNetId,
             cnt_beacon_max,
             cnt_report_max,
@@ -83,13 +83,13 @@ public abstract class AbstractCore {
     protected NodeAddress myAddress;
 
     // Neighbors
-    protected ArrayList<Neighbor> neighborTable = new ArrayList<>(100);
+    protected Set<Neighbor> neighborTable = new HashSet<>(100);
 
     // WISE Flow Table
     protected ArrayList<FlowTableEntry> flowTable = new ArrayList<>(100);
 
     // Accepted IDs
-    protected ArrayList<NodeAddress> acceptedId = new ArrayList<>(100);
+    protected Set<NodeAddress> acceptedId = new HashSet<>();
 
     // Status Register
     protected ArrayList<Integer> statusRegister = new ArrayList<>();
@@ -165,8 +165,6 @@ public abstract class AbstractCore {
 
     public void start() {
         initFlowTable();
-        initNeighborTable();
-        initAcceptedId();
         initStatusRegister();
         initSdnWise();
         new Thread(new rxPacketManager()).start();
@@ -189,19 +187,6 @@ public abstract class AbstractCore {
 
         for (int i = 1; i < SDN_WISE_RLS_MAX; i++) {
             flowTable.add(i, new FlowTableEntry());
-        }
-    }
-
-    private void initNeighborTable() {
-        for (int i = 0; i < SDN_WISE_NEIGHBORS_MAX; i++) {
-            neighborTable.add(i, new Neighbor());
-        }
-        neighbors_number = 0;
-    }
-
-    private void initAcceptedId() {
-        for (int i = 0; i < SDN_WISE_ACCEPTED_ID_MAX; i++) {
-            acceptedId.add(i, BROADCAST_ADDR);
         }
     }
 
@@ -373,8 +358,7 @@ public abstract class AbstractCore {
     protected boolean isAcceptedIdAddress(NodeAddress addrP) {
         return (addrP.equals(myAddress)
                 || addrP.isBroadcast()
-                || (searchAcceptedId(addrP)
-                != SDN_WISE_ACCEPTED_ID_MAX + 1));
+                || acceptedId.contains(addrP));
     }
 
     protected boolean isAcceptedIdPacket(NetworkPacket packet) {
@@ -602,19 +586,8 @@ public abstract class AbstractCore {
     }
 
     protected void rxBeacon(BeaconPacket bp, int rssi) {
-        int index = getNeighborIndex(bp.getSrc());
-
-        if (index != (SDN_WISE_NEIGHBORS_MAX + 1)) {
-            if (index != -1) {
-                neighborTable.get(index).setRssi(rssi);
-                neighborTable.get(index).setBatt(bp.getBattery());
-            } else {
-                neighborTable.get(neighbors_number).setAddr(bp.getSrc());
-                neighborTable.get(neighbors_number).setRssi(rssi);
-                neighborTable.get(neighbors_number).setBatt(bp.getBattery());
-                neighbors_number++;
-            }
-        }
+        Neighbor nb = new Neighbor(bp.getSrc(),rssi,bp.getBattery());
+        this.neighborTable.add(nb);
     }
 
     protected final void runFlowMatch(NetworkPacket packet) {
@@ -658,61 +631,50 @@ public abstract class AbstractCore {
         int pos;
         boolean isWrite = packet.isWrite();
         ConfigProperty id = packet.getConfigId();
-        int value = packet.getValue();
+        byte[] value = packet.getValue();
         if (isWrite) {
             switch (id) {
                 case MY_ADDRESS:
                     myAddress = new NodeAddress(value);
                     break;
                 case MY_NET:
-                    myNetId = value;
+                    myNetId = value[0];
                     break;
-                case BEACON_MAX:
-                    cnt_beacon_max = value;
+                case BEACON_PERIOD:
+                    cnt_beacon_max = mergeBytes(value[0],value[1]);
                     break;
-                case REPORT_MAX:
-                    cnt_report_max = value;
+                case REPORT_PERIOD:
+                    cnt_report_max = mergeBytes(value[0],value[1]);;
                     break;
-                case UPDTABLE_MAX:
-                    cnt_updtable_max = value;
+                case ENTRY_TTL:
+                    cnt_updtable_max = value[0];
                     break;
-                case SLEEP_MAX:
-                    cnt_sleep_max = value;
-                    break;
-                case TTL_MAX:
-                    ttl_max = value;
+                case PACKET_TTL:
+                    ttl_max = value[0];
                     break;
                 case RSSI_MIN:
-                    rssi_min = value;
+                    rssi_min = value[0];
                     break;
-                case ADD_ACCEPTED:
-                    pos = searchAcceptedId(new NodeAddress(value));
-                    if (pos == (SDN_WISE_ACCEPTED_ID_MAX + 1)) {
-                        pos = searchAcceptedId(new NodeAddress(65535));
-                        acceptedId.set(pos, new NodeAddress(value));
+                case ADD_ALIAS:
+                    acceptedId.add(new NodeAddress(value));
+                    break;
+                case REM_ALIAS:
+                    acceptedId.remove(new NodeAddress(value));
+                    break;
+                case REM_RULE:
+                    if (value[0] != 0) {
+                        flowTable.set(getActualFlowIndex(value[0]), new FlowTableEntry());
                     }
                     break;
-                case REMOVE_ACCEPTED:
-                    pos = searchAcceptedId(new NodeAddress(value));
-                    if (pos != (SDN_WISE_ACCEPTED_ID_MAX + 1)) {
-                        acceptedId.set(pos, new NodeAddress(65535));
-                    }
-                    break;
-                case REMOVE_RULE_AT:
-                    if (value != 0) {
-                        flowTable.set(getActualFlowIndex(value), new FlowTableEntry());
-                    }
-                    break;
-                case REMOVE_RULE:
                 case ADD_RULE:
                 case RESET:
                     //TODO
                     break;
                 case ADD_FUNCTION:
-                    ConfigFunctionPacket cfp = new ConfigFunctionPacket(packet);
-
-                    if (functionBuffer.get(value) == null) {
-                        functionBuffer.put(value, new LinkedList<>());
+                    ConfigPacket cfp = new ConfigPacket(packet);
+                    /*
+                    if (functionBuffer.get((int)value[0]) == null) {
+                        functionBuffer.put((int)value[0], new LinkedList<>());
                     }
                     functionBuffer.get(value).add(cfp.getFunctionPayload());
                     if (functionBuffer.get(value).size() == cfp.getTotalParts()) {
@@ -734,6 +696,7 @@ public abstract class AbstractCore {
                     break;
                 case REMOVE_FUNCTION:
                     functions.remove(value);
+                    */
                     break;
                 default:
                     break;
@@ -742,30 +705,28 @@ public abstract class AbstractCore {
             toBeSent = 1;
             switch (id) {
                 case MY_ADDRESS:
-                    packet.setValue(myAddress.intValue());
+                    packet.setValue(myAddress.getArray(),id.size);
                     break;
                 case MY_NET:
-                    packet.setValue(myNetId);
+                    packet.setValue(new byte[]{(byte)(myNetId & 0xFF)},id.size);
                     break;
-                case BEACON_MAX:
-                    packet.setValue(cnt_beacon_max);
+                case BEACON_PERIOD:
+                    packet.setValue(splitInteger(cnt_beacon_max),id.size);
                     break;
-                case REPORT_MAX:
-                    packet.setValue(cnt_report_max);
+                case REPORT_PERIOD:
+                    packet.setValue(splitInteger(cnt_report_max),id.size);
                     break;
-                case UPDTABLE_MAX:
-                    packet.setValue(cnt_updtable_max);
+                case ENTRY_TTL:
+                    packet.setValue(new byte[]{(byte)(cnt_updtable_max & 0xFF)},id.size);
                     break;
-                case SLEEP_MAX:
-                    packet.setValue(cnt_sleep_max);
-                    break;
-                case TTL_MAX:
-                    packet.setValue(ttl_max);
+                case PACKET_TTL:
+                    packet.setValue(new byte[]{(byte)(ttl_max & 0xFF)},id.size);
                     break;
                 case RSSI_MIN:
-                    packet.setValue(rssi_min);
+                    packet.setValue(new byte[]{(byte)(rssi_min & 0xFF)},id.size);
                     break;
-                case LIST_ACCEPTED:
+                case GET_ALIAS:
+                    /*
                     toBeSent = 0;
                     ConfigAcceptedIdPacket packetList
                             = new ConfigAcceptedIdPacket(
@@ -780,8 +741,10 @@ public abstract class AbstractCore {
                         }
                     }
                     controllerTX(packetList);
+                    */
                     break;
-                case GET_RULE_AT:
+                case GET_RULE:
+                    /*
                     toBeSent = 0;
                     ConfigRulePacket packetRule = new ConfigRulePacket(
                             myNetId,
@@ -792,6 +755,7 @@ public abstract class AbstractCore {
                     packetRule.setRule(flowTable.get(jj))
                             .setGetRuleAtIndexValue(value);
                     controllerTX(packetRule);
+                    */
                     break;
                 default:
                     break;
@@ -836,14 +800,17 @@ public abstract class AbstractCore {
                 sinkDistance,
                 battery.getByteLevel());
 
-        rp.setNeighbors(neighbors_number)
+        rp.setNeighbors(this.neighborTable.size())
                 .setNxh(getNextHopVsSink());
 
-        for (int j = 0; j < neighbors_number; j++) {
-            rp.setNeighborAddressAt(neighborTable.get(j).getAddr(), j)
-                    .setLinkQualityAt((byte) neighborTable.get(j).getRssi(), j);
+        int j = 0;
+        for (Neighbor n : neighborTable){
+            rp.setNeighborAddressAt(n.getAddr(), j)
+              .setLinkQualityAt((byte)n.getRssi(), j);
+            j++;
         }
-        initNeighborTable();
+        
+        neighborTable.clear();
         return rp;
     }
 
@@ -867,28 +834,6 @@ public abstract class AbstractCore {
         }
     }
 
-    final int getNeighborIndex(NodeAddress addr) {
-        int i;
-        for (i = 0; i < SDN_WISE_NEIGHBORS_MAX; i++) {
-            if (neighborTable.get(i).getAddr().equals(addr)) {
-                return i;
-            }
-            if (neighborTable.get(i).getAddr().isBroadcast()) {
-                return -1;
-            }
-        }
-        return SDN_WISE_NEIGHBORS_MAX + 1;
-    }
-
-    final int searchAcceptedId(NodeAddress addr) {
-        int i;
-        for (i = 0; i < SDN_WISE_ACCEPTED_ID_MAX; i++) {
-            if (acceptedId.get(i).equals(addr)) {
-                return i;
-            }
-        }
-        return SDN_WISE_ACCEPTED_ID_MAX + 1;
-    }
 
     final int getActualFlowIndex(int j) {
         //j = j % SDN_WISE_RLS_MAX;
