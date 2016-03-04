@@ -71,6 +71,8 @@ public class NetworkPacket implements Cloneable {
     
      /**
      * Returns the index of a byte in the header given a string.
+     * @param b
+     * @return 
      */
     public static int getNetworkPacketByteFromName(String b) {
         switch (b) {
