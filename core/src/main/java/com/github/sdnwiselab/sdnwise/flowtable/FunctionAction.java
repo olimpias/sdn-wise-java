@@ -64,14 +64,15 @@ public class FunctionAction extends AbstractAction {
     public FunctionAction(String str) {
         super(FUNCTION, 0);
         String[] tmp = str.split(" ");
+        
         if (tmp[0].equals(FUNCTION.name())) {
-            this.size = tmp.length-2;
-            this.action = new byte[size+1];
-            
+            size = tmp.length-2;
+            action = new byte[tmp.length];
+            setType(FUNCTION);
             setId(Integer.parseInt(tmp[1]));
             
-            for (int i = 0; i<size; i++){
-                setValue(i, Integer.parseInt(tmp[i+2]));
+            for (int i = 1; i<size+1; i++){
+                setValue(i, Integer.parseInt(tmp[i+1]));
             }
         } else {
             throw new IllegalArgumentException();

@@ -25,9 +25,8 @@ import com.github.sdnwiselab.sdnwise.packet.*;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
+import static com.github.sdnwiselab.sdnwise.util.Utils.*;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
@@ -54,7 +53,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     // to avoid garbage collection of the logger
     protected static final Logger LOGGER = Logger.getLogger("CTRL");
 
-    final static int SDN_WISE_RLS_MAX = 16;
+    final static int FLOW_TABLE_SIZE = 16;
     final static int RESPONSE_TIMEOUT = 300; // Increase when using COOJA
     final static int CACHE_EXP_TIME = 5;
 
@@ -87,6 +86,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         this.networkGraph = networkGraph;
     }
 
+    @Override
     public NodeAddress getSinkAddress() {
         return sinkAddress;
     }
@@ -116,13 +116,10 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
                 String key;
                 if (cp.getConfigId() == (GET_RULE)) {
-                    key = cp.getNet() + " "
-                            + cp.getSrc() + " "
-                            + cp.getConfigId() + " "
-                            + cp.getValue()[0];
+                    key = cp.getNet() + " " + cp.getSrc() + " " 
+                            + cp.getConfigId() + " " + cp.getValue()[0];
                 } else {
-                    key = cp.getNet() + " "
-                            + cp.getSrc() + " "
+                    key = cp.getNet() + " " + cp.getSrc() + " " 
                             + cp.getConfigId();
                 }
                 configCache.put(key, cp);
@@ -202,19 +199,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @param dst network address of the destination node
      * @return returns the NodeAddress of a node, null if it does exists.
      */
+    @Override
     public final NodeAddress getNodeAddress(byte net, NodeAddress dst) {
         return new NodeAddress(getNodeValue(net, dst, MY_ADDRESS));
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method sets the Network ID of a node. The new value is passed using
      * a byte.
@@ -227,31 +216,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RESET);
         sendNetworkPacket(cp);
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
     private int getNodeValue(byte net, NodeAddress dst, ConfigProperty cfp) {
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, cfp);
         try {
-            ConfigPacket response = sendQuery(cp);
-            byte res[] = ((ConfigPacket) response).getValue();
+            byte res[] = sendQuery(cp).getValue();
             if (cfp.size == 1) {
                 return res[0] & 0xFF;
             } else {
@@ -263,13 +232,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         }
     }
 
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method sets the Network ID of a node. The new value is passed using
      * a byte.
@@ -280,7 +242,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final void setNodeNet(byte net, NodeAddress dst, byte newNetId) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, MY_NET, new byte[]{newNetId});
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, MY_NET, new byte[]{newNetId});
         sendNetworkPacket(cp);
     }
 
@@ -291,16 +254,10 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @param dst network address of the destination node.
      * @return returns the nedId, -1 if not found.
      */
+    @Override
     public final int getNodeNet(byte net, NodeAddress dst) {
         return getNodeValue(net, dst, MY_NET);
     }
-    
-    
-    
-    
-    
-    
-    
 
     /**
      * This method sets the beacon period of a node. The new value is passed
@@ -312,8 +269,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final void setNodeBeaconPeriod(byte net, NodeAddress dst, short period) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, BEACON_PERIOD,
-                ByteBuffer.allocate(Short.BYTES).putShort(period).array());
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, BEACON_PERIOD, splitInteger(period));
         sendNetworkPacket(cp);
     }
 
@@ -329,17 +286,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return getNodeValue(net, dst, BEACON_PERIOD);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method sets the report period of a node. The new value is passed
      * using a short.
@@ -350,8 +296,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final void setNodeReportPeriod(byte net, NodeAddress dst, short period) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REPORT_PERIOD,
-                ByteBuffer.allocate(Short.BYTES).putShort(period).array());
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, REPORT_PERIOD, splitInteger(period));
         sendNetworkPacket(cp);
     }
 
@@ -367,21 +313,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return getNodeValue(net, dst, BEACON_PERIOD);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method sets the update table period of a node. The new value is
      * passed using a short.
@@ -392,8 +323,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final void setNodeEntryTtl(byte net, NodeAddress dst, short period) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, ENTRY_TTL,
-                ByteBuffer.allocate(Short.BYTES).putShort(period).array());
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, RULE_TTL, splitInteger(period));
         sendNetworkPacket(cp);
     }
 
@@ -406,23 +337,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final int getNodeEntryTtl(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, ENTRY_TTL);
+        return getNodeValue(net, dst, RULE_TTL);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method sets the maximum time to live for each message sent by a
      * node. The new value is passed using a byte.
@@ -450,18 +367,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return getNodeValue(net, dst, PACKET_TTL);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method sets the minimum RSSI in order to consider a node as a
      * neighbor.
@@ -489,19 +394,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return getNodeValue(net, dst, RSSI_MIN);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method adds a new address in the list of addresses accepted by the
      * node.
@@ -540,8 +432,16 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final List<NodeAddress> getNodeAliases(byte net, NodeAddress dst) {
-        // TODO
-        return null;
+        List<NodeAddress> list = new LinkedList<>();
+        for (int i = 0; i < FLOW_TABLE_SIZE; i++) {
+                NodeAddress na = getNodeAlias(net, dst, (byte)i);
+                if (na != null){
+                    list.add(i, na);
+                } else {
+                    break;
+                }
+        }
+        return list;
     }
 
     /**
@@ -552,25 +452,20 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @param index
      * @return returns the list of accepted Addresses.
      */
+    @Override
     public NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
-        // TODO
-        return null;
+        try {
+            ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_ALIAS);
+            cp.setValue(new byte[]{(byte)index}, GET_RULE.size);
+            ConfigPacket response = sendQuery(cp);
+            byte[] rule = Arrays.copyOfRange(response.getValue(),1,response.getPayloadSize()-1);
+            return new NodeAddress(rule);   
+        } catch (TimeoutException ex) {
+            return null;
+        }
+        
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * This method installs a rule in the node
      *
@@ -581,7 +476,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     @Override
     public final void addNodeRule(byte netId, NodeAddress destination, FlowTableEntry rule) {
         ResponsePacket rp = new ResponsePacket(netId, sinkAddress, destination, rule);
-        rp.setNxh(sinkAddress);
         sendNetworkPacket(rp);
     }
 
@@ -593,8 +487,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @param index index of the erased row.
      */
     @Override
-    public final void removeNodeRule(byte net,NodeAddress dst, int index) {
-        // TODO
+    public final void removeNodeRule(byte net, NodeAddress dst, byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_RULE, new byte[]{index});
+        sendNetworkPacket(cp);
     }
 
     /**
@@ -606,9 +501,14 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final List<FlowTableEntry> getNodeRules(byte net, NodeAddress dst) {
-        List<FlowTableEntry> list = new ArrayList<>(SDN_WISE_RLS_MAX);
-        for (int i = 0; i < SDN_WISE_RLS_MAX; i++) {
-            list.add(i, getNodeRule(net, dst, i));
+        List<FlowTableEntry> list = new ArrayList<>(FLOW_TABLE_SIZE);
+        for (int i = 0; i < FLOW_TABLE_SIZE; i++) {
+                FlowTableEntry fte = getNodeRule(net, dst, i);
+                if (fte != null){
+                    list.add(i, fte);
+                } else { 
+                    break;
+                }
         }
         return list;
     }
@@ -622,13 +522,14 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @return returns the list of the entries in the WISE Flow Table.
      */
     @Override
-    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
+    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index){
         try {
+            ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
+            cp.setValue(new byte[]{(byte)index}, GET_RULE.size);
             ConfigPacket response = sendQuery(cp);
-            return new FlowTableEntry(((ConfigPacket) response).getValue());
+            byte[] rule = Arrays.copyOfRange(response.getValue(),1,response.getPayloadSize()-1);
+            return new FlowTableEntry(rule);   
         } catch (TimeoutException ex) {
-            log(Level.SEVERE, ex.toString());
             return null;
         }
     }
@@ -636,7 +537,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     @Override
     public void addNodeFunction(byte net, NodeAddress dst, byte id, String className) {
         // TODO
-        
+
         /*
         try {
             
@@ -659,7 +560,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         }
          */
     }
-    
+
     @Override
     public void removeNodeFunction(byte net, NodeAddress dst, byte id, String className) {
         // TODO

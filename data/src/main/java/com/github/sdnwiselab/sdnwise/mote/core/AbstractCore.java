@@ -30,6 +30,7 @@ import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.util.*;
 import static com.github.sdnwiselab.sdnwise.util.Utils.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
@@ -81,15 +82,13 @@ public abstract class AbstractCore {
 
     // The address of the node
     protected NodeAddress myAddress;
-
-    // Neighbors
-    protected Set<Neighbor> neighborTable = new HashSet<>(100);
+    protected Set<Neighbor> neighborTable;
 
     // WISE Flow Table
     protected ArrayList<FlowTableEntry> flowTable = new ArrayList<>(100);
 
     // Accepted IDs
-    protected Set<NodeAddress> acceptedId = new HashSet<>();
+    protected ArrayList<NodeAddress> acceptedId = new ArrayList<>();
 
     // Status Register
     protected ArrayList<Integer> statusRegister = new ArrayList<>();
@@ -102,6 +101,7 @@ public abstract class AbstractCore {
     HashMap<Integer, FunctionInterface> functions = new HashMap<>();
 
     AbstractCore(byte netId, NodeAddress address, Battery battery) {
+        this.neighborTable = Collections.synchronizedSet(new HashSet<>(100));
         this.myAddress = address;
         this.myNetId = netId;
         this.battery = battery;
@@ -628,17 +628,18 @@ public abstract class AbstractCore {
 
     protected int marshalPacket(ConfigPacket packet) {
         int toBeSent = 0;
-        int pos;
-        boolean isWrite = packet.isWrite();
         ConfigProperty id = packet.getConfigId();
         byte[] value = packet.getValue();
-        if (isWrite) {
+        
+        
+        if (packet.isWrite()) {
+            int idValue = value[0] & 0xFF;
             switch (id) {
                 case MY_ADDRESS:
                     myAddress = new NodeAddress(value);
                     break;
                 case MY_NET:
-                    myNetId = value[0];
+                    myNetId = idValue;
                     break;
                 case BEACON_PERIOD:
                     cnt_beacon_max = mergeBytes(value[0],value[1]);
@@ -646,57 +647,62 @@ public abstract class AbstractCore {
                 case REPORT_PERIOD:
                     cnt_report_max = mergeBytes(value[0],value[1]);;
                     break;
-                case ENTRY_TTL:
-                    cnt_updtable_max = value[0];
+                case RULE_TTL:
+                    cnt_updtable_max = idValue;
                     break;
                 case PACKET_TTL:
-                    ttl_max = value[0];
+                    ttl_max = idValue;
                     break;
                 case RSSI_MIN:
-                    rssi_min = value[0];
+                    rssi_min = idValue;
                     break;
                 case ADD_ALIAS:
                     acceptedId.add(new NodeAddress(value));
                     break;
                 case REM_ALIAS:
-                    acceptedId.remove(new NodeAddress(value));
+                    acceptedId.remove(idValue);
                     break;
                 case REM_RULE:
-                    if (value[0] != 0) {
-                        flowTable.set(getActualFlowIndex(value[0]), new FlowTableEntry());
+                    if (idValue != 0) {
+                        flowTable.set(getActualFlowIndex(idValue), new FlowTableEntry());
                     }
                     break;
                 case ADD_RULE:
+                    // TODO we need to decide what to do with response packets
+                    break;
                 case RESET:
-                    //TODO
+                    initFlowTable();
+                    initStatusRegister();
+                    initSdnWise();
                     break;
                 case ADD_FUNCTION:
-                    ConfigPacket cfp = new ConfigPacket(packet);
-                    /*
-                    if (functionBuffer.get((int)value[0]) == null) {
-                        functionBuffer.put((int)value[0], new LinkedList<>());
+                    if (functionBuffer.get(idValue) == null) {
+                        functionBuffer.put(idValue, new LinkedList<>());
                     }
-                    functionBuffer.get(value).add(cfp.getFunctionPayload());
-                    if (functionBuffer.get(value).size() == cfp.getTotalParts()) {
+                    
+                    byte[] functionPayload = Arrays.copyOfRange(value, 3, value.length);
+                    int totalParts = value[2] & 0xFF;
+
+                    functionBuffer.get(idValue).add(functionPayload);
+                    if (functionBuffer.get(idValue).size() == totalParts) {
                         int total = 0;
-                        total = functionBuffer.get(value).stream().map((n)
+                        total = functionBuffer.get(idValue).stream().map((n)
                                 -> (n.length)).reduce(total, Integer::sum);
                         int pointer = 0;
                         byte[] func = new byte[total];
-                        for (byte[] n : functionBuffer.get(value)) {
+                        for (byte[] n : functionBuffer.get(idValue)) {
                             for (int j = 0; j < n.length; j++) {
                                 func[pointer] = n[j];
                                 pointer++;
                             }
                         }
-                        functions.put(value, createServiceInterface(func));
-                        log(Level.INFO, "New Function Added at position: " + value);
-                        functionBuffer.remove(value);
+                        functions.put(idValue, createServiceInterface(func));
+                        log(Level.INFO, "New Function Added at position: " + idValue);
+                        functionBuffer.remove(idValue);
                     }
                     break;
-                case REMOVE_FUNCTION:
-                    functions.remove(value);
-                    */
+                case REM_FUNCTION:
+                    functions.remove(idValue);              
                     break;
                 default:
                     break;
@@ -716,7 +722,7 @@ public abstract class AbstractCore {
                 case REPORT_PERIOD:
                     packet.setValue(splitInteger(cnt_report_max),id.size);
                     break;
-                case ENTRY_TTL:
+                case RULE_TTL:
                     packet.setValue(new byte[]{(byte)(cnt_updtable_max & 0xFF)},id.size);
                     break;
                 case PACKET_TTL:
@@ -726,36 +732,27 @@ public abstract class AbstractCore {
                     packet.setValue(new byte[]{(byte)(rssi_min & 0xFF)},id.size);
                     break;
                 case GET_ALIAS:
-                    /*
-                    toBeSent = 0;
-                    ConfigAcceptedIdPacket packetList
-                            = new ConfigAcceptedIdPacket(
-                                    myNetId,
-                                    packet.getDst(),
-                                    packet.getSrc());
-                    packetList.setReadAcceptedAddressesValue();
-
-                    for (int jj = 0; jj < SDN_WISE_ACCEPTED_ID_MAX; jj++) {
-                        if (!acceptedId.get(jj).isBroadcast()) {
-                            packetList.addAcceptedAddressAtIndex(myAddress, jj);
-                        }
+                    int aIndex = value[0] & 0xFF;
+                    if (aIndex < acceptedId.size()){   
+                        byte[] tmp = acceptedId.get(aIndex).getArray();
+                        packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte)aIndex).put(tmp).array(), -1);
+                    } else {
+                        toBeSent = 0;
                     }
-                    controllerTX(packetList);
-                    */
                     break;
                 case GET_RULE:
-                    /*
-                    toBeSent = 0;
-                    ConfigRulePacket packetRule = new ConfigRulePacket(
-                            myNetId,
-                            packet.getDst(),
-                            packet.getSrc()
-                    );
-                    int jj = getActualFlowIndex(value);
-                    packetRule.setRule(flowTable.get(jj))
-                            .setGetRuleAtIndexValue(value);
-                    controllerTX(packetRule);
-                    */
+                    int rIndex = value[0] & 0xFF;
+                    int i = getActualFlowIndex(rIndex);
+                    FlowTableEntry fte = flowTable.get(i);
+                    if (!fte.getWindows().isEmpty()){
+                        byte[] tmp = fte.toByteArray();
+                        packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte)rIndex).put(tmp).array(), -1);
+                    } else {
+                        toBeSent = 0;
+                    }
+                    break;
+                case GET_FUNCTION:
+                    // TODO
                     break;
                 default:
                     break;
@@ -808,8 +805,8 @@ public abstract class AbstractCore {
             rp.setNeighborAddressAt(n.getAddr(), j)
               .setLinkQualityAt((byte)n.getRssi(), j);
             j++;
-        }
         
+        }
         neighborTable.clear();
         return rp;
     }

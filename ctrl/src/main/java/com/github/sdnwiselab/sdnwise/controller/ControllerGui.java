@@ -541,15 +541,13 @@ public final class ControllerGui extends javax.swing.JFrame {
                                     (Integer) this.jSpinnerAddrL.getValue()));
 
             DefaultTableModel model = (DefaultTableModel) this.jTableAccepted.getModel();
-            int tmp = model.getRowCount();
             model.setRowCount(0);
-            model.setRowCount(tmp);
-
-            if (list != null) {
-                list.stream().forEach((addr) -> {
-                    model.addRow(addr.toByteArray());
-                });
-            }
+            
+            list.stream().forEach((na) -> {
+                model.addRow(new Integer[]{(int) na.getHigh() & 0xFF, (int) na.getLow() & 0xFF});
+            });
+            
+            
         } catch (ParseException ex) {
             Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -589,18 +587,18 @@ public final class ControllerGui extends javax.swing.JFrame {
             String addrStr = JOptionPane.showInputDialog("Enter new address :");
             if (addrStr.contains(".")) {
                 addr = new NodeAddress(addrStr);
-                model.addRow(new Integer[]{(int) addr.getHigh() & 0xFF, (int) addr.getLow() & 0xFF});
             } else {
                 addr = new NodeAddress(Integer.parseInt(addrStr));
-                model.addRow(new Integer[]{(int) addr.getHigh() & 0xFF, (int) addr.getLow() & 0xFF});
             }
-
+            
+            model.addRow(new Integer[]{(int) addr.getHigh() & 0xFF, (int) addr.getLow() & 0xFF});
+            
             jSpinnerNetID.commitEdit();
             jSpinnerAddrH.commitEdit();
             jSpinnerAddrL.commitEdit();
 
             controller.addNodeAlias(
-                    (byte) this.jSpinnerNetID.getValue(),
+                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
                             (Integer) this.jSpinnerAddrL.getValue()),
@@ -624,26 +622,18 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrH.commitEdit();
             jSpinnerAddrL.commitEdit();
 
-            List<FlowTableEntry> entryList = controller.getNodeRules(
+            List<FlowTableEntry> list = controller.getNodeRules(
                     ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
                             (Integer) this.jSpinnerAddrL.getValue()));
 
             DefaultTableModel model = (DefaultTableModel) this.jTableFlow.getModel();
-            int tmp = model.getRowCount();
             model.setRowCount(0);
-            model.setRowCount(tmp);
-
-            int j = 0;
-            for (FlowTableEntry entry : entryList) {
-                if (entry != null
-                        && entry.getWindows() != null && entry.getWindows().size() > 0
-                        && entry.getWindows().get(0) != null) {
-                    this.jTableFlow.setValueAt(entry.toString(), j, 0);
-                }
-                j++;
-            }
+            
+            list.stream().forEach((na) -> {
+                model.addRow(new String[]{na.toString()});
+            });
 
         } catch (ParseException ex) {
             Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
@@ -663,7 +653,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                         new NodeAddress(
                                 (Integer) this.jSpinnerAddrH.getValue(),
                                 (Integer) this.jSpinnerAddrL.getValue()),
-                        this.jTableFlow.getSelectedRow());
+                       (byte) this.jTableFlow.getSelectedRow());
 
                 DefaultTableModel model = (DefaultTableModel) jTableFlow.getModel();
                 model.removeRow(this.jTableFlow.getSelectedRow());

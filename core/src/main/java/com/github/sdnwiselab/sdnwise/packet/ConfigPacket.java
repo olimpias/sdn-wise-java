@@ -27,7 +27,9 @@ import com.github.sdnwiselab.sdnwise.util.*;
 public class ConfigPacket extends NetworkPacket {
 
     public boolean isWrite() {
-        return ((getPayloadAt((byte) 0) >> 7) == CNF_WRITE);
+        int value = (getPayloadAt((byte) 0) & 0xFF) >> 7;
+        
+        return (value == CNF_WRITE);
     }
 
     // Configuration Properties
@@ -39,7 +41,7 @@ public class ConfigPacket extends NetworkPacket {
         RSSI_MIN(4,1),
         BEACON_PERIOD(5,2),
         REPORT_PERIOD(6,2),
-        ENTRY_TTL(7,1),
+        RULE_TTL(7,1),
         ADD_ALIAS(8,2),
         REM_ALIAS(9,1),
         GET_ALIAS(10,1),
@@ -113,11 +115,11 @@ public class ConfigPacket extends NetworkPacket {
     public ConfigPacket setValue(byte[] bytes, int size) {
         if (size != -1){
             for (int i = 0; i<size; i++){
-                setPayloadAt(bytes[i], size);
+                setPayloadAt(bytes[i], i+1);
             }
         }else{
             for (int i = 0; i<bytes.length; i++){
-                setPayloadAt(bytes[i], size);
+                setPayloadAt(bytes[i], i+1);
             }
         }
         return this;

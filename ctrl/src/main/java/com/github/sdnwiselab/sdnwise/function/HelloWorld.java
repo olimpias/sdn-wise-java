@@ -35,7 +35,7 @@ public class HelloWorld implements FunctionInterface {
             ArrayList<FlowTableEntry> flowTable,
             Set<Neighbor> neighborTable,
             ArrayList<Integer> statusRegister,
-            Set<NodeAddress> acceptedId,
+            ArrayList<NodeAddress> acceptedId,
             ArrayBlockingQueue<NetworkPacket> flowTableQueue,
             ArrayBlockingQueue<NetworkPacket> txQueue,
             byte[] args,

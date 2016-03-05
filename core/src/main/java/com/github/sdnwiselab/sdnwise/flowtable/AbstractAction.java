@@ -64,7 +64,6 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param size
      */
     public AbstractAction(ActionType actionType, int size) {
-        this.size = size;
         action = new byte[size + 1];
         setType(actionType);
     }
