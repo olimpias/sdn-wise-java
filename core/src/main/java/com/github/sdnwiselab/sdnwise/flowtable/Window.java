@@ -32,8 +32,8 @@ public class Window implements FlowTableInterface {
     public final static byte SIZE = 5;
 
     // size
-    public final static byte SDN_WISE_SIZE_1 = 0;
-    public final static byte SDN_WISE_SIZE_2 = 1;
+    public final static byte W_SIZE_1 = 0;
+    public final static byte W_SIZE_2 = 1;
 
     // operators
     public final static byte EQUAL = 0;
@@ -68,7 +68,6 @@ public class Window implements FlowTableInterface {
             int[] tmpLhs = w.getOperandFromString(lhs);
             w.setLhsLocation(tmpLhs[0]);
             w.setLhs(tmpLhs[1]);
-
             w.setOperator(w.getOperatorFromString(operands[1]));
 
             String rhs = operands[2];
@@ -76,6 +75,14 @@ public class Window implements FlowTableInterface {
             w.setRhsLocation(tmpRhs[0]);
             w.setRhs(tmpRhs[1]);
 
+            if (lhs.equals("P.SRC") || 
+                    lhs.equals("P.DST") || 
+                    lhs.equals("P.NXH") ||
+                    rhs.equals("P.SRC") || 
+                    rhs.equals("P.DST") || 
+                    rhs.equals("P.NXH")){
+                w.setSize(W_SIZE_2);
+            }
         }
         return w;
     }

@@ -70,7 +70,7 @@ public class MoteCore extends AbstractCore {
                 FlowTableEntry toSink = new FlowTableEntry();
                 toSink.addWindow(new Window()
                         .setOperator(EQUAL)
-                        .setSize(SDN_WISE_SIZE_2)
+                        .setSize(W_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
                         .setLhs(DST_INDEX)
                         .setRhsLocation(SDN_WISE_CONST)

@@ -173,7 +173,7 @@ public abstract class AbstractCore {
         FlowTableEntry toSink = new FlowTableEntry();
         toSink.addWindow(new Window()
                 .setOperator(EQUAL)
-                .setSize(SDN_WISE_SIZE_2)
+                .setSize(W_SIZE_2)
                 .setLhsLocation(SDN_WISE_PACKET)
                 .setLhs(DST_INDEX)
                 .setRhsLocation(SDN_WISE_CONST)
@@ -279,7 +279,7 @@ public abstract class AbstractCore {
                 FlowTableEntry rule = new FlowTableEntry();
                 rule.addWindow(new Window()
                         .setOperator(EQUAL)
-                        .setSize(SDN_WISE_SIZE_2)
+                        .setSize(W_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
                         .setLhs(DST_INDEX)
                         .setRhsLocation(SDN_WISE_CONST)
@@ -294,7 +294,7 @@ public abstract class AbstractCore {
                 FlowTableEntry rule = new FlowTableEntry();
                 rule.addWindow(new Window()
                         .setOperator(EQUAL)
-                        .setSize(SDN_WISE_SIZE_2)
+                        .setSize(W_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
                         .setLhs(DST_INDEX)
                         .setRhsLocation(SDN_WISE_CONST)
@@ -356,26 +356,26 @@ public abstract class AbstractCore {
                 return value;
             case SDN_WISE_PACKET:
                 int[] intPacket = packet.toIntArray();
-                if (size == SDN_WISE_SIZE_1) {
+                if (size == W_SIZE_1) {
                     if (value >= intPacket.length) {
                         return -1;
                     }
                     return intPacket[value];
                 }
-                if (size == SDN_WISE_SIZE_2) {
+                if (size == W_SIZE_2) {
                     if (value + 1 >= intPacket.length) {
                         return -1;
                     }
                     return Utils.mergeBytes(intPacket[value], intPacket[value + 1]);
                 }
             case SDN_WISE_STATUS:
-                if (size == SDN_WISE_SIZE_1) {
+                if (size == W_SIZE_1) {
                     if (value >= statusRegister.size()) {
                         return -1;
                     }
                     return statusRegister.get(value);
                 }
-                if (size == SDN_WISE_SIZE_2) {
+                if (size == W_SIZE_2) {
                     if (value + 1 >= statusRegister.size()) {
                         return -1;
                     }
@@ -426,10 +426,8 @@ public abstract class AbstractCore {
                 case SET:
                     SetAction ftam = (SetAction) action;
                     int operator = ftam.getOperator();
-                    int lhs = getOperand(
-                            np, SDN_WISE_SIZE_1, ftam.getLhsLocation(), ftam.getLhs());
-                    int rhs = getOperand(
-                            np, SDN_WISE_SIZE_1, ftam.getRhsLocation(), ftam.getRhs());
+                    int lhs = getOperand(np, W_SIZE_1, ftam.getLhsLocation(), ftam.getLhs());
+                    int rhs = getOperand(np, W_SIZE_1, ftam.getRhsLocation(), ftam.getRhs());
                     if (lhs == -1 || rhs == -1) {
                         throw new IllegalArgumentException("Operators out of bound");
                     }

@@ -26,8 +26,6 @@ import java.util.Arrays;
  */
 public abstract class AbstractAction implements FlowTableInterface {
 
-    public int size;
-
     // actions
     public enum ActionType {
         NULL(0),

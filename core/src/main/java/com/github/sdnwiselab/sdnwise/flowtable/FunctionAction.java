@@ -42,7 +42,7 @@ public class FunctionAction extends AbstractAction {
     }
 
     public byte[] getArgs() {
-        return Arrays.copyOfRange(action, ARGS_INDEX, size);
+        return Arrays.copyOfRange(action, ARGS_INDEX, action.length);
     }
 
     public FunctionAction setArgs(byte[] args) {
@@ -54,8 +54,8 @@ public class FunctionAction extends AbstractAction {
     public String toString() {
         StringBuilder sb = new StringBuilder(FUNCTION.name());
         sb.append(" ").append(getId()).append(" ");
-        for (int i = 0; i < size; i++) {
-            sb.append(getValue(i)).append(" ");
+        for (int i = 1; i < action.length-1; i++) {
+            sb.append(action[i]).append(" ");
         }
         return sb.toString();
     }
@@ -65,13 +65,12 @@ public class FunctionAction extends AbstractAction {
         String[] tmp = str.split(" ");
 
         if (tmp[0].equals(FUNCTION.name())) {
-            size = tmp.length - 2;
             action = new byte[tmp.length];
             setType(FUNCTION);
             setId(Integer.parseInt(tmp[1]));
 
-            for (int i = 1; i < size + 1; i++) {
-                setValue(i, Integer.parseInt(tmp[i + 1]));
+            for (int i = 1; i < action.length-1; i++) {
+                action[i] = (byte)(Integer.parseInt(tmp[i + 1]));
             }
         } else {
             throw new IllegalArgumentException();
