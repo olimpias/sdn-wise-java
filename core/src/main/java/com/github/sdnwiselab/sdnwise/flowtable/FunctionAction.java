@@ -54,7 +54,7 @@ public class FunctionAction extends AbstractAction {
     public String toString() {
         StringBuilder sb = new StringBuilder(FUNCTION.name());
         sb.append(" ").append(getId()).append(" ");
-        for (int i = 1; i < action.length-1; i++) {
+        for (int i = 2; i < action.length; i++) {
             sb.append(action[i]).append(" ");
         }
         return sb.toString();
@@ -69,8 +69,8 @@ public class FunctionAction extends AbstractAction {
             setType(FUNCTION);
             setId(Integer.parseInt(tmp[1]));
 
-            for (int i = 1; i < action.length-1; i++) {
-                action[i] = (byte)(Integer.parseInt(tmp[i + 1]));
+            for (int i = 2; i < action.length; i++) {
+                action[i] = (byte)(Integer.parseInt(tmp[i]));
             }
         } else {
             throw new IllegalArgumentException();
