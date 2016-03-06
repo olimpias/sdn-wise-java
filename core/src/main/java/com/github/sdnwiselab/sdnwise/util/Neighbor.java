@@ -24,9 +24,9 @@ package com.github.sdnwiselab.sdnwise.util;
  */
 public class Neighbor {
 
-    private NodeAddress addr;
-    private int rssi;
-    private int batt;
+    private final NodeAddress addr;
+    private final int rssi;
+    private final int batt;
 
     /**
      * Constructor method for this class by following attributes.
@@ -61,15 +61,6 @@ public class Neighbor {
     }
 
     /**
-     * Setter method to set NodeAddress.
-     *
-     * @param addr the NodeAddress will be set.
-     */
-    public void setAddr(NodeAddress addr) {
-        this.addr = addr;
-    }
-
-    /**
      * Getter method to obtain rssi of a NodeAddress object.
      *
      * @return int value rssi of the NodeAddress.
@@ -79,29 +70,11 @@ public class Neighbor {
     }
 
     /**
-     * Setter method to set rssi for NodeAddress object.
-     *
-     * @param rssi the rssi of NodeAddress will be set.
-     */
-    public void setRssi(int rssi) {
-        this.rssi = rssi;
-    }
-
-    /**
      * Getter method to obtain battery value of a NodeAddress object.
      *
      * @return int value battery of the NodeAddress.
      */
     public int getBatt() {
         return batt;
-    }
-
-    /**
-     * Setter method to set battery for NodeAddress object.
-     *
-     * @param batt the battery value of NodeAddress will be set.
-     */
-    public void setBatt(int batt) {
-        this.batt = batt;
     }
 }

@@ -233,7 +233,7 @@ public interface ControllerInterface {
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
-     * @param period update table period in seconds (TODO check)
+     * @param period update table period in seconds
      */
     void setNodeEntryTtl(byte net, NodeAddress dst, short period);
 

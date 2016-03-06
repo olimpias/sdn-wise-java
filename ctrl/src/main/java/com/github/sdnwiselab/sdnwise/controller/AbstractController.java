@@ -57,7 +57,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     protected static final Logger LOGGER = Logger.getLogger("CTRL");
 
     final static int FLOW_TABLE_SIZE = 16;
-    final static int RESPONSE_TIMEOUT = 3000; // Increase when using COOJA
+    final static int RESPONSE_TIMEOUT = 300; // Increase when using COOJA
     final static int CACHE_EXP_TIME = 5;
 
     private final ArrayBlockingQueue<NetworkPacket> bQ = new ArrayBlockingQueue<>(1000);
@@ -322,8 +322,10 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
-     * @param period update table period in seconds (TODO check)
+     * @param period update table period in seconds 
      */
+    
+    //TODO period s
     @Override
     public final void setNodeEntryTtl(byte net, NodeAddress dst, short period) {
         ConfigPacket cp = new ConfigPacket(

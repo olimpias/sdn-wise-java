@@ -43,20 +43,16 @@ public class SimplerFormatter extends Formatter {
                 .format(new Date(record.getMillis())));
         sb.append(" [")
                 .append(record.getLevel())
-                .append("] [")
+                .append("][")
                 .append(name)
                 .append("] ")
                 .append(formatMessage(record));
 
         if (record.getThrown() != null) {
-            try {
                 StringWriter sw = new StringWriter();
-                try (PrintWriter pw = new PrintWriter(sw)) {
-                    record.getThrown().printStackTrace(pw);
-                }
+                PrintWriter pw = new PrintWriter(sw); 
+                record.getThrown().printStackTrace(pw);
                 sb.append(sw.toString());
-            } catch (Exception ex) {
-            }
         }
         return sb.append("\n").toString();
     }

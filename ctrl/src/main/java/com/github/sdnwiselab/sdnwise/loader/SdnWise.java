@@ -65,7 +65,7 @@ public class SdnWise {
     private FlowVisor flowVisor;
     private Adaptation adaptation;
     private AbstractController controller;
-    private final boolean isEmulated = false;
+    private final boolean isEmulated = true;
         
     /**
      * Starts the AbstractController layer of the SDN-WISE network. The path to
