@@ -209,7 +209,7 @@ public class SdnWise {
                 + " FORWARD_U 8;"
                 + "}");
         controller.addNodeRule((byte) 1, new NodeAddress(3), e1);
-        
+
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {
             new ControllerGui(controller).setVisible(true);

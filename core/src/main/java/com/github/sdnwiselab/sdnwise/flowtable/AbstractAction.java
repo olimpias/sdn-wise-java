@@ -27,7 +27,7 @@ import java.util.Arrays;
 public abstract class AbstractAction implements FlowTableInterface {
 
     public int size;
-    
+
     // actions
     public enum ActionType {
         NULL(0),
@@ -109,7 +109,7 @@ public abstract class AbstractAction implements FlowTableInterface {
         hash = 61 * hash + Arrays.hashCode(this.action);
         return hash;
     }
-    
+
     /**
      * Setter method to set the type of AbstractAction. The possible types of
      * actions are SDN_WISE_FORWARD_U, SDN_WISE_FORWARD_B, SDN_WISE_DROP,

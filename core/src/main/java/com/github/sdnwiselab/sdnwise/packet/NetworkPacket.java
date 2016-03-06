@@ -29,7 +29,6 @@ import java.util.logging.*;
  */
 public class NetworkPacket implements Cloneable {
 
-
     /**
      * The maximum length of a NetworkPAcket.
      */
@@ -63,16 +62,17 @@ public class NetworkPacket implements Cloneable {
      * An SDN-WISE header is always 10 bytes long.
      */
     public final static byte SDN_WISE_DFLT_HDR_LEN = 10;
-    
+
     /**
      * The maximum number of hops allowed in the network.
      */
     public final static byte SDN_WISE_DFLT_TTL_MAX = 100;
-    
-     /**
+
+    /**
      * Returns the index of a byte in the header given a string.
+     *
      * @param b
-     * @return 
+     * @return
      */
     public static int getNetworkPacketByteFromName(String b) {
         switch (b) {
@@ -94,21 +94,23 @@ public class NetworkPacket implements Cloneable {
                 return Integer.parseInt(b);
         }
     }
-    
+
     /**
      * Check if a byte array is an SDN-WISE packet.
+     *
      * @param data a byte array
      * @return a boolean depending if is an SDN-WISE packet or not
      */
     public static boolean isSdnWise(byte[] data) {
         return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
-    
+
     /**
      * Returns a string representation of a byte of the header.
+     *
      * @param b an integer representing the index of a byte in the header
      * @return a string representation of a byte of the header
-     */  
+     */
     public static String getNetworkPacketByteName(int b) {
         switch (b) {
             case (0):
@@ -129,8 +131,6 @@ public class NetworkPacket implements Cloneable {
                 return String.valueOf(b);
         }
     }
-    
-
 
     private final byte[] data;
 
@@ -429,6 +429,7 @@ public class NetworkPacket implements Cloneable {
         NetworkPacket.this.setNxh(new NodeAddress(address));
         return this;
     }
+
     /**
      * Gets the payload size of the packet.
      *
@@ -437,6 +438,7 @@ public class NetworkPacket implements Cloneable {
     public final int getPayloadSize() {
         return (this.getLen() - SDN_WISE_DFLT_HDR_LEN);
     }
+
     /**
      * Returns a String representation of the NetworkPacket.
      *
@@ -446,6 +448,7 @@ public class NetworkPacket implements Cloneable {
     public String toString() {
         return Arrays.toString(this.toIntArray());
     }
+
     /**
      * Returns a byte array representation of the NetworkPacket.
      *
@@ -454,6 +457,7 @@ public class NetworkPacket implements Cloneable {
     public final byte[] toByteArray() {
         return Arrays.copyOf(data, this.getLen());
     }
+
     /**
      * Returns an int array representation of the NetworkPacket.
      *
@@ -466,11 +470,13 @@ public class NetworkPacket implements Cloneable {
         }
         return tmp;
     }
+
     @Override
     public NetworkPacket clone() throws CloneNotSupportedException {
         super.clone();
         return new NetworkPacket(data.clone());
     }
+
     public String getTypeToString() {
         switch (getTyp()) {
             case DATA:
@@ -493,9 +499,11 @@ public class NetworkPacket implements Cloneable {
                 return String.valueOf(getTyp());
         }
     }
+
     public boolean isSdnWise() {
         return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
+
     private byte[] fromIntArrayToByteArray(int[] array) {
         byte[] dataToByte = new byte[array.length];
         for (int i = 0; i < array.length; i++) {
@@ -545,7 +553,6 @@ public class NetworkPacket implements Cloneable {
         }
         return this;
     }
-
 
     /**
      * Sets a single payload byte.

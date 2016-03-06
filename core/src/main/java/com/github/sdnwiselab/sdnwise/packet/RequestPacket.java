@@ -31,7 +31,7 @@ public class RequestPacket extends NetworkPacket {
     private static final byte REQUEST_PAYLOAD_SIZE
             = NetworkPacket.MAX_PACKET_LENGTH
             - (SDN_WISE_DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
-    
+
     private final static byte ID_INDEX = 0,
             PART_INDEX = 1,
             TOTAL_INDEX = 2;
@@ -139,14 +139,14 @@ public class RequestPacket extends NetworkPacket {
     }
 
     private void setData(byte[] data) {
-        this.setPayload(data, 0, TOTAL_INDEX+1, data.length);
+        this.setPayload(data, 0, TOTAL_INDEX + 1, data.length);
     }
 
     public byte[] getData() {
-        return this.getPayloadFromTo(TOTAL_INDEX+1, getPayloadSize());
+        return this.getPayloadFromTo(TOTAL_INDEX + 1, getPayloadSize());
     }
 
     public int getDataSize() {
-        return this.getPayloadSize() - (TOTAL_INDEX+1);
+        return this.getPayloadSize() - (TOTAL_INDEX + 1);
     }
 }

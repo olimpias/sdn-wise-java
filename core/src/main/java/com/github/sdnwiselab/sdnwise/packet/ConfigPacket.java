@@ -28,33 +28,33 @@ public class ConfigPacket extends NetworkPacket {
 
     public boolean isWrite() {
         int value = (getPayloadAt((byte) 0) & 0xFF) >> 7;
-        
+
         return (value == CNF_WRITE);
     }
 
     // Configuration Properties
     public enum ConfigProperty {
-        RESET(0,0),
-        MY_NET(1,1),
-        MY_ADDRESS(2,2),
-        PACKET_TTL(3,1),
-        RSSI_MIN(4,1),
-        BEACON_PERIOD(5,2),
-        REPORT_PERIOD(6,2),
-        RULE_TTL(7,1),
-        ADD_ALIAS(8,2),
-        REM_ALIAS(9,1),
-        GET_ALIAS(10,1),
-        ADD_RULE(11,-1),
-        REM_RULE(12,1),
-        GET_RULE(13,1),
-        ADD_FUNCTION(14,-1),
-        REM_FUNCTION(15,1),
-        GET_FUNCTION(16,1);
-        
+        RESET(0, 0),
+        MY_NET(1, 1),
+        MY_ADDRESS(2, 2),
+        PACKET_TTL(3, 1),
+        RSSI_MIN(4, 1),
+        BEACON_PERIOD(5, 2),
+        REPORT_PERIOD(6, 2),
+        RULE_TTL(7, 1),
+        ADD_ALIAS(8, 2),
+        REM_ALIAS(9, 1),
+        GET_ALIAS(10, 1),
+        ADD_RULE(11, -1),
+        REM_RULE(12, 1),
+        GET_RULE(13, 1),
+        ADD_FUNCTION(14, -1),
+        REM_FUNCTION(15, 1),
+        GET_FUNCTION(16, 1);
+
         private final byte value;
         public final int size;
-        
+
         private final static ConfigProperty[] configPropertyValues = ConfigProperty.values();
 
         public static ConfigProperty fromByte(byte value) {
@@ -68,9 +68,7 @@ public class ConfigPacket extends NetworkPacket {
     }
 
     private final static byte CNF_WRITE = 1;
-            
 
-    
     public ConfigPacket(byte[] data) {
         super(data);
     }
@@ -78,17 +76,16 @@ public class ConfigPacket extends NetworkPacket {
     public ConfigPacket(int netId, NodeAddress src, NodeAddress dst, ConfigProperty read) {
         super(netId, src, dst);
         this.setConfigId(read)
-            .setTyp(CONFIG);
+                .setTyp(CONFIG);
     }
-    
+
     public ConfigPacket(int netId, NodeAddress src, NodeAddress dst, ConfigProperty write, byte[] value) {
         super(netId, src, dst);
         this.setConfigId(write)
-            .setWrite()
-            .setValue(value, write.size)
-            .setTyp(CONFIG);
+                .setWrite()
+                .setValue(value, write.size)
+                .setTyp(CONFIG);
     }
-    
 
     public ConfigPacket(NetworkPacket data) {
         super(data.toByteArray());
@@ -113,13 +110,13 @@ public class ConfigPacket extends NetworkPacket {
     }
 
     public ConfigPacket setValue(byte[] bytes, int size) {
-        if (size != -1){
-            for (int i = 0; i<size; i++){
-                setPayloadAt(bytes[i], i+1);
+        if (size != -1) {
+            for (int i = 0; i < size; i++) {
+                setPayloadAt(bytes[i], i + 1);
             }
-        }else{
-            for (int i = 0; i<bytes.length; i++){
-                setPayloadAt(bytes[i], i+1);
+        } else {
+            for (int i = 0; i < bytes.length; i++) {
+                setPayloadAt(bytes[i], i + 1);
             }
         }
         return this;

@@ -68,9 +68,8 @@ public class Window implements FlowTableInterface {
         Window w = new Window();
         String[] operands = val.split(" ");
         if (operands.length == 3) {
-            
+
 // TODO if the operand is SRC-DST-NXH size is 2
-            
             String lhs = operands[0];
             int[] tmpLhs = w.getOperandFromString(lhs);
             w.setLhsLocation(tmpLhs[0]);

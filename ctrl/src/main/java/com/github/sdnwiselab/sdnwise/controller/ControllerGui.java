@@ -542,12 +542,11 @@ public final class ControllerGui extends javax.swing.JFrame {
 
             DefaultTableModel model = (DefaultTableModel) this.jTableAccepted.getModel();
             model.setRowCount(0);
-            
+
             list.stream().forEach((na) -> {
                 model.addRow(new Integer[]{(int) na.getHigh() & 0xFF, (int) na.getLow() & 0xFF});
             });
-            
-            
+
         } catch (ParseException ex) {
             Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -567,7 +566,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                         new NodeAddress(
                                 (Integer) this.jSpinnerAddrH.getValue(),
                                 (Integer) this.jSpinnerAddrL.getValue()),
-                        (byte)(index & 0xFF));
+                        (byte) (index & 0xFF));
 
                 ((DefaultTableModel) this.jTableAccepted.getModel()).removeRow(index);
 
@@ -590,9 +589,9 @@ public final class ControllerGui extends javax.swing.JFrame {
             } else {
                 addr = new NodeAddress(Integer.parseInt(addrStr));
             }
-            
+
             model.addRow(new Integer[]{(int) addr.getHigh() & 0xFF, (int) addr.getLow() & 0xFF});
-            
+
             jSpinnerNetID.commitEdit();
             jSpinnerAddrH.commitEdit();
             jSpinnerAddrL.commitEdit();
@@ -630,7 +629,7 @@ public final class ControllerGui extends javax.swing.JFrame {
 
             DefaultTableModel model = (DefaultTableModel) this.jTableFlow.getModel();
             model.setRowCount(0);
-            
+
             list.stream().forEach((na) -> {
                 model.addRow(new String[]{na.toString()});
             });
@@ -653,7 +652,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                         new NodeAddress(
                                 (Integer) this.jSpinnerAddrH.getValue(),
                                 (Integer) this.jSpinnerAddrL.getValue()),
-                       (byte) this.jTableFlow.getSelectedRow());
+                        (byte) this.jTableFlow.getSelectedRow());
 
                 DefaultTableModel model = (DefaultTableModel) jTableFlow.getModel();
                 model.removeRow(this.jTableFlow.getSelectedRow());

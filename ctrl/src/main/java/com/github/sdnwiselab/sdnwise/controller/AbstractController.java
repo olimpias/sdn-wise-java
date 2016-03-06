@@ -120,10 +120,10 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
                 String key;
                 if (cp.getConfigId() == (GET_RULE)) {
-                    key = cp.getNet() + " " + cp.getSrc() + " " 
+                    key = cp.getNet() + " " + cp.getSrc() + " "
                             + cp.getConfigId() + " " + cp.getValue()[0];
                 } else {
-                    key = cp.getNet() + " " + cp.getSrc() + " " 
+                    key = cp.getNet() + " " + cp.getSrc() + " "
                             + cp.getConfigId();
                 }
                 configCache.put(key, cp);
@@ -438,12 +438,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final List<NodeAddress> getNodeAliases(byte net, NodeAddress dst) {
         List<NodeAddress> list = new LinkedList<>();
         for (int i = 0; i < FLOW_TABLE_SIZE; i++) {
-                NodeAddress na = getNodeAlias(net, dst, (byte)i);
-                if (na != null){
-                    list.add(i, na);
-                } else {
-                    break;
-                }
+            NodeAddress na = getNodeAlias(net, dst, (byte) i);
+            if (na != null) {
+                list.add(i, na);
+            } else {
+                break;
+            }
         }
         return list;
     }
@@ -460,14 +460,14 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
         try {
             ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_ALIAS);
-            cp.setValue(new byte[]{(byte)index}, GET_RULE.size);
+            cp.setValue(new byte[]{(byte) index}, GET_RULE.size);
             ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getValue(),1,response.getPayloadSize()-1);
-            return new NodeAddress(rule);   
+            byte[] rule = Arrays.copyOfRange(response.getValue(), 1, response.getPayloadSize() - 1);
+            return new NodeAddress(rule);
         } catch (TimeoutException ex) {
             return null;
         }
-        
+
     }
 
     /**
@@ -507,12 +507,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final List<FlowTableEntry> getNodeRules(byte net, NodeAddress dst) {
         List<FlowTableEntry> list = new ArrayList<>(FLOW_TABLE_SIZE);
         for (int i = 0; i < FLOW_TABLE_SIZE; i++) {
-                FlowTableEntry fte = getNodeRule(net, dst, i);
-                if (fte != null){
-                    list.add(i, fte);
-                } else { 
-                    break;
-                }
+            FlowTableEntry fte = getNodeRule(net, dst, i);
+            if (fte != null) {
+                list.add(i, fte);
+            } else {
+                break;
+            }
         }
         return list;
     }
@@ -526,13 +526,13 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @return returns the list of the entries in the WISE Flow Table.
      */
     @Override
-    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index){
+    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
         try {
             ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
-            cp.setValue(new byte[]{(byte)index}, GET_RULE.size);
+            cp.setValue(new byte[]{(byte) index}, GET_RULE.size);
             ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getValue(),1,response.getPayloadSize()-1);
-            if (rule.length > 0){
+            byte[] rule = Arrays.copyOfRange(response.getValue(), 1, response.getPayloadSize() - 1);
+            if (rule.length > 0) {
                 return new FlowTableEntry(rule);
             } else {
                 return null;
@@ -557,11 +557,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                 while (llIterator.hasNext()) {
                     sendNetworkPacket(llIterator.next());
                 }
-            }            
+            }
         } catch (IOException | InterruptedException ex) {
             log(Level.SEVERE, ex.toString());
         }
-         
+
     }
 
     @Override
@@ -569,7 +569,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_FUNCTION, new byte[]{index});
         sendNetworkPacket(cp);
     }
-    
+
     public static List<ConfigPacket> createPackets(
             byte netId,
             NodeAddress src,
@@ -580,9 +580,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
         int FUNCTION_HEADER_LEN = 4;
         int FUNCTION_PAYLOAD_LEN
-            = NetworkPacket.MAX_PACKET_LENGTH
-            - (SDN_WISE_DFLT_HDR_LEN + FUNCTION_HEADER_LEN);
-        
+                = NetworkPacket.MAX_PACKET_LENGTH
+                - (SDN_WISE_DFLT_HDR_LEN + FUNCTION_HEADER_LEN);
+
         int packetNumber = buf.length / FUNCTION_PAYLOAD_LEN;
         int remaining = buf.length % FUNCTION_PAYLOAD_LEN;
         int totalPackets = packetNumber + (remaining > 0 ? 1 : 0);
@@ -592,10 +592,10 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         if (packetNumber < 256) {
             if (packetNumber > 0) {
                 for (i = 0; i < packetNumber; i++) {
-                    byte[] payload = ByteBuffer.allocate(FUNCTION_PAYLOAD_LEN+3)
+                    byte[] payload = ByteBuffer.allocate(FUNCTION_PAYLOAD_LEN + 3)
                             .put(id)
-                            .put((byte)(i+1))
-                            .put((byte)totalPackets)
+                            .put((byte) (i + 1))
+                            .put((byte) totalPackets)
                             .put(Arrays.copyOfRange(buf, pointer, pointer + FUNCTION_PAYLOAD_LEN)).array();
                     pointer += FUNCTION_PAYLOAD_LEN;
                     ConfigPacket np = new ConfigPacket(netId, src, dst, ADD_FUNCTION, payload);
@@ -604,11 +604,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             }
 
             if (remaining > 0) {
-                byte[] payload = ByteBuffer.allocate(remaining+3)
-                            .put(id)
-                            .put((byte)(i+1))
-                            .put((byte)totalPackets)
-                            .put(Arrays.copyOfRange(buf, pointer, pointer + remaining)).array();
+                byte[] payload = ByteBuffer.allocate(remaining + 3)
+                        .put(id)
+                        .put((byte) (i + 1))
+                        .put((byte) totalPackets)
+                        .put(Arrays.copyOfRange(buf, pointer, pointer + remaining)).array();
                 ConfigPacket np = new ConfigPacket(netId, src, dst, ADD_FUNCTION, payload);
                 ll.add(np);
             }

@@ -53,8 +53,7 @@ public class DataPacket extends NetworkPacket {
      * @param dst the NodeAddress address of the destination node
      * @param payload the byte[] containing the payload of the packet
      */
-    public DataPacket(int net, NodeAddress src, NodeAddress dst, byte[] payload) 
-    {
+    public DataPacket(int net, NodeAddress src, NodeAddress dst, byte[] payload) {
         super(net, src, dst);
         this.setTyp(DATA);
         this.setPayload(payload);

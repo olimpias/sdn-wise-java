@@ -117,7 +117,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     public byte[] getArray() {
         return new byte[]{addr[0], addr[1]};
     }
-    
+
     /**
      * Get Node Address in Byte.
      *

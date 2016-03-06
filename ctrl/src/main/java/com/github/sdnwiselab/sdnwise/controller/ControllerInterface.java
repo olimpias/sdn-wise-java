@@ -277,13 +277,13 @@ public interface ControllerInterface {
      * @param newRssi new threshold rssi value.
      */
     void setNodeRssiMin(byte net, NodeAddress dst, byte newRssi);
-    
+
     /**
      * Method called when the network starts. It could be used to configuration
      * rules or network at the beginning of the application.
      */
     void setupNetwork();
-    
+
     /**
      * Method called to update the graph of Network.
      *

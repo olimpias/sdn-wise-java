@@ -314,18 +314,17 @@ public abstract class AbstractCore {
     }
 
     protected void insertRule(FlowTableEntry rule) {
-        int i = searchRule(rule);     
-        if (i != -1){
-            flowTable.set(i, rule);  
+        int i = searchRule(rule);
+        if (i != -1) {
+            flowTable.set(i, rule);
             log(Level.INFO, "Replacing rule " + rule
-                + " at position " + i);
+                    + " at position " + i);
         } else {
             flowTable.add(rule);
             log(Level.INFO, "Inserting rule " + rule
-                + " at position " + (flowTable.size() - 1));
+                    + " at position " + (flowTable.size() - 1));
         }
-        
-        
+
     }
 
     private int searchRule(FlowTableEntry rule) {
@@ -465,9 +464,8 @@ public abstract class AbstractCore {
                     }
                     break;
                 case ASK:
-                    RequestPacket[] rps = RequestPacket.createPackets((byte) 
-                            myNet, myAddress, 
-                            getActualSinkAddress(), 
+                    RequestPacket[] rps = RequestPacket.createPackets((byte) myNet, myAddress,
+                            getActualSinkAddress(),
                             requestId++, np.toByteArray());
 
                     for (RequestPacket rp : rps) {
@@ -591,7 +589,7 @@ public abstract class AbstractCore {
                 break;
             }
         }
-        
+
         if (!matched) {
             // send a rule request
             RequestPacket[] rps = RequestPacket.createPackets((byte) myNet, myAddress, getActualSinkAddress(), requestId++, packet.toByteArray());
@@ -615,132 +613,132 @@ public abstract class AbstractCore {
     protected int marshalPacket(ConfigPacket packet) {
         int toBeSent = 0;
         //try {
-            ConfigProperty id = packet.getConfigId();
-            byte[] value = packet.getValue();
+        ConfigProperty id = packet.getConfigId();
+        byte[] value = packet.getValue();
 
-            if (packet.isWrite()) {
-                int idValue = value[0] & 0xFF;
-                switch (id) {
-                    case MY_ADDRESS:
-                        myAddress = new NodeAddress(value);
-                        break;
-                    case MY_NET:
-                        myNet = idValue;
-                        break;
-                    case BEACON_PERIOD:
-                        cnt_beacon_max = mergeBytes(value[0], value[1]);
-                        break;
-                    case REPORT_PERIOD:
-                        cnt_report_max = mergeBytes(value[0], value[1]);
-                        break;
-                    case RULE_TTL:
-                        cnt_updtable_max = idValue;
-                        break;
-                    case PACKET_TTL:
-                        rule_ttl = idValue;
-                        break;
-                    case RSSI_MIN:
-                        rssi_min = idValue;
-                        break;
-                    case ADD_ALIAS:
-                        acceptedId.add(new NodeAddress(value));
-                        break;
-                    case REM_ALIAS:
-                        acceptedId.remove(idValue);
-                        break;
-                    case REM_RULE:
-                        if (idValue != 0) {
-                            flowTable.remove(idValue);
-                        }
-                        break;
-                    case ADD_RULE:
-                        // TODO we need to decide what to do with response packets
-                        break;
-                    case RESET:
-                        reset();
-                        break;
-                    case ADD_FUNCTION:
-                        if (functionBuffer.get(idValue) == null) {
-                            functionBuffer.put(idValue, new LinkedList<>());
-                        }
+        if (packet.isWrite()) {
+            int idValue = value[0] & 0xFF;
+            switch (id) {
+                case MY_ADDRESS:
+                    myAddress = new NodeAddress(value);
+                    break;
+                case MY_NET:
+                    myNet = idValue;
+                    break;
+                case BEACON_PERIOD:
+                    cnt_beacon_max = mergeBytes(value[0], value[1]);
+                    break;
+                case REPORT_PERIOD:
+                    cnt_report_max = mergeBytes(value[0], value[1]);
+                    break;
+                case RULE_TTL:
+                    cnt_updtable_max = idValue;
+                    break;
+                case PACKET_TTL:
+                    rule_ttl = idValue;
+                    break;
+                case RSSI_MIN:
+                    rssi_min = idValue;
+                    break;
+                case ADD_ALIAS:
+                    acceptedId.add(new NodeAddress(value));
+                    break;
+                case REM_ALIAS:
+                    acceptedId.remove(idValue);
+                    break;
+                case REM_RULE:
+                    if (idValue != 0) {
+                        flowTable.remove(idValue);
+                    }
+                    break;
+                case ADD_RULE:
+                    // TODO we need to decide what to do with response packets
+                    break;
+                case RESET:
+                    reset();
+                    break;
+                case ADD_FUNCTION:
+                    if (functionBuffer.get(idValue) == null) {
+                        functionBuffer.put(idValue, new LinkedList<>());
+                    }
 
-                        byte[] functionPayload = Arrays.copyOfRange(value, 3, value.length);
-                        int totalParts = value[2] & 0xFF;
+                    byte[] functionPayload = Arrays.copyOfRange(value, 3, value.length);
+                    int totalParts = value[2] & 0xFF;
 
-                        functionBuffer.get(idValue).add(functionPayload);
-                        if (functionBuffer.get(idValue).size() == totalParts) {
-                            int total = 0;
-                            total = functionBuffer.get(idValue).stream().map((n)
-                                    -> (n.length)).reduce(total, Integer::sum);
-                            int pointer = 0;
-                            byte[] func = new byte[total];
-                            for (byte[] n : functionBuffer.get(idValue)) {
-                                for (int j = 0; j < n.length; j++) {
-                                    func[pointer] = n[j];
-                                    pointer++;
-                                }
+                    functionBuffer.get(idValue).add(functionPayload);
+                    if (functionBuffer.get(idValue).size() == totalParts) {
+                        int total = 0;
+                        total = functionBuffer.get(idValue).stream().map((n)
+                                -> (n.length)).reduce(total, Integer::sum);
+                        int pointer = 0;
+                        byte[] func = new byte[total];
+                        for (byte[] n : functionBuffer.get(idValue)) {
+                            for (int j = 0; j < n.length; j++) {
+                                func[pointer] = n[j];
+                                pointer++;
                             }
-                            functions.put(idValue, createServiceInterface(func));
-                            log(Level.INFO, "New Function Added at position: " + idValue);
-                            functionBuffer.remove(idValue);
                         }
-                        break;
-                    case REM_FUNCTION:
-                        functions.remove(idValue);
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                toBeSent = 1;
-                switch (id) {
-                    case MY_ADDRESS:
-                        packet.setValue(myAddress.getArray(), id.size);
-                        break;
-                    case MY_NET:
-                        packet.setValue(new byte[]{(byte) (myNet & 0xFF)}, id.size);
-                        break;
-                    case BEACON_PERIOD:
-                        packet.setValue(splitInteger(cnt_beacon_max), id.size);
-                        break;
-                    case REPORT_PERIOD:
-                        packet.setValue(splitInteger(cnt_report_max), id.size);
-                        break;
-                    case RULE_TTL:
-                        packet.setValue(new byte[]{(byte) (cnt_updtable_max & 0xFF)}, id.size);
-                        break;
-                    case PACKET_TTL:
-                        packet.setValue(new byte[]{(byte) (rule_ttl & 0xFF)}, id.size);
-                        break;
-                    case RSSI_MIN:
-                        packet.setValue(new byte[]{(byte) (rssi_min & 0xFF)}, id.size);
-                        break;
-                    case GET_ALIAS:
-                        int aIndex = value[0] & 0xFF;
-                        if (aIndex < acceptedId.size()) {
-                            byte[] tmp = acceptedId.get(aIndex).getArray();
-                            packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) aIndex).put(tmp).array(), -1);
-                        } else {
-                            toBeSent = 0;
-                        }
-                        break;
-                    case GET_RULE:
-                        int i = value[0] & 0xFF;
-                        if (i < flowTable.size()){
-                            FlowTableEntry fte = flowTable.get(i);
-                            byte[] tmp = fte.toByteArray();
-                            packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) i).put(tmp).array(), -1);
-                        } else {
-                            toBeSent = 0;
-                        }
-                        break;
-                    case GET_FUNCTION:
-                        // TODO
-                        break;
-                    default:
-                        break;
-                }
+                        functions.put(idValue, createServiceInterface(func));
+                        log(Level.INFO, "New Function Added at position: " + idValue);
+                        functionBuffer.remove(idValue);
+                    }
+                    break;
+                case REM_FUNCTION:
+                    functions.remove(idValue);
+                    break;
+                default:
+                    break;
             }
+        } else {
+            toBeSent = 1;
+            switch (id) {
+                case MY_ADDRESS:
+                    packet.setValue(myAddress.getArray(), id.size);
+                    break;
+                case MY_NET:
+                    packet.setValue(new byte[]{(byte) (myNet & 0xFF)}, id.size);
+                    break;
+                case BEACON_PERIOD:
+                    packet.setValue(splitInteger(cnt_beacon_max), id.size);
+                    break;
+                case REPORT_PERIOD:
+                    packet.setValue(splitInteger(cnt_report_max), id.size);
+                    break;
+                case RULE_TTL:
+                    packet.setValue(new byte[]{(byte) (cnt_updtable_max & 0xFF)}, id.size);
+                    break;
+                case PACKET_TTL:
+                    packet.setValue(new byte[]{(byte) (rule_ttl & 0xFF)}, id.size);
+                    break;
+                case RSSI_MIN:
+                    packet.setValue(new byte[]{(byte) (rssi_min & 0xFF)}, id.size);
+                    break;
+                case GET_ALIAS:
+                    int aIndex = value[0] & 0xFF;
+                    if (aIndex < acceptedId.size()) {
+                        byte[] tmp = acceptedId.get(aIndex).getArray();
+                        packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) aIndex).put(tmp).array(), -1);
+                    } else {
+                        toBeSent = 0;
+                    }
+                    break;
+                case GET_RULE:
+                    int i = value[0] & 0xFF;
+                    if (i < flowTable.size()) {
+                        FlowTableEntry fte = flowTable.get(i);
+                        byte[] tmp = fte.toByteArray();
+                        packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) i).put(tmp).array(), -1);
+                    } else {
+                        toBeSent = 0;
+                    }
+                    break;
+                case GET_FUNCTION:
+                    // TODO
+                    break;
+                default:
+                    break;
+            }
+        }
         //} catch (Exception ex) {
         //    log(Level.SEVERE, ex.getMessage());
         //}
@@ -787,13 +785,13 @@ public abstract class AbstractCore {
                 .setNxh(getNextHopVsSink());
 
         int j = 0;
-        synchronized(neighborTable){
-        for (Neighbor n : neighborTable) {
-            rp.setNeighborAddressAt(n.getAddr(), j)
-                    .setLinkQualityAt((byte) n.getRssi(), j);
-            j++;
-        }
-        neighborTable.clear();
+        synchronized (neighborTable) {
+            for (Neighbor n : neighborTable) {
+                rp.setNeighborAddressAt(n.getAddr(), j)
+                        .setLinkQualityAt((byte) n.getRssi(), j);
+                j++;
+            }
+            neighborTable.clear();
         }
         return rp;
     }

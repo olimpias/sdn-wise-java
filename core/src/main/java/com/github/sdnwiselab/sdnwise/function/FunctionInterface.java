@@ -37,8 +37,7 @@ public interface FunctionInterface {
      *
      * @param adcRegister an HashMap containing measurement info.
      * @param flowTable an ArrayList containing the FlowTable of the node.
-     * @param neighborTable a Set containing the Neighbors table of the
-     * node.
+     * @param neighborTable a Set containing the Neighbors table of the node.
      * @param statusRegister an int[] containing the status of the node.
      * @param acceptedId an ArrayList of NodeAddress containing the aliases for
      * the address of the node.

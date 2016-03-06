@@ -25,7 +25,7 @@ public class Constants {
 
     // routing
     public final static int SDN_WISE_DFLT_RSSI_MIN = 180;
-    
+
     // tables
     public final static byte ENTRY_TTL_DECR = 10;
 
@@ -34,7 +34,7 @@ public class Constants {
     public final static byte SDN_WISE_DFLT_CNT_BEACON_MAX = 10;
     public final static byte SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX;
     public final static byte SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6;   // TTL = 150s
-    
+
     // status register
     public final static int SDN_WISE_STATUS_LEN = 10000;
 

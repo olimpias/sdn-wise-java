@@ -36,11 +36,11 @@ public abstract class AbstractForwardAction extends AbstractAction {
 
     public final AbstractForwardAction setNextHop(NodeAddress addr) {
         setValue(NXH_INDEX, addr.getHigh());
-        setValue(NXH_INDEX+1, addr.getLow());
+        setValue(NXH_INDEX + 1, addr.getLow());
         return this;
     }
 
     public final NodeAddress getNextHop() {
-        return new NodeAddress(getValue(NXH_INDEX),getValue(NXH_INDEX+1));
+        return new NodeAddress(getValue(NXH_INDEX), getValue(NXH_INDEX + 1));
     }
 }

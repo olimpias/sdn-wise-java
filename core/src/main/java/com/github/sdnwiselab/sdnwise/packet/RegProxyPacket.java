@@ -60,8 +60,8 @@ public class RegProxyPacket extends NetworkPacket {
 
     /**
      * This constructor initialize a beacon packet. The type of the packet is
- set to REG_PROXY and the destination isa is src beacuse this message
- is only sent by sinks.
+     * set to REG_PROXY and the destination isa is src beacuse this message is
+     * only sent by sinks.
      *
      * @param net
      * @param src

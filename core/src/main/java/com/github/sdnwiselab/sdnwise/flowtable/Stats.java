@@ -99,9 +99,9 @@ public class Stats implements FlowTableInterface {
         stats[COUNT_INDEX] = (byte) count;
         return this;
     }
-    
+
     public Stats increaseCounter() {
-        stats[COUNT_INDEX]++ ;
+        stats[COUNT_INDEX]++;
         return this;
     }
 

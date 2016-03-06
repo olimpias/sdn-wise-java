@@ -28,7 +28,7 @@ public class FunctionAction extends AbstractAction {
     // convert to array
     private final static byte ID_INDEX = 0;
     private final static byte ARGS_INDEX = 1;
-    
+
     public FunctionAction(byte[] value) {
         super(value);
     }
@@ -42,20 +42,20 @@ public class FunctionAction extends AbstractAction {
         return getValue(ID_INDEX);
     }
 
-    public byte[] getArgs(){
+    public byte[] getArgs() {
         return Arrays.copyOfRange(action, ARGS_INDEX, size);
     }
-    
-    public FunctionAction setArgs(byte[] args){
+
+    public FunctionAction setArgs(byte[] args) {
         System.arraycopy(args, 0, action, ARGS_INDEX, args.length);
         return this;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(FUNCTION.name());
         sb.append(" ").append(getId()).append(" ");
-        for (int i = 0; i<size; i++){
+        for (int i = 0; i < size; i++) {
             sb.append(getValue(i)).append(" ");
         }
         return sb.toString();
@@ -64,15 +64,15 @@ public class FunctionAction extends AbstractAction {
     public FunctionAction(String str) {
         super(FUNCTION, 0);
         String[] tmp = str.split(" ");
-        
+
         if (tmp[0].equals(FUNCTION.name())) {
-            size = tmp.length-2;
+            size = tmp.length - 2;
             action = new byte[tmp.length];
             setType(FUNCTION);
             setId(Integer.parseInt(tmp[1]));
-            
-            for (int i = 1; i<size+1; i++){
-                setValue(i, Integer.parseInt(tmp[i+1]));
+
+            for (int i = 1; i < size + 1; i++) {
+                setValue(i, Integer.parseInt(tmp[i + 1]));
             }
         } else {
             throw new IllegalArgumentException();
