@@ -66,7 +66,7 @@ public class SdnWise {
     private Adaptation adaptation;
     private AbstractController controller;
     private final boolean isEmulated = true;
-        
+
     /**
      * Starts the AbstractController layer of the SDN-WISE network. The path to
      * the configurations are specified in the configFilePath String. The
@@ -176,41 +176,41 @@ public class SdnWise {
 
         // Register the Controller
         flowVisor.addController(controller.getId(), nodeSetAll);
-        
-        if (isEmulated){
-        startVirtualNetwork();
 
-        // Wait for the nodes to be discovered
-        try {
-            Thread.sleep(60000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(SdnWise.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        if (isEmulated) {
+            startVirtualNetwork();
 
-        // Some examples
-        /* 
+            // Wait for the nodes to be discovered
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SdnWise.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            // Some examples
+            /* 
          * Send an "Hello, World!" function to nodes 8 and 3 add a rule that tells 
          * node 3 to execute this function when it receives a packet directed 
          * to node 8.
-         */
-        controller.addNodeFunction(
-                (byte) 1,
-                new NodeAddress(8),
-                (byte) 1,
-                "HelloWorld.class");
+             */
+            controller.addNodeFunction(
+                    (byte) 1,
+                    new NodeAddress(8),
+                    (byte) 1,
+                    "HelloWorld.class");
 
-        controller.addNodeFunction(
-                (byte) 1,
-                new NodeAddress(3),
-                (byte) 1,
-                "HelloWorld.class");
+            controller.addNodeFunction(
+                    (byte) 1,
+                    new NodeAddress(3),
+                    (byte) 1,
+                    "HelloWorld.class");
 
-        FlowTableEntry e1 = FlowTableEntry.fromString(
-                "if (P.DST == 8) {"
-                + " FUNCTION 1 0 0 0 0 0 0;"
-                + " FORWARD_U 8;"
-                + "}");
-        controller.addNodeRule((byte) 1, new NodeAddress(3), e1);
+            FlowTableEntry e1 = FlowTableEntry.fromString(
+                    "if (P.DST == 8) {"
+                    + " FUNCTION 1 0 0 0 0 0 0;"
+                    + " FORWARD_U 8;"
+                    + "}");
+            controller.addNodeRule((byte) 1, new NodeAddress(3), e1);
         }
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {

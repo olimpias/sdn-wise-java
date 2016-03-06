@@ -70,8 +70,8 @@ public class AdaptationFactory {
                 return new AdapterTcp(config);
             default:
                 throw new UnsupportedOperationException(
-                    "Error in configuration file: Unsupported Adapter of type "
-                    + config.get("TYPE"));
+                        "Error in configuration file: Unsupported Adapter of type "
+                        + config.get("TYPE"));
         }
     }
 

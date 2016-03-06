@@ -172,7 +172,7 @@ public abstract class AbstractCore {
     private void initFlowTable() {
         FlowTableEntry toSink = new FlowTableEntry();
         toSink.addWindow(new Window()
-                .setOperator(SDN_WISE_EQUAL)
+                .setOperator(EQUAL)
                 .setSize(SDN_WISE_SIZE_2)
                 .setLhsLocation(SDN_WISE_PACKET)
                 .setLhs(DST_INDEX)
@@ -278,7 +278,7 @@ public abstract class AbstractCore {
             if (i > 0) {
                 FlowTableEntry rule = new FlowTableEntry();
                 rule.addWindow(new Window()
-                        .setOperator(SDN_WISE_EQUAL)
+                        .setOperator(EQUAL)
                         .setSize(SDN_WISE_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
                         .setLhs(DST_INDEX)
@@ -293,7 +293,7 @@ public abstract class AbstractCore {
             if (i < (path.size() - 1)) {
                 FlowTableEntry rule = new FlowTableEntry();
                 rule.addWindow(new Window()
-                        .setOperator(SDN_WISE_EQUAL)
+                        .setOperator(EQUAL)
                         .setSize(SDN_WISE_SIZE_2)
                         .setLhsLocation(SDN_WISE_PACKET)
                         .setLhs(DST_INDEX)
@@ -511,17 +511,17 @@ public abstract class AbstractCore {
             return 0;
         }
         switch (operatore) {
-            case SDN_WISE_EQUAL:
+            case EQUAL:
                 return item1 == item2 ? 1 : 0;
-            case SDN_WISE_NOT_EQUAL:
+            case NOT_EQUAL:
                 return item1 != item2 ? 1 : 0;
-            case SDN_WISE_BIGGER:
+            case GREATER:
                 return item1 > item2 ? 1 : 0;
-            case SDN_WISE_LESS:
+            case LESS:
                 return item1 < item2 ? 1 : 0;
-            case SDN_WISE_EQUAL_OR_BIGGER:
+            case GREATER_OR_EQUAL:
                 return item1 >= item2 ? 1 : 0;
-            case SDN_WISE_EQUAL_OR_LESS:
+            case LESS_OR_EQUAL:
                 return item1 <= item2 ? 1 : 0;
             default:
                 return 0;

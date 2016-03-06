@@ -36,12 +36,12 @@ public class Window implements FlowTableInterface {
     public final static byte SDN_WISE_SIZE_2 = 1;
 
     // operators
-    public final static byte SDN_WISE_EQUAL = 0;
-    public final static byte SDN_WISE_NOT_EQUAL = 1;
-    public final static byte SDN_WISE_BIGGER = 2;
-    public final static byte SDN_WISE_LESS = 3;
-    public final static byte SDN_WISE_EQUAL_OR_BIGGER = 4;
-    public final static byte SDN_WISE_EQUAL_OR_LESS = 5;
+    public final static byte EQUAL = 0;
+    public final static byte NOT_EQUAL = 1;
+    public final static byte GREATER = 2;
+    public final static byte LESS = 3;
+    public final static byte GREATER_OR_EQUAL = 4;
+    public final static byte LESS_OR_EQUAL = 5;
 
     private final static byte operatorBit = 5;
     private final static byte operatorLen = 3;
@@ -245,17 +245,17 @@ public class Window implements FlowTableInterface {
      */
     public String getOperatorToString() {
         switch (getOperator()) {
-            case (SDN_WISE_EQUAL):
+            case (EQUAL):
                 return " == ";
-            case (SDN_WISE_NOT_EQUAL):
+            case (NOT_EQUAL):
                 return " != ";
-            case (SDN_WISE_BIGGER):
+            case (GREATER):
                 return " > ";
-            case (SDN_WISE_LESS):
+            case (LESS):
                 return " < ";
-            case (SDN_WISE_EQUAL_OR_BIGGER):
+            case (GREATER_OR_EQUAL):
                 return " >= ";
-            case (SDN_WISE_EQUAL_OR_LESS):
+            case (LESS_OR_EQUAL):
                 return " <= ";
             default:
                 return "";
@@ -265,17 +265,17 @@ public class Window implements FlowTableInterface {
     public int getOperatorFromString(String val) {
         switch (val) {
             case ("=="):
-                return SDN_WISE_EQUAL;
+                return EQUAL;
             case ("!="):
-                return SDN_WISE_NOT_EQUAL;
+                return NOT_EQUAL;
             case (">"):
-                return SDN_WISE_BIGGER;
+                return GREATER;
             case ("<"):
-                return SDN_WISE_LESS;
+                return LESS;
             case (">="):
-                return SDN_WISE_EQUAL_OR_BIGGER;
+                return GREATER_OR_EQUAL;
             case ("<="):
-                return SDN_WISE_EQUAL_OR_LESS;
+                return LESS_OR_EQUAL;
             default:
                 throw new IllegalArgumentException();
         }

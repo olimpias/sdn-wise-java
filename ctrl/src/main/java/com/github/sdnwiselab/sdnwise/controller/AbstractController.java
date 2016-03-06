@@ -322,9 +322,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
-     * @param period update table period in seconds 
+     * @param period update table period in seconds
      */
-    
     //TODO period s
     @Override
     public final void setNodeEntryTtl(byte net, NodeAddress dst, short period) {

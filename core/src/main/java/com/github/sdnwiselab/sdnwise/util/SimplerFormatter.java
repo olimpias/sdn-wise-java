@@ -49,10 +49,10 @@ public class SimplerFormatter extends Formatter {
                 .append(formatMessage(record));
 
         if (record.getThrown() != null) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw); 
-                record.getThrown().printStackTrace(pw);
-                sb.append(sw.toString());
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            record.getThrown().printStackTrace(pw);
+            sb.append(sw.toString());
         }
         return sb.append("\n").toString();
     }
