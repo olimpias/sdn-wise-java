@@ -490,28 +490,28 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerReport.commitEdit();
 
             controller.setNodeBeaconPeriod(
-                    (byte) this.jSpinnerNetID.getValue(),
+                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
                             (Integer) this.jSpinnerAddrL.getValue()),
                     ((Number) this.jSpinnerBeacon.getValue()).shortValue());
 
             controller.setNodeReportPeriod(
-                    (byte) this.jSpinnerNetID.getValue(),
+                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
                             (Integer) this.jSpinnerAddrL.getValue()),
                     ((Number) this.jSpinnerReport.getValue()).shortValue());
 
             controller.setNodeRssiMin(
-                    (byte) this.jSpinnerNetID.getValue(),
+                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
                             (Integer) this.jSpinnerAddrL.getValue()),
                     ((Number) this.jSpinnerRSSI.getValue()).byteValue());
 
             controller.setNodePacketTtl(
-                    (byte) this.jSpinnerNetID.getValue(),
+                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
                             (Integer) this.jSpinnerAddrH.getValue(),
                             (Integer) this.jSpinnerAddrL.getValue()),

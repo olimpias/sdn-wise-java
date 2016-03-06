@@ -380,7 +380,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final void setNodeRssiMin(byte net, NodeAddress dst, byte newRssi) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, PACKET_TTL, new byte[]{newRssi});
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RSSI_MIN, new byte[]{newRssi});
         sendNetworkPacket(cp);
     }
 
