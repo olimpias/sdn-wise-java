@@ -176,7 +176,7 @@ public interface ControllerInterface {
      */
     void removeNodeAlias(byte net, NodeAddress dst, byte index);
 
-    void removeNodeFunction(byte net, NodeAddress dst, byte id, String className);
+    void removeNodeFunction(byte net, NodeAddress dst, byte index);
 
     /**
      * This method removes a rule in the node.

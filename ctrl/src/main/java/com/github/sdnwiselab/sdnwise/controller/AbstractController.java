@@ -19,6 +19,7 @@ package com.github.sdnwiselab.sdnwise.controller;
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
+import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
@@ -26,7 +27,10 @@ import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.Utils.*;
+import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.*;
@@ -540,34 +544,76 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
     @Override
     public void addNodeFunction(byte net, NodeAddress dst, byte id, String className) {
-        // TODO
-
-        /*
         try {
-            
             URL main = FunctionInterface.class.getResource(className);
             File path = new File(main.getPath());
             byte[] buf = Files.readAllBytes(path.toPath());
-            List<ConfigFunctionPacket> ll = createPackets(
-                    netId, sinkAddress, dest, sinkAddress, id, buf);
-            Iterator<ConfigFunctionPacket> llIterator = ll.iterator();
+            List<ConfigPacket> ll = createPackets(
+                    net, sinkAddress, dst, id, buf);
+            Iterator<ConfigPacket> llIterator = ll.iterator();
             if (llIterator.hasNext()) {
-                this.sendNetworkPacket(llIterator.next());
+                sendNetworkPacket(llIterator.next());
                 Thread.sleep(200);
                 while (llIterator.hasNext()) {
-                    this.sendNetworkPacket(llIterator.next());
+                    sendNetworkPacket(llIterator.next());
                 }
-            }
-            
+            }            
         } catch (IOException | InterruptedException ex) {
             log(Level.SEVERE, ex.toString());
         }
-         */
+         
     }
 
     @Override
-    public void removeNodeFunction(byte net, NodeAddress dst, byte id, String className) {
-        // TODO
+    public void removeNodeFunction(byte net, NodeAddress dst, byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_FUNCTION, new byte[]{index});
+        sendNetworkPacket(cp);
+    }
+    
+    public static List<ConfigPacket> createPackets(
+            byte netId,
+            NodeAddress src,
+            NodeAddress dst,
+            byte id,
+            byte[] buf) {
+        LinkedList<ConfigPacket> ll = new LinkedList<>();
+
+        int FUNCTION_HEADER_LEN = 4;
+        int FUNCTION_PAYLOAD_LEN
+            = NetworkPacket.MAX_PACKET_LENGTH
+            - (SDN_WISE_DFLT_HDR_LEN + FUNCTION_HEADER_LEN);
+        
+        int packetNumber = buf.length / FUNCTION_PAYLOAD_LEN;
+        int remaining = buf.length % FUNCTION_PAYLOAD_LEN;
+        int totalPackets = packetNumber + (remaining > 0 ? 1 : 0);
+        int pointer = 0;
+        int i = 0;
+
+        if (packetNumber < 256) {
+            if (packetNumber > 0) {
+                for (i = 0; i < packetNumber; i++) {
+                    byte[] payload = ByteBuffer.allocate(FUNCTION_PAYLOAD_LEN+3)
+                            .put(id)
+                            .put((byte)(i+1))
+                            .put((byte)totalPackets)
+                            .put(Arrays.copyOfRange(buf, pointer, pointer + FUNCTION_PAYLOAD_LEN)).array();
+                    pointer += FUNCTION_PAYLOAD_LEN;
+                    ConfigPacket np = new ConfigPacket(netId, src, dst, ADD_FUNCTION, payload);
+                    ll.add(np);
+                }
+            }
+
+            if (remaining > 0) {
+                byte[] payload = ByteBuffer.allocate(remaining+3)
+                            .put(id)
+                            .put((byte)(i+1))
+                            .put((byte)totalPackets)
+                            .put(Arrays.copyOfRange(buf, pointer, pointer + remaining)).array();
+                ConfigPacket np = new ConfigPacket(netId, src, dst, ADD_FUNCTION, payload);
+                ll.add(np);
+            }
+        }
+        return ll;
     }
 
     /**
