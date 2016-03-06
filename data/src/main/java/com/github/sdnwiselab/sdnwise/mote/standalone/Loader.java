@@ -21,7 +21,6 @@ import java.net.*;
 import org.apache.commons.cli.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class Loader {

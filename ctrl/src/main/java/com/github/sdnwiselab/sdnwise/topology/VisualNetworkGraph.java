@@ -27,7 +27,6 @@ import org.graphstream.graph.Node;
  * graphical version of the NetworkGraph class.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public final class VisualNetworkGraph extends NetworkGraph {
 

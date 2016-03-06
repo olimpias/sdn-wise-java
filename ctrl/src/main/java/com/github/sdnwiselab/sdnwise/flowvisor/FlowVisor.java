@@ -36,7 +36,6 @@ import java.util.logging.*;
  * implements Runnable and the Observer pattern.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class FlowVisor extends ControlPlaneLayer {
 

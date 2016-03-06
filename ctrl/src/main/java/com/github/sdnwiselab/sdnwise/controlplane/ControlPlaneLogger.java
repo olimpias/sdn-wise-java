@@ -20,8 +20,7 @@ import com.github.sdnwiselab.sdnwise.util.SimplerFormatter;
 import java.util.logging.*;
 
 /**
- *
- * @author Seby
+ * @author Sebastiano Milardo
  */
 public class ControlPlaneLogger {
 

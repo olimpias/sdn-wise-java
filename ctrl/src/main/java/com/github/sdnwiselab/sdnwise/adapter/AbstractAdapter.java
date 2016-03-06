@@ -26,7 +26,6 @@ import java.util.logging.*;
  * coming from the specific adapter type.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public abstract class AbstractAdapter extends Observable implements Observer {
 

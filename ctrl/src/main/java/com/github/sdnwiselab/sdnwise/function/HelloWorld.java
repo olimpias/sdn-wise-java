@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class HelloWorld implements FunctionInterface {

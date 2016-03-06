@@ -27,7 +27,6 @@ import java.util.logging.Level;
  * the constructor of the class.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class AdapterCom extends AbstractAdapter {
 

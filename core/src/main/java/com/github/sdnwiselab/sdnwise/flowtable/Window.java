@@ -29,12 +29,6 @@ import java.util.Arrays;
  */
 public class Window implements FlowTableInterface {
 
-    /**
-     * | Operator | Operator | Operator | Left Location | Left Location | Right
-     * Location | Right Location | Size - | | | | | Left High byte | | | - | | |
-     * | | Left Low Byte | | | - | | | | | Right High Byte | | | - | | | | |
-     * Right Low Byte | | | -
-     */
     public final static byte SIZE = 5;
 
     // size

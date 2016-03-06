@@ -19,7 +19,6 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public abstract class AbstractForwardAction extends AbstractAction {

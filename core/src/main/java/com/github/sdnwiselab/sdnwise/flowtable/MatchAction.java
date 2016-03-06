@@ -18,6 +18,9 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.MATCH;
 
+/**
+ * @author Sebastiano Milardo
+ */
 public final class MatchAction extends AbstractAction {
 
     private static byte SIZE = 0;

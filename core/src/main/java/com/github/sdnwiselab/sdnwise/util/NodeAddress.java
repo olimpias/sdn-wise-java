@@ -23,7 +23,6 @@ import java.io.Serializable;
  * to compare more NodeAddress and Serializable to serialize this object.
  *
  * @author Sebastiano Milardo
- * @version %I%, %G%
  */
 public final class NodeAddress implements Comparable<NodeAddress>, Serializable {
 

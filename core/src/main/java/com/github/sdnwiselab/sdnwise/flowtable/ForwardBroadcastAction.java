@@ -20,7 +20,6 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.
 import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public final class ForwardBroadcastAction extends AbstractForwardAction {

@@ -18,6 +18,9 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.ASK;
 
+/**
+ * @author Sebastiano Milardo
+ */
 public final class AskAction extends AbstractAction {
 
     public AskAction() {

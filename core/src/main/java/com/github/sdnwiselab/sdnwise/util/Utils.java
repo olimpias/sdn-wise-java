@@ -19,7 +19,6 @@ package com.github.sdnwiselab.sdnwise.util;
 import java.nio.ByteBuffer;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class Utils {

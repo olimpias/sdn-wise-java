@@ -27,7 +27,6 @@ import javax.swing.JOptionPane;
 import org.contikios.cooja.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class CoojaSink extends AbstractCoojaMote {

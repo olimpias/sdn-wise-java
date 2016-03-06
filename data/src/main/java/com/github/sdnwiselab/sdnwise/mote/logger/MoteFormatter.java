@@ -20,7 +20,6 @@ import java.io.*;
 import java.util.logging.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class MoteFormatter extends Formatter {

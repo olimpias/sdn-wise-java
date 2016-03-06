@@ -30,7 +30,6 @@ import java.util.logging.Logger;
  * to parse/write configurations from/to a JSON file.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class Configurator {
 

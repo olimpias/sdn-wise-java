@@ -32,7 +32,6 @@ import java.util.logging.Level;
  * constructor of the class.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class AdapterUdp extends AbstractAdapter {
 

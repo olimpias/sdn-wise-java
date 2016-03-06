@@ -27,7 +27,6 @@ import java.util.logging.Level;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class MoteCore extends AbstractCore {

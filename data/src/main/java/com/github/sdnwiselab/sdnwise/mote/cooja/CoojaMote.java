@@ -22,7 +22,6 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import org.contikios.cooja.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class CoojaMote extends AbstractCoojaMote {

@@ -22,8 +22,7 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- *
- * @author Seby
+ * @author Sebastiano Milardo
  */
 public abstract class ControlPlaneLayer implements Observer, Runnable {
 

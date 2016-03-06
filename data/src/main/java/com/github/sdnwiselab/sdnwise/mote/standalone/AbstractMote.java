@@ -31,7 +31,6 @@ import java.util.logging.*;
 import java.util.stream.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public abstract class AbstractMote implements Runnable {

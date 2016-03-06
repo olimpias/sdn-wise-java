@@ -20,7 +20,6 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.
 import java.util.Arrays;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class FunctionAction extends AbstractAction {

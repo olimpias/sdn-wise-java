@@ -25,8 +25,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
- *
- * @author Seby
+ * @author Sebastiano Milardo
  */
 public interface ControllerInterface {
 

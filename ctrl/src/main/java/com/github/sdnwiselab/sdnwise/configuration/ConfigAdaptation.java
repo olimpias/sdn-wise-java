@@ -25,7 +25,6 @@ import java.util.Map;
  * parameters for the lower and upper adapter of an adaptation object.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class ConfigAdaptation {
 

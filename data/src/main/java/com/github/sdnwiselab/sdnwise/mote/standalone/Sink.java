@@ -25,7 +25,6 @@ import java.net.*;
 import java.util.logging.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class Sink extends AbstractMote {

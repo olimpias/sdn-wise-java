@@ -33,7 +33,6 @@ import org.graphstream.graph.Node;
  * the shortest path. No action is taken if the topology of the network changes.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class ControllerDijkstra extends AbstractController {
 

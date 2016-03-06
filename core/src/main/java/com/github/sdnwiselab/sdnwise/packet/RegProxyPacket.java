@@ -24,7 +24,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class RegProxyPacket extends NetworkPacket {

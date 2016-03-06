@@ -25,7 +25,6 @@ import java.util.logging.*;
  * This class represents a generic SDN-WISE packet.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class NetworkPacket implements Cloneable {
 

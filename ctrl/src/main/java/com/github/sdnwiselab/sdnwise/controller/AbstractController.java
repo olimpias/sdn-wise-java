@@ -50,7 +50,6 @@ import net.jodah.expiringmap.ExpiringMap;
  * the network.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public abstract class AbstractController extends ControlPlaneLayer implements ControllerInterface {
 

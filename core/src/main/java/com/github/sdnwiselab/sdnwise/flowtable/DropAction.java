@@ -18,6 +18,9 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.DROP;
 
+/**
+ * @author Sebastiano Milardo
+ */
 public final class DropAction extends AbstractAction {
 
     public DropAction() {

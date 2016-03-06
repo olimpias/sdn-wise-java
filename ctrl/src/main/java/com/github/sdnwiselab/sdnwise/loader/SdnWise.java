@@ -39,7 +39,6 @@ import java.util.logging.Logger;
  * starts the Adaptation, the FlowVisor and the AbstractController.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class SdnWise {
 

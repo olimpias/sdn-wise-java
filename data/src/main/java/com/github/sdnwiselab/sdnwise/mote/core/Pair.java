@@ -17,7 +17,6 @@
 package com.github.sdnwiselab.sdnwise.mote.core;
 
 /**
- *
  * @author Sebastiano Milardo
  * @param <K> Type of Key
  * @param <V> Type of Value

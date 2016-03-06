@@ -26,7 +26,6 @@ import com.github.sdnwiselab.sdnwise.configuration.ConfigFlowVisor;
  * object pattern.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class FlowVisorFactory {
 

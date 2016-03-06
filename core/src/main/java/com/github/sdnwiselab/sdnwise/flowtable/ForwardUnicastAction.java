@@ -20,7 +20,6 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public final class ForwardUnicastAction extends AbstractForwardAction {

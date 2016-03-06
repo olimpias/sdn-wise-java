@@ -17,7 +17,6 @@
 package com.github.sdnwiselab.sdnwise.mote.battery;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public interface BatteryInterface {

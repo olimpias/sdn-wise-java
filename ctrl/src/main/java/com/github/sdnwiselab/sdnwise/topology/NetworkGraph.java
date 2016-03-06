@@ -28,7 +28,6 @@ import org.graphstream.graph.implementations.MultiGraph;
  * a message with topology updates is sent to the controller.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class NetworkGraph extends Observable {
 

@@ -25,7 +25,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class SinkCore extends AbstractCore {

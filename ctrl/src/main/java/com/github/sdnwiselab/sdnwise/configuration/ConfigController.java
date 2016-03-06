@@ -26,7 +26,6 @@ import java.util.Map;
  * controller object.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class ConfigController {
 

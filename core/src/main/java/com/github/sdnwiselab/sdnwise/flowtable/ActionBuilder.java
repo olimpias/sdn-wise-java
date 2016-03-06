@@ -19,7 +19,6 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.*;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class ActionBuilder {

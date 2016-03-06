@@ -34,11 +34,10 @@ import java.util.logging.*;
  * to the lower.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class Adaptation extends ControlPlaneLayer {
 
-    // to avoid garbage collection of the logger
+    // to avoid garbage collector
     protected static final Logger LOGGER = Logger.getLogger("ADA");
 
     /**

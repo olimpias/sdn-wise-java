@@ -17,8 +17,7 @@
 package com.github.sdnwiselab.sdnwise.configuration;
 
 /**
- *
- * @author Seby
+ * @author Sebastiano Milardo
  */
 public class ConfigFlowVisor extends ConfigAdaptation {
 

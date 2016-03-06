@@ -21,7 +21,6 @@ import com.github.sdnwiselab.sdnwise.mote.core.MoteCore;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
- *
  * @author Sebastiano Milardo
  */
 public class Mote extends AbstractMote {

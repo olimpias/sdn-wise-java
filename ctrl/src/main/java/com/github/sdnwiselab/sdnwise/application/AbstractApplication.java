@@ -50,13 +50,13 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     /**
      * Constructor method for Application Abstract Class.
      *
-     * @param controller the controller to be set
+     * @param ctrl the ctrl to be set
      * @param lower the adapter to be set
      */
-    public AbstractApplication(AbstractController controller, AbstractAdapter lower) {
+    public AbstractApplication(AbstractController ctrl, AbstractAdapter lower) {
         super("APP", lower, null);
         ControlPlaneLogger.setupLogger(layerShortName);
-        this.controller = controller;
+        this.controller = ctrl;
         bQ = new ArrayBlockingQueue<>(1000);
     }
 
@@ -107,13 +107,13 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * This method sends a generic message to a node. The message is represented
      * by an array of bytes.
      *
-     * @param net network id of the destination node
-     * @param destination network address of the destination node
+     * @param net network id of the dst node
+     * @param dst network address of the dst node
      * @param message the content of the message to be sent
      */
-    public final void sendMessage(byte net, NodeAddress destination, byte[] message) {
+    public final void sendMessage(byte net, NodeAddress dst, byte[] message) {
         if (message.length != 0) {
-            DataPacket dp = new DataPacket(net, new NodeAddress("0.0"), destination, message);
+            DataPacket dp = new DataPacket(net, controller.getSinkAddress(), dst, message);
             dp.setNxh(controller.getSinkAddress());
             lower.send(dp.toByteArray());
         }

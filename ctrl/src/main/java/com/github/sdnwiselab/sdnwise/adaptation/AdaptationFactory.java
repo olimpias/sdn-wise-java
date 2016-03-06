@@ -31,7 +31,6 @@ import java.util.Map;
  * class.
  *
  * @author Sebastiano Milardo
- * @version 0.1
  */
 public class AdaptationFactory {
 
@@ -70,8 +69,9 @@ public class AdaptationFactory {
             case "TCP":
                 return new AdapterTcp(config);
             default:
-                throw new UnsupportedOperationException("Error in configuration file: Unsupported Adapter of type "
-                        + config.get("TYPE"));
+                throw new UnsupportedOperationException(
+                    "Error in configuration file: Unsupported Adapter of type "
+                    + config.get("TYPE"));
         }
     }
 
