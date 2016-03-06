@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,6 @@ import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
 import com.github.sdnwiselab.sdnwise.configuration.ConfigController;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
-//import com.github.sdnwiselab.sdnwise.topology.SocketIoNetworkGraph;
 import com.github.sdnwiselab.sdnwise.topology.VisualNetworkGraph;
 import java.net.InetSocketAddress;
 
@@ -76,24 +75,6 @@ public class ControllerFactory {
             default:
                 throw new UnsupportedOperationException("Error in Configuration file");
         }
-    }
-
-    // TODO incomplete
-    public Object getNorthBound(ConfigController config) {
-        String northbound = "";
-        switch (northbound) {
-            case "SOCKET_IO":
-                break;
-            case "SOAP":
-                break;
-            case "REST":
-                break;
-            case "RMI":
-                break;
-            default:
-                break;
-        }
-        return null;
     }
 
     public AbstractController getControllerType(ConfigController conf, InetSocketAddress newId, AbstractAdapter adapt, NetworkGraph ng) {
