@@ -17,7 +17,6 @@
 package com.github.sdnwiselab.sdnwise.mote.core;
 
 import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
-import static com.github.sdnwiselab.sdnwise.mote.core.Constants.SDN_WISE_DFLT_CNT_SLEEP_MAX;
 import com.github.sdnwiselab.sdnwise.flowtable.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
@@ -39,7 +38,6 @@ public class MoteCore extends AbstractCore {
 
     @Override
     final void initSdnWiseSpecific() {
-        cnt_sleep_max = SDN_WISE_DFLT_CNT_SLEEP_MAX;
         reset();
     }
 
@@ -49,7 +47,7 @@ public class MoteCore extends AbstractCore {
             log(Level.INFO, new String(packet.getPayload(), Charset.forName("UTF-8")));
             packet.setSrc(myAddress)
                     .setDst(getActualSinkAddress())
-                    .setTtl((byte) ttl_max);
+                    .setTtl((byte) rule_ttl);
             runFlowMatch(packet);
         } else {
             this.functions.get(1).function(sensors,
@@ -108,14 +106,14 @@ public class MoteCore extends AbstractCore {
         } else if (this.marshalPacket(packet) != 0) {
             packet.setSrc(myAddress);
             packet.setDst(getActualSinkAddress());
-            packet.setTtl((byte) ttl_max);
+            packet.setTtl((byte) rule_ttl);
             runFlowMatch(packet);
         }
     }
 
     @Override
     final void reset() {
-        setSinkDistance(ttl_max + 1);
+        setSinkDistance(rule_ttl + 1);
         setSinkRssi(0);
         setActive(false);
     }

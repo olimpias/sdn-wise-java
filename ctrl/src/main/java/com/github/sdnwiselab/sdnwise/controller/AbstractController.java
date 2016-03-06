@@ -528,7 +528,11 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             cp.setValue(new byte[]{(byte)index}, GET_RULE.size);
             ConfigPacket response = sendQuery(cp);
             byte[] rule = Arrays.copyOfRange(response.getValue(),1,response.getPayloadSize()-1);
-            return new FlowTableEntry(rule);   
+            if (rule.length > 0){
+                return new FlowTableEntry(rule);
+            } else {
+                return null;
+            }
         } catch (TimeoutException ex) {
             return null;
         }

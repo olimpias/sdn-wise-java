@@ -32,10 +32,10 @@ public class HelloWorld implements FunctionInterface {
     @Override
     public void function(
             HashMap<String, Object> adcRegister,
-            ArrayList<FlowTableEntry> flowTable,
+            List<FlowTableEntry> flowTable,
             Set<Neighbor> neighborTable,
             ArrayList<Integer> statusRegister,
-            ArrayList<NodeAddress> acceptedId,
+            List<NodeAddress> acceptedId,
             ArrayBlockingQueue<NetworkPacket> flowTableQueue,
             ArrayBlockingQueue<NetworkPacket> txQueue,
             byte[] args,

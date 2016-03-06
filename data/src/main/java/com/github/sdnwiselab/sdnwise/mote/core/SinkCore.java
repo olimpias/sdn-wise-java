@@ -61,7 +61,7 @@ public class SinkCore extends AbstractCore {
     public final void controllerTX(NetworkPacket pck) {
         try {
             txControllerQueue.put(pck);
-            log(Level.FINE, "C-TX " + pck);
+            log(Level.FINE, "CTX " + pck);
         } catch (InterruptedException ex) {
             log(Level.SEVERE, ex.getLocalizedMessage());
         }

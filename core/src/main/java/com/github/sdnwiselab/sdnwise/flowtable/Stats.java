@@ -27,7 +27,7 @@ import java.util.Arrays;
 public class Stats implements FlowTableInterface {
 
     public final static byte SIZE = 2;
-    public static final int SDN_WISE_RL_TTL_PERMANENT = 255;
+    public static final int ENTRY_TTL_PERMANENT = 255;
     public static final int SDN_WISE_RL_TTL_MAX = 254;
 
     private final static byte TTL_INDEX = 0;
@@ -96,13 +96,18 @@ public class Stats implements FlowTableInterface {
      * @return this Stats
      */
     public Stats setCounter(int count) {
-        this.stats[COUNT_INDEX] = (byte) count;
+        stats[COUNT_INDEX] = (byte) count;
+        return this;
+    }
+    
+    public Stats increaseCounter() {
+        stats[COUNT_INDEX]++ ;
         return this;
     }
 
     @Override
     public final String toString() {
-        return "TTL: " + (getTtl() == SDN_WISE_RL_TTL_PERMANENT
+        return "TTL: " + (getTtl() == ENTRY_TTL_PERMANENT
                 ? "PERM" : getTtl()) + ", U: " + getCounter();
     }
 
@@ -112,7 +117,7 @@ public class Stats implements FlowTableInterface {
     }
 
     public Stats setPermanent() {
-        this.setTtl(SDN_WISE_RL_TTL_PERMANENT);
+        this.setTtl(ENTRY_TTL_PERMANENT);
         return this;
     }
 

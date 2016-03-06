@@ -213,6 +213,10 @@ public class FlowTableEntry implements FlowTableInterface {
         return hash;
     }
 
+    public boolean equalWindows(FlowTableEntry other){
+        return Objects.deepEquals(this.windows, other.windows);
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

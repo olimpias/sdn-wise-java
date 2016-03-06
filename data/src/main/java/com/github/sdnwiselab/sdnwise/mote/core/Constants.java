@@ -27,18 +27,14 @@ public class Constants {
     public final static int SDN_WISE_DFLT_RSSI_MIN = 180;
     
     // tables
-    public final static int SDN_WISE_RLS_MAX = 10000;
-    public final static byte SDN_WISE_NEIGHBORS_MAX = 15;
-    public final static byte SDN_WISE_ACCEPTED_ID_MAX = 10;
-    public final static byte SDN_WISE_RL_TTL_DECR = 10;
+    public final static byte ENTRY_TTL_DECR = 10;
 
     // timers
     public final static byte SDN_WISE_DFLT_CNT_DATA_MAX = 10;
     public final static byte SDN_WISE_DFLT_CNT_BEACON_MAX = 10;
     public final static byte SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX;
     public final static byte SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6;   // TTL = 150s
-    public final static byte SDN_WISE_DFLT_CNT_SLEEP_MAX = 100;
-
+    
     // status register
     public final static int SDN_WISE_STATUS_LEN = 10000;
 

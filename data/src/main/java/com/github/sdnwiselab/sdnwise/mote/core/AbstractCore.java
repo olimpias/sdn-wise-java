@@ -20,7 +20,6 @@ import com.github.sdnwiselab.sdnwise.mote.battery.BatteryInterface;
 import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.*;
-import static com.github.sdnwiselab.sdnwise.flowtable.Stats.SDN_WISE_RL_TTL_PERMANENT;
 import com.github.sdnwiselab.sdnwise.flowtable.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
 import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
@@ -34,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
+import static com.github.sdnwiselab.sdnwise.flowtable.Stats.ENTRY_TTL_PERMANENT;
 
 /**
  *
@@ -69,26 +69,24 @@ public abstract class AbstractCore {
     final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
 
     // Configuration parameters
-    int flowTableSize,
-            myNetId,
+    protected int myNet,
             cnt_beacon_max,
             cnt_report_max,
             cnt_updtable_max,
-            cnt_sleep_max,
-            ttl_max,
+            rule_ttl,
             rssi_min;
 
-    byte requestId;
+    private byte requestId;
 
     // The address of the node
     protected NodeAddress myAddress;
-    protected Set<Neighbor> neighborTable;
+    protected final Set<Neighbor> neighborTable;
 
     // WISE Flow Table
-    protected ArrayList<FlowTableEntry> flowTable = new ArrayList<>(100);
+    protected List<FlowTableEntry> flowTable = new LinkedList<>();
 
     // Accepted IDs
-    protected ArrayList<NodeAddress> acceptedId = new ArrayList<>();
+    protected List<NodeAddress> acceptedId = new LinkedList<>();
 
     // Status Register
     protected ArrayList<Integer> statusRegister = new ArrayList<>();
@@ -103,7 +101,7 @@ public abstract class AbstractCore {
     AbstractCore(byte netId, NodeAddress address, Battery battery) {
         this.neighborTable = Collections.synchronizedSet(new HashSet<>(100));
         this.myAddress = address;
-        this.myNetId = netId;
+        this.myNet = netId;
         this.battery = battery;
     }
 
@@ -129,7 +127,7 @@ public abstract class AbstractCore {
     }
 
     public final int getFlowTableSize() {
-        return flowTableSize;
+        return flowTable.size();
     }
 
     public final NodeAddress getMyAddress() {
@@ -137,7 +135,7 @@ public abstract class AbstractCore {
     }
 
     public int getNetId() {
-        return myNetId;
+        return myNet;
     }
 
     public void timer() {
@@ -183,11 +181,7 @@ public abstract class AbstractCore {
         toSink.addWindow(Window.fromString("P.TYP == 3"));
         toSink.addAction(new ForwardUnicastAction(myAddress));
         toSink.getStats().setPermanent();
-        flowTable.add(0, toSink);
-
-        for (int i = 1; i < SDN_WISE_RLS_MAX; i++) {
-            flowTable.add(i, new FlowTableEntry());
-        }
+        flowTable.add(toSink);
     }
 
     private void initStatusRegister() {
@@ -213,7 +207,7 @@ public abstract class AbstractCore {
         if (!packet.isSdnWise()) {
             runFlowMatch(packet);
         } else if (packet.getLen() > SDN_WISE_DFLT_HDR_LEN
-                && packet.getNet() == myNetId
+                && packet.getNet() == myNet
                 && packet.getTtl() != 0) {
 
             switch (packet.getTyp()) {
@@ -264,7 +258,7 @@ public abstract class AbstractCore {
     protected void rxResponse(ResponsePacket rp) {
         if (isAcceptedIdPacket(rp)) {
             rp.getRule().setStats(new Stats());
-            insertRule(rp.getRule(), searchRule(rp.getRule()));
+            insertRule(rp.getRule());
         } else {
             runFlowMatch(rp);
         }
@@ -293,9 +287,7 @@ public abstract class AbstractCore {
 
                 rule.getWindows().addAll(opp.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i - 1)));
-
-                int p = searchRule(rule);
-                insertRule(rule, p);
+                insertRule(rule);
             }
 
             if (i < (path.size() - 1)) {
@@ -310,10 +302,7 @@ public abstract class AbstractCore {
 
                 rule.getWindows().addAll(opp.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i + 1)));
-
-                int p = searchRule(rule);
-                insertRule(rule, p);
-
+                insertRule(rule);
                 opp.setDst(path.get(i + 1));
                 opp.setNxh(path.get(i + 1));
                 radioTX(opp);
@@ -324,35 +313,30 @@ public abstract class AbstractCore {
         }
     }
 
-    protected void insertRule(FlowTableEntry rule, int pos) {
-        if (pos >= SDN_WISE_RLS_MAX) {
-            pos = flowTableSize;
-            flowTableSize++;
-            if (flowTableSize >= SDN_WISE_RLS_MAX) {
-                flowTableSize = 1;
-            }
+    protected void insertRule(FlowTableEntry rule) {
+        int i = searchRule(rule);     
+        if (i != -1){
+            flowTable.set(i, rule);  
+            log(Level.INFO, "Replacing rule " + rule
+                + " at position " + i);
+        } else {
+            flowTable.add(rule);
+            log(Level.INFO, "Inserting rule " + rule
+                + " at position " + (flowTable.size() - 1));
         }
-        log(Level.INFO, "Inserting rule " + rule + " at position " + pos);
-        flowTable.set(pos, rule);
+        
+        
     }
 
-    protected int searchRule(FlowTableEntry rule) {
-        int i, j, sum, target;
-        for (i = 0; i < SDN_WISE_RLS_MAX; i++) {
-            sum = 0;
-            target = rule.getWindows().size();
-            if (flowTable.get(i).getWindows().size() == target) {
-                for (j = 0; j < rule.getWindows().size(); j++) {
-                    if (flowTable.get(i).getWindows().get(j).equals(rule.getWindows().get(j))) {
-                        sum++;
-                    }
-                }
-            }
-            if (sum == target) {
+    private int searchRule(FlowTableEntry rule) {
+        int i = 0;
+        for (FlowTableEntry fte : flowTable) {
+            if (fte.equalWindows(rule)) {
                 return i;
             }
+            i++;
         }
-        return SDN_WISE_RLS_MAX + 1;
+        return -1;
     }
 
     protected boolean isAcceptedIdAddress(NodeAddress addrP) {
@@ -481,7 +465,10 @@ public abstract class AbstractCore {
                     }
                     break;
                 case ASK:
-                    RequestPacket[] rps = RequestPacket.createPackets((byte) myNetId, myAddress, getActualSinkAddress(), requestId++, np.toByteArray());
+                    RequestPacket[] rps = RequestPacket.createPackets((byte) 
+                            myNet, myAddress, 
+                            getActualSinkAddress(), 
+                            requestId++, np.toByteArray());
 
                     for (RequestPacket rp : rps) {
                         controllerTX(rp);
@@ -548,8 +535,7 @@ public abstract class AbstractCore {
         cnt_report_max = SDN_WISE_DFLT_CNT_REPORT_MAX;
         cnt_updtable_max = SDN_WISE_DFLT_CNT_UPDTABLE_MAX;
         rssi_min = SDN_WISE_DFLT_RSSI_MIN;
-        ttl_max = SDN_WISE_DFLT_TTL_MAX;
-        flowTableSize = 1;
+        rule_ttl = SDN_WISE_DFLT_TTL_MAX;
         initSdnWiseSpecific();
     }
 
@@ -586,29 +572,29 @@ public abstract class AbstractCore {
     }
 
     protected void rxBeacon(BeaconPacket bp, int rssi) {
-        Neighbor nb = new Neighbor(bp.getSrc(),rssi,bp.getBattery());
+        Neighbor nb = new Neighbor(bp.getSrc(), rssi, bp.getBattery());
         this.neighborTable.add(nb);
     }
 
     protected final void runFlowMatch(NetworkPacket packet) {
-        int j, i;
+        int i = 0;
         boolean matched = false;
-        for (j = 0; j < SDN_WISE_RLS_MAX; j++) {
-            i = getActualFlowIndex(j);
-            if (matchRule(flowTable.get(i), packet) == 1) {
-                log(Level.FINE, "Matched Rule #" + j + " " + flowTable.get(i).toString());
+        for (FlowTableEntry fte : flowTable) {
+            i++;
+            if (matchRule(fte, packet) == 1) {
+                log(Level.FINE, "Matched Rule #" + i + " " + fte.toString());
                 matched = true;
-                for (AbstractAction a : flowTable.get(i).getActions()) {
+                fte.getActions().stream().forEach((a) -> {
                     runAction(a, packet);
-                }
-                flowTable.get(i).getStats()
-                        .setCounter(flowTable.get(i).getStats().getCounter() + 1);
+                });
+                fte.getStats().increaseCounter();
                 break;
             }
         }
+        
         if (!matched) {
             // send a rule request
-            RequestPacket[] rps = RequestPacket.createPackets((byte) myNetId, myAddress, getActualSinkAddress(), requestId++, packet.toByteArray());
+            RequestPacket[] rps = RequestPacket.createPackets((byte) myNet, myAddress, getActualSinkAddress(), requestId++, packet.toByteArray());
 
             for (RequestPacket rp : rps) {
                 controllerTX(rp);
@@ -628,136 +614,136 @@ public abstract class AbstractCore {
 
     protected int marshalPacket(ConfigPacket packet) {
         int toBeSent = 0;
-        ConfigProperty id = packet.getConfigId();
-        byte[] value = packet.getValue();
-        
-        
-        if (packet.isWrite()) {
-            int idValue = value[0] & 0xFF;
-            switch (id) {
-                case MY_ADDRESS:
-                    myAddress = new NodeAddress(value);
-                    break;
-                case MY_NET:
-                    myNetId = idValue;
-                    break;
-                case BEACON_PERIOD:
-                    cnt_beacon_max = mergeBytes(value[0],value[1]);
-                    break;
-                case REPORT_PERIOD:
-                    cnt_report_max = mergeBytes(value[0],value[1]);;
-                    break;
-                case RULE_TTL:
-                    cnt_updtable_max = idValue;
-                    break;
-                case PACKET_TTL:
-                    ttl_max = idValue;
-                    break;
-                case RSSI_MIN:
-                    rssi_min = idValue;
-                    break;
-                case ADD_ALIAS:
-                    acceptedId.add(new NodeAddress(value));
-                    break;
-                case REM_ALIAS:
-                    acceptedId.remove(idValue);
-                    break;
-                case REM_RULE:
-                    if (idValue != 0) {
-                        flowTable.set(getActualFlowIndex(idValue), new FlowTableEntry());
-                    }
-                    break;
-                case ADD_RULE:
-                    // TODO we need to decide what to do with response packets
-                    break;
-                case RESET:
-                    initFlowTable();
-                    initStatusRegister();
-                    initSdnWise();
-                    break;
-                case ADD_FUNCTION:
-                    if (functionBuffer.get(idValue) == null) {
-                        functionBuffer.put(idValue, new LinkedList<>());
-                    }
-                    
-                    byte[] functionPayload = Arrays.copyOfRange(value, 3, value.length);
-                    int totalParts = value[2] & 0xFF;
+        //try {
+            ConfigProperty id = packet.getConfigId();
+            byte[] value = packet.getValue();
 
-                    functionBuffer.get(idValue).add(functionPayload);
-                    if (functionBuffer.get(idValue).size() == totalParts) {
-                        int total = 0;
-                        total = functionBuffer.get(idValue).stream().map((n)
-                                -> (n.length)).reduce(total, Integer::sum);
-                        int pointer = 0;
-                        byte[] func = new byte[total];
-                        for (byte[] n : functionBuffer.get(idValue)) {
-                            for (int j = 0; j < n.length; j++) {
-                                func[pointer] = n[j];
-                                pointer++;
-                            }
+            if (packet.isWrite()) {
+                int idValue = value[0] & 0xFF;
+                switch (id) {
+                    case MY_ADDRESS:
+                        myAddress = new NodeAddress(value);
+                        break;
+                    case MY_NET:
+                        myNet = idValue;
+                        break;
+                    case BEACON_PERIOD:
+                        cnt_beacon_max = mergeBytes(value[0], value[1]);
+                        break;
+                    case REPORT_PERIOD:
+                        cnt_report_max = mergeBytes(value[0], value[1]);
+                        break;
+                    case RULE_TTL:
+                        cnt_updtable_max = idValue;
+                        break;
+                    case PACKET_TTL:
+                        rule_ttl = idValue;
+                        break;
+                    case RSSI_MIN:
+                        rssi_min = idValue;
+                        break;
+                    case ADD_ALIAS:
+                        acceptedId.add(new NodeAddress(value));
+                        break;
+                    case REM_ALIAS:
+                        acceptedId.remove(idValue);
+                        break;
+                    case REM_RULE:
+                        if (idValue != 0) {
+                            flowTable.remove(idValue);
                         }
-                        functions.put(idValue, createServiceInterface(func));
-                        log(Level.INFO, "New Function Added at position: " + idValue);
-                        functionBuffer.remove(idValue);
-                    }
-                    break;
-                case REM_FUNCTION:
-                    functions.remove(idValue);              
-                    break;
-                default:
-                    break;
+                        break;
+                    case ADD_RULE:
+                        // TODO we need to decide what to do with response packets
+                        break;
+                    case RESET:
+                        reset();
+                        break;
+                    case ADD_FUNCTION:
+                        if (functionBuffer.get(idValue) == null) {
+                            functionBuffer.put(idValue, new LinkedList<>());
+                        }
+
+                        byte[] functionPayload = Arrays.copyOfRange(value, 3, value.length);
+                        int totalParts = value[2] & 0xFF;
+
+                        functionBuffer.get(idValue).add(functionPayload);
+                        if (functionBuffer.get(idValue).size() == totalParts) {
+                            int total = 0;
+                            total = functionBuffer.get(idValue).stream().map((n)
+                                    -> (n.length)).reduce(total, Integer::sum);
+                            int pointer = 0;
+                            byte[] func = new byte[total];
+                            for (byte[] n : functionBuffer.get(idValue)) {
+                                for (int j = 0; j < n.length; j++) {
+                                    func[pointer] = n[j];
+                                    pointer++;
+                                }
+                            }
+                            functions.put(idValue, createServiceInterface(func));
+                            log(Level.INFO, "New Function Added at position: " + idValue);
+                            functionBuffer.remove(idValue);
+                        }
+                        break;
+                    case REM_FUNCTION:
+                        functions.remove(idValue);
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                toBeSent = 1;
+                switch (id) {
+                    case MY_ADDRESS:
+                        packet.setValue(myAddress.getArray(), id.size);
+                        break;
+                    case MY_NET:
+                        packet.setValue(new byte[]{(byte) (myNet & 0xFF)}, id.size);
+                        break;
+                    case BEACON_PERIOD:
+                        packet.setValue(splitInteger(cnt_beacon_max), id.size);
+                        break;
+                    case REPORT_PERIOD:
+                        packet.setValue(splitInteger(cnt_report_max), id.size);
+                        break;
+                    case RULE_TTL:
+                        packet.setValue(new byte[]{(byte) (cnt_updtable_max & 0xFF)}, id.size);
+                        break;
+                    case PACKET_TTL:
+                        packet.setValue(new byte[]{(byte) (rule_ttl & 0xFF)}, id.size);
+                        break;
+                    case RSSI_MIN:
+                        packet.setValue(new byte[]{(byte) (rssi_min & 0xFF)}, id.size);
+                        break;
+                    case GET_ALIAS:
+                        int aIndex = value[0] & 0xFF;
+                        if (aIndex < acceptedId.size()) {
+                            byte[] tmp = acceptedId.get(aIndex).getArray();
+                            packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) aIndex).put(tmp).array(), -1);
+                        } else {
+                            toBeSent = 0;
+                        }
+                        break;
+                    case GET_RULE:
+                        int i = value[0] & 0xFF;
+                        if (i < flowTable.size()){
+                            FlowTableEntry fte = flowTable.get(i);
+                            byte[] tmp = fte.toByteArray();
+                            packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) i).put(tmp).array(), -1);
+                        } else {
+                            toBeSent = 0;
+                        }
+                        break;
+                    case GET_FUNCTION:
+                        // TODO
+                        break;
+                    default:
+                        break;
+                }
             }
-        } else {
-            toBeSent = 1;
-            switch (id) {
-                case MY_ADDRESS:
-                    packet.setValue(myAddress.getArray(),id.size);
-                    break;
-                case MY_NET:
-                    packet.setValue(new byte[]{(byte)(myNetId & 0xFF)},id.size);
-                    break;
-                case BEACON_PERIOD:
-                    packet.setValue(splitInteger(cnt_beacon_max),id.size);
-                    break;
-                case REPORT_PERIOD:
-                    packet.setValue(splitInteger(cnt_report_max),id.size);
-                    break;
-                case RULE_TTL:
-                    packet.setValue(new byte[]{(byte)(cnt_updtable_max & 0xFF)},id.size);
-                    break;
-                case PACKET_TTL:
-                    packet.setValue(new byte[]{(byte)(ttl_max & 0xFF)},id.size);
-                    break;
-                case RSSI_MIN:
-                    packet.setValue(new byte[]{(byte)(rssi_min & 0xFF)},id.size);
-                    break;
-                case GET_ALIAS:
-                    int aIndex = value[0] & 0xFF;
-                    if (aIndex < acceptedId.size()){   
-                        byte[] tmp = acceptedId.get(aIndex).getArray();
-                        packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte)aIndex).put(tmp).array(), -1);
-                    } else {
-                        toBeSent = 0;
-                    }
-                    break;
-                case GET_RULE:
-                    int rIndex = value[0] & 0xFF;
-                    int i = getActualFlowIndex(rIndex);
-                    FlowTableEntry fte = flowTable.get(i);
-                    if (!fte.getWindows().isEmpty()){
-                        byte[] tmp = fte.toByteArray();
-                        packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte)rIndex).put(tmp).array(), -1);
-                    } else {
-                        toBeSent = 0;
-                    }
-                    break;
-                case GET_FUNCTION:
-                    // TODO
-                    break;
-                default:
-                    break;
-            }
-        }
+        //} catch (Exception ex) {
+        //    log(Level.SEVERE, ex.getMessage());
+        //}
         return toBeSent;
     }
 
@@ -780,7 +766,7 @@ public abstract class AbstractCore {
 
     BeaconPacket prepareBeacon() {
         BeaconPacket bp = new BeaconPacket(
-                myNetId,
+                myNet,
                 myAddress,
                 getActualSinkAddress(),
                 sinkDistance,
@@ -791,7 +777,7 @@ public abstract class AbstractCore {
     ReportPacket prepareReport() {
 
         ReportPacket rp = new ReportPacket(
-                myNetId,
+                myNet,
                 myAddress,
                 getActualSinkAddress(),
                 sinkDistance,
@@ -801,51 +787,35 @@ public abstract class AbstractCore {
                 .setNxh(getNextHopVsSink());
 
         int j = 0;
-        for (Neighbor n : neighborTable){
+        synchronized(neighborTable){
+        for (Neighbor n : neighborTable) {
             rp.setNeighborAddressAt(n.getAddr(), j)
-              .setLinkQualityAt((byte)n.getRssi(), j);
+                    .setLinkQualityAt((byte) n.getRssi(), j);
             j++;
-        
         }
         neighborTable.clear();
+        }
         return rp;
     }
 
     final void updateTable() {
-        for (int i = 0; i < SDN_WISE_RLS_MAX; i++) {
-            FlowTableEntry tmp = flowTable.get(i);
-            if (tmp.getWindows().size() > 1) {
-                int ttl = tmp.getStats().getTtl();
-                if (ttl != SDN_WISE_RL_TTL_PERMANENT) {
-                    if (ttl >= SDN_WISE_RL_TTL_DECR) {
-                        tmp.getStats().decrementTtl(SDN_WISE_RL_TTL_DECR);
-                    } else {
-                        flowTable.set(i, new FlowTableEntry());
-                        log(Level.INFO, "Removing rule at position " + i);
-                        if (i == 0) {
-                            reset();
-                        }
+        int i = 0;
+        for (Iterator<FlowTableEntry> it = flowTable.iterator(); it.hasNext();) {
+            i++;
+            FlowTableEntry fte = it.next();
+            int ttl = fte.getStats().getTtl();
+            if (ttl != ENTRY_TTL_PERMANENT) {
+                if (ttl >= ENTRY_TTL_DECR) {
+                    fte.getStats().decrementTtl(ENTRY_TTL_DECR);
+                } else {
+                    it.remove();
+                    log(Level.INFO, "Removing rule at position " + i);
+                    if (i == 0) {
+                        reset();
                     }
                 }
             }
         }
-    }
-
-
-    final int getActualFlowIndex(int j) {
-        //j = j % SDN_WISE_RLS_MAX;
-        int i;
-        if (j == 0) {
-            i = 0;
-        } else {
-            i = flowTableSize - j;
-            if (i == 0) {
-                i = SDN_WISE_RLS_MAX - 1;
-            } else if (i < 0) {
-                i = SDN_WISE_RLS_MAX - 1 + i;
-            }
-        }
-        return i;
     }
 
     private class CustomClassLoader extends ClassLoader {
