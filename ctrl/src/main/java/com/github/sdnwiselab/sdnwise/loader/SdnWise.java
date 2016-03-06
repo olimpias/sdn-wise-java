@@ -65,7 +65,8 @@ public class SdnWise {
     private FlowVisor flowVisor;
     private Adaptation adaptation;
     private AbstractController controller;
-
+    private final boolean isEmulated = false;
+        
     /**
      * Starts the AbstractController layer of the SDN-WISE network. The path to
      * the configurations are specified in the configFilePath String. The
@@ -175,6 +176,8 @@ public class SdnWise {
 
         // Register the Controller
         flowVisor.addController(controller.getId(), nodeSetAll);
+        
+        if (isEmulated){
         startVirtualNetwork();
 
         // Wait for the nodes to be discovered
@@ -208,7 +211,7 @@ public class SdnWise {
                 + " FORWARD_U 8;"
                 + "}");
         controller.addNodeRule((byte) 1, new NodeAddress(3), e1);
-
+        }
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {
             new ControllerGui(controller).setVisible(true);

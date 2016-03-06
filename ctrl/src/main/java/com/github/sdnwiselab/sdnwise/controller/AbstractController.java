@@ -57,7 +57,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     protected static final Logger LOGGER = Logger.getLogger("CTRL");
 
     final static int FLOW_TABLE_SIZE = 16;
-    final static int RESPONSE_TIMEOUT = 300; // Increase when using COOJA
+    final static int RESPONSE_TIMEOUT = 3000; // Increase when using COOJA
     final static int CACHE_EXP_TIME = 5;
 
     private final ArrayBlockingQueue<NetworkPacket> bQ = new ArrayBlockingQueue<>(1000);
@@ -313,7 +313,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      */
     @Override
     public final int getNodeReportPeriod(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, BEACON_PERIOD);
+        return getNodeValue(net, dst, REPORT_PERIOD);
     }
 
     /**
