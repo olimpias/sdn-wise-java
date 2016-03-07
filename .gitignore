@@ -24,4 +24,5 @@ hs_err_pid*
 !/data/src/main/resources/cooja.jar
 
 # Experimental Features
-/experimental/
+/experimental/src
+/experimental/target
