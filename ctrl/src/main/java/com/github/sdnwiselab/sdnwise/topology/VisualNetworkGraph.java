@@ -52,10 +52,10 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    void setupNode(Node node, int batt, long now, int netId, NodeAddress addr) {
-        super.setupNode(node, batt, now, netId, addr);
+    void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
+        super.setupNode(node, batt, now, net, addr);
         node.addAttribute("ui.label", node.getId());
-        if (netId < 63) {
+        if (net < 63) {
             node.changeAttribute("ui.style", "fill-color: rgb(0," + batt + ",0),rgb(0,0,0);");
         } else {
             node.changeAttribute("ui.style", "fill-color: rgb(" + batt + ",0,0),rgb(0,0,0);");
@@ -65,10 +65,10 @@ public final class VisualNetworkGraph extends NetworkGraph {
     @Override
     void updateNode(Node node, int batt, long now) {
         super.updateNode(node, batt, now);
-        if (node.getAttribute("netId") != null) {
-            int netId = node.getAttribute("netId");
+        if (node.getAttribute("net") != null) {
+            int net = node.getAttribute("net");
 
-            if (netId < 63) {
+            if (net < 63) {
                 node.changeAttribute("ui.style", "fill-color: rgb(0," + batt + ",0),rgb(0,0,0);");
             } else {
                 node.changeAttribute("ui.style", "fill-color: rgb(" + batt + ",0,0),rgb(0,0,0);");

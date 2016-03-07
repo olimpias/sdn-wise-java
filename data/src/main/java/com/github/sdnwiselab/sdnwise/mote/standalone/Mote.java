@@ -25,13 +25,13 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
  */
 public class Mote extends AbstractMote {
 
-    public Mote(byte netId, NodeAddress myAddress,
+    public Mote(byte net, NodeAddress myAddress,
             int port,
             String neighboursPath,
             String logLevel) {
         super(port, neighboursPath, logLevel);
         battery = new Battery();
-        core = new MoteCore(netId, myAddress, battery);
+        core = new MoteCore(net, myAddress, battery);
         core.start();
 
     }

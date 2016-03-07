@@ -30,8 +30,8 @@ public class Loader {
      */
     public static void main(String[] args) {
 
-        Option netId = Option.builder("n")
-                .argName("id")
+        Option net = Option.builder("n")
+                .argName("net")
                 .hasArg()
                 .required()
                 .desc("Network ID of the node")
@@ -106,7 +106,7 @@ public class Loader {
                 .build();
 
         Options options = new Options();
-        options.addOption(netId);
+        options.addOption(net);
         options.addOption(address);
         options.addOption(port);
         options.addOption(neighbors);
@@ -123,7 +123,7 @@ public class Loader {
             CommandLine line = parser.parse(options, args);
             Thread th;
 
-            byte cmdNetId = (byte) Integer.parseInt(line.getOptionValue("n"));
+            byte cmdNet = (byte) Integer.parseInt(line.getOptionValue("n"));
             NodeAddress cmdAddress = new NodeAddress(Integer.parseInt(line.getOptionValue("a")));
             int cmdPort = Integer.parseInt(line.getOptionValue("p"));
             String cmdTopo = line.getOptionValue("t");
@@ -164,7 +164,7 @@ public class Loader {
 
                 String[] ipport = line.getOptionValue("c").split(":");
                 th = new Thread(new Sink(
-                        cmdNetId,
+                        cmdNet,
                         cmdAddress,
                         cmdIp,
                         cmdPort,
@@ -178,7 +178,7 @@ public class Loader {
 
             } else {
                 th = new Thread(new Mote(
-                        cmdNetId,
+                        cmdNet,
                         cmdAddress,
                         cmdPort,
                         cmdTopo,

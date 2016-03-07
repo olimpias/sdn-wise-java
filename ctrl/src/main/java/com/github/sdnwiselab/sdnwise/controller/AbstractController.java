@@ -120,7 +120,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                 String key;
                 if (cp.getConfigId() == (GET_RULE)) {
                     key = cp.getNet() + " " + cp.getSrc() + " "
-                            + cp.getConfigId() + " " + cp.getValue()[0];
+                            + cp.getConfigId() + " " + cp.getParams()[0];
                 } else {
                     key = cp.getNet() + " " + cp.getSrc() + " "
                             + cp.getConfigId();
@@ -223,7 +223,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     private int getNodeValue(byte net, NodeAddress dst, ConfigProperty cfp) {
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, cfp);
         try {
-            byte res[] = sendQuery(cp).getValue();
+            byte res[] = sendQuery(cp).getParams();
             if (cfp.size == 1) {
                 return res[0] & 0xFF;
             } else {
@@ -241,12 +241,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
-     * @param newNetId value of the new net ID
+     * @param newNet value of the new net ID
      */
     @Override
-    public final void setNodeNet(byte net, NodeAddress dst, byte newNetId) {
+    public final void setNodeNet(byte net, NodeAddress dst, byte newNet) {
         ConfigPacket cp = new ConfigPacket(
-                net, sinkAddress, dst, MY_NET, new byte[]{newNetId});
+                net, sinkAddress, dst, MY_NET, new byte[]{newNet});
         sendNetworkPacket(cp);
     }
 
@@ -460,9 +460,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
         try {
             ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_ALIAS);
-            cp.setValue(new byte[]{(byte) index}, GET_RULE.size);
+            cp.setParams(new byte[]{(byte) index}, GET_RULE.size);
             ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getValue(), 1, response.getPayloadSize() - 1);
+            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
             return new NodeAddress(rule);
         } catch (TimeoutException ex) {
             return null;
@@ -473,13 +473,13 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     /**
      * This method installs a rule in the node
      *
-     * @param netId network id of the destination node.
+     * @param net network id of the destination node.
      * @param destination network address of the destination node.
      * @param rule the rule to be installed.
      */
     @Override
-    public final void addNodeRule(byte netId, NodeAddress destination, FlowTableEntry rule) {
-        ResponsePacket rp = new ResponsePacket(netId, sinkAddress, destination, rule);
+    public final void addNodeRule(byte net, NodeAddress destination, FlowTableEntry rule) {
+        ResponsePacket rp = new ResponsePacket(net, sinkAddress, destination, rule);
         sendNetworkPacket(rp);
     }
 
@@ -529,9 +529,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
         try {
             ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
-            cp.setValue(new byte[]{(byte) index}, GET_RULE.size);
+            cp.setParams(new byte[]{(byte) index}, GET_RULE.size);
             ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getValue(), 1, response.getPayloadSize() - 1);
+            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
             if (rule.length > 0) {
                 return new FlowTableEntry(rule);
             } else {
@@ -571,7 +571,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     }
 
     public static List<ConfigPacket> createPackets(
-            byte netId,
+            byte net,
             NodeAddress src,
             NodeAddress dst,
             byte id,
@@ -598,7 +598,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                             .put((byte) totalPackets)
                             .put(Arrays.copyOfRange(buf, pointer, pointer + FUNCTION_PAYLOAD_LEN)).array();
                     pointer += FUNCTION_PAYLOAD_LEN;
-                    ConfigPacket np = new ConfigPacket(netId, src, dst, ADD_FUNCTION, payload);
+                    ConfigPacket np = new ConfigPacket(net, src, dst, ADD_FUNCTION, payload);
                     ll.add(np);
                 }
             }
@@ -609,7 +609,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                         .put((byte) (i + 1))
                         .put((byte) totalPackets)
                         .put(Arrays.copyOfRange(buf, pointer, pointer + remaining)).array();
-                ConfigPacket np = new ConfigPacket(netId, src, dst, ADD_FUNCTION, payload);
+                ConfigPacket np = new ConfigPacket(net, src, dst, ADD_FUNCTION, payload);
                 ll.add(np);
             }
         }
@@ -642,7 +642,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             key = cp.getNet() + " "
                     + cp.getDst() + " "
                     + cp.getConfigId() + " "
-                    + cp.getValue()[0];
+                    + cp.getParams()[0];
         } else {
             key = cp.getNet() + " "
                     + cp.getDst() + " "

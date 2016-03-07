@@ -40,7 +40,7 @@ public class SinkCore extends AbstractCore {
     final ArrayBlockingQueue<NetworkPacket> txControllerQueue = new ArrayBlockingQueue<>(100);
 
     public SinkCore(
-            byte netId,
+            byte net,
             NodeAddress address,
             Battery battery,
             String switchDPid,
@@ -48,7 +48,7 @@ public class SinkCore extends AbstractCore {
             long switchPort,
             InetAddress addrController,
             int port) {
-        super(netId, address, battery);
+        super(net, address, battery);
         this.switchDPid = switchDPid;
         this.switchMac = switchMac;
         this.switchPort = switchPort;

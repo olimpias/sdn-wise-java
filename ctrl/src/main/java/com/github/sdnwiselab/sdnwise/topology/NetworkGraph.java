@@ -147,24 +147,24 @@ public class NetworkGraph extends Observable {
         long now = System.currentTimeMillis();
         boolean modified = checkConsistency(now);
 
-        int netId = packet.getNet();
+        int net = packet.getNet();
         int batt = packet.getBattery();
         String nodeId = packet.getSrc().toString();
-        String fullNodeId = netId + "." + nodeId;
+        String fullNodeId = net + "." + nodeId;
         NodeAddress addr = packet.getSrc();
 
         Node node = getNode(fullNodeId);
 
         if (node == null) {
             node = addNode(fullNodeId);
-            setupNode(node, batt, now, netId, addr);
+            setupNode(node, batt, now, net, addr);
 
             for (int i = 0; i < packet.getNeigborsSize(); i++) {
                 NodeAddress otheraddr = packet.getNeighborAddress(i);
-                String other = netId + "." + otheraddr.toString();
+                String other = net + "." + otheraddr.toString();
                 if (getNode(other) == null) {
                     Node tmp = addNode(other);
-                    setupNode(tmp, 0, now, netId, otheraddr);
+                    setupNode(tmp, 0, now, net, otheraddr);
                 }
 
                 int newLen = 255 - packet.getLinkQuality(i);
@@ -183,10 +183,10 @@ public class NetworkGraph extends Observable {
 
             for (int i = 0; i < packet.getNeigborsSize(); i++) {
                 NodeAddress otheraddr = packet.getNeighborAddress(i);
-                String other = netId + "." + otheraddr.toString();
+                String other = net + "." + otheraddr.toString();
                 if (getNode(other) == null) {
                     Node tmp = addNode(other);
-                    setupNode(tmp, 0, now, netId, otheraddr);
+                    setupNode(tmp, 0, now, net, otheraddr);
                 }
 
                 int newLen = 255 - packet.getLinkQuality(i);
@@ -249,7 +249,7 @@ public class NetworkGraph extends Observable {
         if (now - lastCheck > (timeout * 1000L)) {
             lastCheck = now;
             for (Node n : graph) {
-                if (n.getAttribute("netId", Integer.class) < 63) {
+                if (n.getAttribute("net", Integer.class) < 63) {
                     if (n.getAttribute("lastSeen", Long.class) != null) {
                         if (!isAlive(timeout, (long) n.getNumber("lastSeen"), now)) {
                             removeNode(n);
@@ -266,10 +266,10 @@ public class NetworkGraph extends Observable {
         return ((now - lastSeen) < threashold * 1000);
     }
 
-    void setupNode(Node node, int batt, long now, int netId, NodeAddress addr) {
+    void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
         node.addAttribute("battery", batt);
         node.addAttribute("lastSeen", now);
-        node.addAttribute("netId", netId);
+        node.addAttribute("net", net);
         node.addAttribute("nodeAddress", addr);
     }
 

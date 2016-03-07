@@ -98,10 +98,10 @@ public abstract class AbstractCore {
     HashMap<Integer, LinkedList<byte[]>> functionBuffer = new HashMap<>();
     HashMap<Integer, FunctionInterface> functions = new HashMap<>();
 
-    AbstractCore(byte netId, NodeAddress address, Battery battery) {
+    AbstractCore(byte net, NodeAddress address, Battery battery) {
         this.neighborTable = Collections.synchronizedSet(new HashSet<>(100));
         this.myAddress = address;
-        this.myNet = netId;
+        this.myNet = net;
         this.battery = battery;
     }
 
@@ -134,7 +134,7 @@ public abstract class AbstractCore {
         return myAddress;
     }
 
-    public int getNetId() {
+    public int getNet() {
         return myNet;
     }
 
@@ -612,7 +612,7 @@ public abstract class AbstractCore {
         int toBeSent = 0;
         try {
             ConfigProperty id = packet.getConfigId();
-            byte[] value = packet.getValue();
+            byte[] value = packet.getParams();
 
             if (packet.isWrite()) {
                 int idValue = value[0] & 0xFF;
@@ -691,31 +691,31 @@ public abstract class AbstractCore {
                 toBeSent = 1;
                 switch (id) {
                     case MY_ADDRESS:
-                        packet.setValue(myAddress.getArray(), id.size);
+                        packet.setParams(myAddress.getArray(), id.size);
                         break;
                     case MY_NET:
-                        packet.setValue(new byte[]{(byte) (myNet & 0xFF)}, id.size);
+                        packet.setParams(new byte[]{(byte) (myNet & 0xFF)}, id.size);
                         break;
                     case BEACON_PERIOD:
-                        packet.setValue(splitInteger(cnt_beacon_max), id.size);
+                        packet.setParams(splitInteger(cnt_beacon_max), id.size);
                         break;
                     case REPORT_PERIOD:
-                        packet.setValue(splitInteger(cnt_report_max), id.size);
+                        packet.setParams(splitInteger(cnt_report_max), id.size);
                         break;
                     case RULE_TTL:
-                        packet.setValue(new byte[]{(byte) (cnt_updtable_max & 0xFF)}, id.size);
+                        packet.setParams(new byte[]{(byte) (cnt_updtable_max & 0xFF)}, id.size);
                         break;
                     case PACKET_TTL:
-                        packet.setValue(new byte[]{(byte) (rule_ttl & 0xFF)}, id.size);
+                        packet.setParams(new byte[]{(byte) (rule_ttl & 0xFF)}, id.size);
                         break;
                     case RSSI_MIN:
-                        packet.setValue(new byte[]{(byte) (rssi_min & 0xFF)}, id.size);
+                        packet.setParams(new byte[]{(byte) (rssi_min & 0xFF)}, id.size);
                         break;
                     case GET_ALIAS:
                         int aIndex = value[0] & 0xFF;
                         if (aIndex < acceptedId.size()) {
                             byte[] tmp = acceptedId.get(aIndex).getArray();
-                            packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) aIndex).put(tmp).array(), -1);
+                            packet.setParams(ByteBuffer.allocate(tmp.length + 1).put((byte) aIndex).put(tmp).array(), -1);
                         } else {
                             toBeSent = 0;
                         }
@@ -725,7 +725,7 @@ public abstract class AbstractCore {
                         if (i < flowTable.size()) {
                             FlowTableEntry fte = flowTable.get(i);
                             byte[] tmp = fte.toByteArray();
-                            packet.setValue(ByteBuffer.allocate(tmp.length + 1).put((byte) i).put(tmp).array(), -1);
+                            packet.setParams(ByteBuffer.allocate(tmp.length + 1).put((byte) i).put(tmp).array(), -1);
                         } else {
                             toBeSent = 0;
                         }

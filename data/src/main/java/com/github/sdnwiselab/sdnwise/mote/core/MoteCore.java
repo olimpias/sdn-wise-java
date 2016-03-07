@@ -31,8 +31,8 @@ import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
  */
 public class MoteCore extends AbstractCore {
 
-    public MoteCore(byte netId, NodeAddress address, Battery battery) {
-        super(netId, address, battery);
+    public MoteCore(byte net, NodeAddress address, Battery battery) {
+        super(net, address, battery);
     }
 
     @Override

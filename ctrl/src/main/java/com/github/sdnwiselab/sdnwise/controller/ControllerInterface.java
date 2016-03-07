@@ -44,11 +44,11 @@ public interface ControllerInterface {
     /**
      * This method installs a rule in the node
      *
-     * @param netId network id of the destination node.
+     * @param net network id of the destination node.
      * @param destination network address of the destination node.
      * @param rule the rule to be installed.
      */
-    void addNodeRule(byte netId, NodeAddress destination, FlowTableEntry rule);
+    void addNodeRule(byte net, NodeAddress destination, FlowTableEntry rule);
 
     InetSocketAddress getId();
 
@@ -243,9 +243,9 @@ public interface ControllerInterface {
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
-     * @param newNetId value of the new net ID
+     * @param newNet value of the new net ID
      */
-    void setNodeNet(byte net, NodeAddress dst, byte newNetId);
+    void setNodeNet(byte net, NodeAddress dst, byte newNet);
 
     /**
      * This method sets the maximum time to live for each message sent by a

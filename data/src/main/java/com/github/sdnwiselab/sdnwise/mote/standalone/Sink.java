@@ -35,7 +35,7 @@ public class Sink extends AbstractMote {
     private DataOutputStream inviaOBJ;
     private DataInputStream riceviOBJ;
 
-    public Sink(byte netId, NodeAddress myAddress,
+    public Sink(byte net, NodeAddress myAddress,
             String ipAddress,
             int port,
             String addrController,
@@ -52,7 +52,7 @@ public class Sink extends AbstractMote {
         battery = new SinkBattery();
 
         try {
-            core = new SinkCore(netId,
+            core = new SinkCore(net,
                     myAddress,
                     battery,
                     dpid,

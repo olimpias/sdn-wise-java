@@ -73,17 +73,17 @@ public class ConfigPacket extends NetworkPacket {
         super(data);
     }
 
-    public ConfigPacket(int netId, NodeAddress src, NodeAddress dst, ConfigProperty read) {
-        super(netId, src, dst);
+    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty read) {
+        super(net, src, dst);
         this.setConfigId(read)
                 .setTyp(CONFIG);
     }
 
-    public ConfigPacket(int netId, NodeAddress src, NodeAddress dst, ConfigProperty write, byte[] value) {
-        super(netId, src, dst);
+    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty write, byte[] value) {
+        super(net, src, dst);
         this.setConfigId(write)
                 .setWrite()
-                .setValue(value, write.size)
+                .setParams(value, write.size)
                 .setTyp(CONFIG);
     }
 
@@ -109,7 +109,7 @@ public class ConfigPacket extends NetworkPacket {
         return this;
     }
 
-    public ConfigPacket setValue(byte[] bytes, int size) {
+    public ConfigPacket setParams(byte[] bytes, int size) {
         if (size != -1) {
             for (int i = 0; i < size; i++) {
                 setPayloadAt(bytes[i], i + 1);
@@ -122,7 +122,7 @@ public class ConfigPacket extends NetworkPacket {
         return this;
     }
 
-    public byte[] getValue() {
+    public byte[] getParams() {
         return getPayloadFromTo(1, getPayloadSize());
     }
 }
