@@ -14,17 +14,6 @@
     
     <name>SDN-WISE Data</name>
     <description>Emulated SDN-WISE Java Nodes</description>
-    
-    <prerequisites>
-        <maven>3.0.3</maven>
-    </prerequisites>
-    
-    <licenses>
-        <license>
-            <name>GNU General Public License, Version 3.0</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
-        </license>
-    </licenses> 
         
     <properties>
         <fully.qualified.main.class>com.github.sdnwiselab.sdnwise.node.NodeFactory</fully.qualified.main.class>

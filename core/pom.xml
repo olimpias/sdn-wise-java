@@ -15,17 +15,6 @@
     <name>SDN-WISE Core</name>
     <description>Core components of SDN-WISE</description>
     
-    <prerequisites>
-        <maven>3.0.3</maven>
-    </prerequisites>
-    
-    <licenses>
-        <license>
-            <name>GNU General Public License, Version 3.0</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
-        </license>
-    </licenses> 
-    
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>

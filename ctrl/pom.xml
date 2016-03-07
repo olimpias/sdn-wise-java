@@ -15,17 +15,6 @@
     <name>SDN-WISE Control</name>
     <description>Control Plane solution for Software Defined Wireless Sensor Networks</description>
     
-    <prerequisites>
-        <maven>3.0.3</maven>
-    </prerequisites>
-    
-    <licenses>
-        <license>
-            <name>GNU General Public License, Version 3.0</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
-        </license>
-    </licenses> 
-    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
