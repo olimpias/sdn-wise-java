@@ -19,3 +19,4 @@ hs_err_pid*
 # Logs
 /ctrl/logs/
 /data/logs/
+/target/

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class holds the two Map<String,String> containing the configuration
+ * This class holds the two {@code Map<String,String>} containing the configuration
  * parameters for the lower and upper adapter of an adaptation object.
  *
  * @author Sebastiano Milardo
@@ -35,7 +35,7 @@ public class ConfigAdaptation {
      * Returns an unmodifiableMap containing the configurations for the lower
      * Adapter.
      *
-     * @return a Map<String,String> containing the configurations for the lower
+     * @return a {@code Map<String,String>} containing the configurations for the lower
      * Adapter
      * @see com.sdn.wise.adapter.Adapter
      */
@@ -47,7 +47,7 @@ public class ConfigAdaptation {
      * Returns an unmodifiableMap containing the configurations for the upper
      * Adapter.
      *
-     * @return a Map<String,String> containing the configurations for the upper
+     * @return a {@code Map<String,String>} containing the configurations for the upper
      * Adapter
      * @see com.sdn.wise.adapter.Adapter
      */

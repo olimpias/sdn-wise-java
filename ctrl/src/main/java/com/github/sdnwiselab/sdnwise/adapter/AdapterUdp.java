@@ -28,7 +28,7 @@ import java.util.logging.Level;
 
 /**
  * The adapter class for UDP port communication. Configuration data are passed
- * using a Map<String,String> which contains all the options needed in the
+ * using a {@code Map<String,String>} which contains all the options needed in the
  * constructor of the class.
  *
  * @author Sebastiano Milardo

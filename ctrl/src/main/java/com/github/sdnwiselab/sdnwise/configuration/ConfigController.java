@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class holds the three Map<String,String> containing the configuration
+ * This class holds the three {@code Map<String,String>} containing the configuration
  * parameters for the lower adapter, the algorithm and the network map of a
  * controller object.
  *
@@ -37,7 +37,7 @@ public class ConfigController {
      * Returns an unmodifiableMap containing the configurations for the network
      * map.
      *
-     * @return a Map<String,String> containing the configurations for the
+     * @return a {@code Map<String,String>} containing the configurations for the
      * network map
      */
     public final Map<String, String> getMap() {
@@ -48,7 +48,7 @@ public class ConfigController {
      * Returns an unmodifiableMap containing the configurations for the lower
      * Adapter.
      *
-     * @return a Map<String,String> containing the configurations for the lower
+     * @return a {@code Map<String,String>} containing the configurations for the lower
      * Adapter
      * @see com.sdn.wise.adapter.Adapter
      */
@@ -60,7 +60,7 @@ public class ConfigController {
      * Returns an unmodifiableMap containing the configurations for the
      * algorithm used
      *
-     * @return a Map<String,String> containing the configurations for the
+     * @return a {@code Map<String,String>} containing the configurations for the
      * algorithm used
      */
     public final Map<String, String> getAlgorithm() {
