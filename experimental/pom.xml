@@ -14,18 +14,7 @@
     
     <name>SDN-WISE Experimental</name>
     <description>Experimental features based on SDN-WISE</description>
-   
-    <prerequisites>
-        <maven>3.0.3</maven>
-    </prerequisites>
-    
-    <licenses>
-        <license>
-            <name>GNU General Public License, Version 3.0</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
-        </license>
-    </licenses> 
-    
+  
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -38,37 +27,4 @@
             <version>0.6.0</version>
         </dependency>
     </dependencies>
-     
-    <properties>
-        <fully.qualified.main.class>com.github.sdnwiselab.sdnwise.loader.SdnWise</fully.qualified.main.class>
-    </properties>
-        
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>build</id>
-                        <configuration>
-                            <archive>
-                                <manifest>
-                                    <mainClass>${fully.qualified.main.class}</mainClass>
-                                </manifest>
-                            </archive>
-                            <appendAssemblyId>true</appendAssemblyId>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                        </configuration>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
