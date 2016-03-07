@@ -19,10 +19,3 @@ hs_err_pid*
 # Logs
 /ctrl/logs/
 /data/logs/
-
-# Add Cooja jar
-!/data/src/main/resources/cooja.jar
-
-# Experimental Features
-/experimental/src
-/experimental/target
