@@ -50,7 +50,7 @@ public class ConfigController {
      *
      * @return a {@code Map<String,String>} containing the configurations for the lower
      * Adapter
-     * @see com.sdn.wise.adapter.Adapter
+     * @see com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter
      */
     public final Map<String, String> getLower() {
         return Collections.unmodifiableMap(lower);

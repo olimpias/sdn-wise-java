@@ -55,9 +55,8 @@ public class SdnWise {
      * (The FlowVisor code is not yet complete).
      *
      * @param args the command line arguments
-     * @throws java.lang.Exception
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         SdnWise sw = new SdnWise();
         sw.startExemplaryControlPlane();
     }

@@ -37,7 +37,7 @@ public class ConfigAdaptation {
      *
      * @return a {@code Map<String,String>} containing the configurations for the lower
      * Adapter
-     * @see com.sdn.wise.adapter.Adapter
+     * @see com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter
      */
     public final Map<String, String> getLower() {
         return Collections.unmodifiableMap(lower);
@@ -49,7 +49,7 @@ public class ConfigAdaptation {
      *
      * @return a {@code Map<String,String>} containing the configurations for the upper
      * Adapter
-     * @see com.sdn.wise.adapter.Adapter
+     * @see com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter
      */
     public final Map<String, String> getUpper() {
         return Collections.unmodifiableMap(upper);
