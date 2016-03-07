@@ -84,7 +84,7 @@ public class OpenPathPacket extends NetworkPacket {
      * one in the path.
      *
      * @param path a list containing all the node in a path.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final OpenPathPacket setPath(List<NodeAddress> path) {
         int i = (getPayloadAt(WINDOWS_SIZE_INDEX) * Window.SIZE) + 1;

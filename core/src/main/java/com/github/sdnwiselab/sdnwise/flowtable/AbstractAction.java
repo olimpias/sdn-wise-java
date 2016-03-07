@@ -54,18 +54,19 @@ public abstract class AbstractAction implements FlowTableInterface {
 
     /**
      * Constructor for the FlowTableAction object.
-     */
-    /**
-     * Constructor for the FlowTableAction object.
      *
-     * @param actionType
-     * @param size
+     * @param actionType the type of action that will be created
+     * @param size the size of the action
      */
     public AbstractAction(ActionType actionType, int size) {
         action = new byte[size + 1];
         setType(actionType);
     }
 
+    /**
+     * Constructor for the FlowTableAction object.
+     * @param value a byte array representing the action
+     */
     public AbstractAction(byte[] value) {
         this.action = value;
     }

@@ -91,7 +91,7 @@ public class BeaconPacket extends NetworkPacket {
      * Setter for the number of hops between the source node and the sink.
      *
      * @param value the number of hops.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final BeaconPacket setDistance(byte value) {
         this.setPayloadAt(value, DIST_INDEX);
@@ -113,7 +113,7 @@ public class BeaconPacket extends NetworkPacket {
      * no charge,FF = full charge.
      *
      * @param value the value of the battery level.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final BeaconPacket setBattery(byte value) {
         this.setPayloadAt(value, BATT_INDEX);
@@ -124,7 +124,7 @@ public class BeaconPacket extends NetworkPacket {
      * Set the address of the Sink to which this node is connected.
      *
      * @param addr the address of the Sink.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final BeaconPacket setSinkAddress(NodeAddress addr) {
         this.setNxh(addr);

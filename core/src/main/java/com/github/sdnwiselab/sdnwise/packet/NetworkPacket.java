@@ -70,8 +70,8 @@ public class NetworkPacket implements Cloneable {
     /**
      * Returns the index of a byte in the header given a string.
      *
-     * @param b
-     * @return
+     * @param b the byte name 
+     * @return the unsigned value of the byte
      */
     public static int getNetworkPacketByteFromName(String b) {
         switch (b) {
@@ -147,9 +147,9 @@ public class NetworkPacket implements Cloneable {
      * Creates an empty NetworkPacket. The TTL and LEN values are set to
      * default.
      *
-     * @param net
-     * @param src
-     * @param dst
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
      */
     public NetworkPacket(int net, NodeAddress src, NodeAddress dst) {
         this.data = new byte[MAX_PACKET_LENGTH];
@@ -232,7 +232,7 @@ public class NetworkPacket implements Cloneable {
      * Sets the length of the message.
      *
      * @param value an integer representing the length of the message.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final NetworkPacket setLen(byte value) {
         int v = Byte.toUnsignedInt(value);
@@ -257,7 +257,7 @@ public class NetworkPacket implements Cloneable {
      * Sets the NetworkId of the message.
      *
      * @param value the networkId of the packet.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final NetworkPacket setNet(byte value) {
         data[NET_INDEX] = value;
@@ -276,9 +276,9 @@ public class NetworkPacket implements Cloneable {
     /**
      * Sets the address of the source node.
      *
-     * @param valueH the high byte of the address.
-     * @param valueL the low byte of the address.
-     * @return the packet itself.
+     * @param valueH the high byte of the address
+     * @param valueL the low byte of the address
+     * @return the packet itself
      */
     public final NetworkPacket setSrc(byte valueH, byte valueL) {
         data[SRC_INDEX] = valueH;
@@ -290,7 +290,7 @@ public class NetworkPacket implements Cloneable {
      * Sets the address of the source node.
      *
      * @param address the NodeAddress of the source node.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final NetworkPacket setSrc(NodeAddress address) {
         setSrc(address.getHigh(), address.getLow());
@@ -309,9 +309,9 @@ public class NetworkPacket implements Cloneable {
     /**
      * Set the address of the destination node.
      *
-     * @param valueH high value of the address of the destination.
-     * @param valueL low value of the address of the destination.
-     * @return the packet itself.
+     * @param valueH high value of the address of the destination
+     * @param valueL low value of the address of the destination
+     * @return the packet itself
      */
     public final NetworkPacket setDst(byte valueH, byte valueL) {
         data[DST_INDEX] = valueH;
@@ -322,8 +322,8 @@ public class NetworkPacket implements Cloneable {
     /**
      * Set the address of the destination node.
      *
-     * @param address the NodeAddress value of the destination.
-     * @return the packet itself.
+     * @param address the NodeAddress value of the destination
+     * @return the packet itself
      */
     public final NetworkPacket setDst(NodeAddress address) {
         setDst(address.getHigh(), address.getLow());
@@ -343,7 +343,7 @@ public class NetworkPacket implements Cloneable {
      * Sets the type of the message.
      *
      * @param value an integer representing the type of the message
-     * @return
+     * @return the packet itself
      */
     public final NetworkPacket setTyp(byte value) {
         data[TYP_INDEX] = value;
@@ -365,7 +365,7 @@ public class NetworkPacket implements Cloneable {
      * the receiving node will drop the packet.
      *
      * @param value an integer representing the Time To Live of the message.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final NetworkPacket setTtl(byte value) {
         data[TTL_INDEX] = value;
@@ -376,7 +376,7 @@ public class NetworkPacket implements Cloneable {
      * Decrements the Time To Live of the message by 1. When the TTL of a packet
      * reaches 0 the receiving node will drop the packet.
      *
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final NetworkPacket decrementTtl() {
         if (data[TTL_INDEX] > 0) {
@@ -541,7 +541,7 @@ public class NetworkPacket implements Cloneable {
      * Sets the payload size of the packet.
      *
      * @param size the payload size.
-     * @return the packet itself.
+     * @return the packet itself
      */
     protected final NetworkPacket setPayloadSize(int size) {
         if (SDN_WISE_DFLT_HDR_LEN + size <= MAX_PACKET_LENGTH) {
@@ -559,7 +559,7 @@ public class NetworkPacket implements Cloneable {
      * @param index the index of the payload. The first byte of the payload is
      * 0.
      * @param newData the new data to be set.
-     * @return the packet itself.
+     * @return the packet itself
      */
     protected final NetworkPacket setPayloadAt(byte newData, int index) {
         if (SDN_WISE_DFLT_HDR_LEN + index < MAX_PACKET_LENGTH) {
@@ -582,7 +582,7 @@ public class NetworkPacket implements Cloneable {
      * @param srcPos starting from this byte of src.
      * @param payloadPos copying to this byte of payload.
      * @param length this many bytes.
-     * @return the packet itself.
+     * @return the packet itself
      */
     protected final NetworkPacket setPayload(byte[] src, int srcPos,
             int payloadPos, int length) {
@@ -604,7 +604,7 @@ public class NetworkPacket implements Cloneable {
      * @param srcPos starting from this byte of src.
      * @param payloadPos copying to this byte of payload.
      * @param length this many bytes.
-     * @return the packet itself.
+     * @return the packet itself
      */
     protected final NetworkPacket copyPayload(byte[] src, int srcPos,
             int payloadPos, int length) {

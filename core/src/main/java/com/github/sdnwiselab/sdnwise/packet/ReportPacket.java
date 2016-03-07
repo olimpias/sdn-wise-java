@@ -89,7 +89,7 @@ public class ReportPacket extends BeaconPacket {
      * Setter for the number of neighbors of the source node.
      *
      * @param value the number of neighbors.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final ReportPacket setNeighbors(int value) {
         if (value <= MAX_NEIG) {
@@ -158,7 +158,7 @@ public class ReportPacket extends BeaconPacket {
      *
      * @param i the i-th node in the neighbors list.
      * @param value the weight of the link.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final ReportPacket setLinkQualityAt(byte value, int i) {
         if (i <= MAX_NEIG) {

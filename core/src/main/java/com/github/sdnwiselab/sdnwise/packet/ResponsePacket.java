@@ -76,7 +76,7 @@ public class ResponsePacket extends NetworkPacket {
      * Setter for the rule in the response packet. sadsadas
      *
      * @param rule the FlowTableEntry item used in the NetworkPacket.
-     * @return the packet itself.
+     * @return the packet itself
      */
     public final ResponsePacket setRule(FlowTableEntry rule) {
         byte[] tmp = rule.toByteArray();
