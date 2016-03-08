@@ -62,7 +62,7 @@ public class SinkCore extends AbstractCore {
             txControllerQueue.put(pck);
             log(Level.FINE, "CTX " + pck);
         } catch (InterruptedException ex) {
-            log(Level.SEVERE, ex.getLocalizedMessage());
+            log(Level.SEVERE, ex.toString());
         }
     }
 

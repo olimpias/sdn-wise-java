@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class holds the three {@code Map<String,String>} containing the configuration
- * parameters for the lower adapter, the algorithm and the network map of a
- * controller object.
+ * This class holds the three {@code Map<String,String>} containing the
+ * configuration parameters for the lower adapter, the algorithm and the network
+ * map of a controller object.
  *
  * @author Sebastiano Milardo
  */
@@ -37,8 +37,8 @@ public class ConfigController {
      * Returns an unmodifiableMap containing the configurations for the network
      * map.
      *
-     * @return a {@code Map<String,String>} containing the configurations for the
-     * network map
+     * @return a {@code Map<String,String>} containing the configurations for
+     * the network map
      */
     public final Map<String, String> getMap() {
         return Collections.unmodifiableMap(map);
@@ -48,8 +48,8 @@ public class ConfigController {
      * Returns an unmodifiableMap containing the configurations for the lower
      * Adapter.
      *
-     * @return a {@code Map<String,String>} containing the configurations for the lower
-     * Adapter
+     * @return a {@code Map<String,String>} containing the configurations for
+     * the lower Adapter
      * @see com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter
      */
     public final Map<String, String> getLower() {
@@ -60,8 +60,8 @@ public class ConfigController {
      * Returns an unmodifiableMap containing the configurations for the
      * algorithm used
      *
-     * @return a {@code Map<String,String>} containing the configurations for the
-     * algorithm used
+     * @return a {@code Map<String,String>} containing the configurations for
+     * the algorithm used
      */
     public final Map<String, String> getAlgorithm() {
         return Collections.unmodifiableMap(algorithm);

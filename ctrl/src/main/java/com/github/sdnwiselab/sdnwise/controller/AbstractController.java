@@ -545,11 +545,20 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     @Override
     public void addNodeFunction(byte net, NodeAddress dst, byte id, String className) {
         try {
-            URL main = FunctionInterface.class.getResource(className);
-            File path = new File(main.getPath());
-            byte[] buf = Files.readAllBytes(path.toPath());
+            InputStream is = FunctionInterface.class.getResourceAsStream(className);
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+            int nRead;
+            byte[] data = new byte[16384];
+
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+
+            buffer.flush();
+
             List<ConfigPacket> ll = createPackets(
-                    net, sinkAddress, dst, id, buf);
+                    net, sinkAddress, dst, id, buffer.toByteArray());
             Iterator<ConfigPacket> llIterator = ll.iterator();
             if (llIterator.hasNext()) {
                 sendNetworkPacket(llIterator.next());

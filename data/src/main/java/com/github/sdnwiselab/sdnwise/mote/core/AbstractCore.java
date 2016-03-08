@@ -113,7 +113,7 @@ public abstract class AbstractCore {
             try {
                 rxQueue.put(new Pair<>(np, rssi));
             } catch (InterruptedException ex) {
-                log(Level.SEVERE, ex.getLocalizedMessage());
+                log(Level.SEVERE, ex.toString());
             }
         }
     }
@@ -197,7 +197,7 @@ public abstract class AbstractCore {
         try {
             srvI = (FunctionInterface) service.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
-            log(Level.SEVERE, ex.getLocalizedMessage());
+            log(Level.SEVERE, ex.toString());
         }
         return srvI;
     }
@@ -477,7 +477,7 @@ public abstract class AbstractCore {
                     break;
             } //switch
         } catch (InterruptedException ex) {
-            log(Level.SEVERE, ex.getLocalizedMessage());
+            log(Level.SEVERE, ex.toString());
         }
     }
 
@@ -738,7 +738,7 @@ public abstract class AbstractCore {
                 }
             }
         } catch (Exception ex) {
-            log(Level.SEVERE, ex.getMessage());
+            log(Level.SEVERE, ex.toString());
         }
         return toBeSent;
     }
@@ -831,7 +831,7 @@ public abstract class AbstractCore {
                     rxHandler(p.getKey(), p.getValue());
                 }
             } catch (InterruptedException ex) {
-                log(Level.SEVERE, ex.getLocalizedMessage());
+                log(Level.SEVERE, ex.toString());
             }
         }
     }
@@ -846,7 +846,7 @@ public abstract class AbstractCore {
                     rxQueue.put(new Pair<>(np, 255));
                 }
             } catch (InterruptedException ex) {
-                log(Level.SEVERE, ex.getLocalizedMessage());
+                log(Level.SEVERE, ex.toString());
             }
         }
     }

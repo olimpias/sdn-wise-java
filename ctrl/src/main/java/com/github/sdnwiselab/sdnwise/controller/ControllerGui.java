@@ -272,6 +272,7 @@ public final class ControllerGui extends javax.swing.JFrame {
         jTableFlow.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jScrollPane1.setViewportView(jTableFlow);
 
+        jButtonReadFlows.setText("Refresh");
         jButtonReadFlows.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonReadFlowsActionPerformed(evt);
@@ -340,6 +341,7 @@ public final class ControllerGui extends javax.swing.JFrame {
             }
         });
 
+        jButtonReadAccepted.setText("Refresh");
         jButtonReadAccepted.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonReadAcceptedActionPerformed(evt);

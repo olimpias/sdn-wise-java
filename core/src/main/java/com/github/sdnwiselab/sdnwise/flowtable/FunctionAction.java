@@ -70,7 +70,7 @@ public class FunctionAction extends AbstractAction {
             setId(Integer.parseInt(tmp[1]));
 
             for (int i = 2; i < action.length; i++) {
-                action[i] = (byte)(Integer.parseInt(tmp[i]));
+                action[i] = (byte) (Integer.parseInt(tmp[i]));
             }
         } else {
             throw new IllegalArgumentException();

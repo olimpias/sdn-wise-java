@@ -56,7 +56,7 @@ public class SdnWise {
      *
      * @param args the command line arguments
      */
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SdnWise sw = new SdnWise();
         sw.startExemplaryControlPlane();
     }

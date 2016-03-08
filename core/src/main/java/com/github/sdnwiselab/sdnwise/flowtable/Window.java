@@ -73,12 +73,12 @@ public class Window implements FlowTableInterface {
             w.setRhsLocation(tmpRhs[0]);
             w.setRhs(tmpRhs[1]);
 
-            if (lhs.equals("P.SRC") || 
-                    lhs.equals("P.DST") || 
-                    lhs.equals("P.NXH") ||
-                    rhs.equals("P.SRC") || 
-                    rhs.equals("P.DST") || 
-                    rhs.equals("P.NXH")){
+            if (lhs.equals("P.SRC")
+                    || lhs.equals("P.DST")
+                    || lhs.equals("P.NXH")
+                    || rhs.equals("P.SRC")
+                    || rhs.equals("P.DST")
+                    || rhs.equals("P.NXH")) {
                 w.setSize(W_SIZE_2);
             }
         }

@@ -15,6 +15,10 @@
     <name>SDN-WISE Control</name>
     <description>Control Plane solution for Software Defined Wireless Sensor Networks</description>
     
+    <properties>
+        <fully.qualified.main.class>com.github.sdnwiselab.sdnwise.loader.SdnWise</fully.qualified.main.class>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -58,10 +62,6 @@
         </dependency>
     </dependencies> 
     
-    <properties>
-        <fully.qualified.main.class>com.github.sdnwiselab.sdnwise.loader.SdnWise</fully.qualified.main.class>
-    </properties>
-    
     <build>
         <plugins>
             <plugin>
@@ -75,7 +75,6 @@
                                     <mainClass>${fully.qualified.main.class}</mainClass>
                                 </manifest>
                             </archive>
-                            <appendAssemblyId>true</appendAssemblyId>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>

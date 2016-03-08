@@ -89,14 +89,21 @@ public abstract class AbstractMote implements Runnable {
                     + ".log", new SimplerFormatter(core.getMyAddress().toString()));
 
             Path path = Paths.get(neighborFilePath);
+            BufferedReader reader;
 
             if (!Files.exists(path)) {
-                path = Paths.get(this.getClass().getResource("/" + neighborFilePath).toURI());
-                logger.log(Level.INFO, "External Config file not found, using embedded one {0}", neighborFilePath);
+                logger.log(Level.INFO, "External Config file not found. "
+                        + "Loading default values.");
+                InputStream in = getClass().getResourceAsStream("/" + neighborFilePath);
+                reader = new BufferedReader(new InputStreamReader(in));
+            } else {
+                reader = new BufferedReader(new FileReader("/" + neighborFilePath));
             }
 
-            try (Stream<String> lines = Files.lines(path)) {
+            try (Stream<String> lines = reader.lines()) {
                 neighbourList = lines.parallel()
+                        .map(line -> line.trim())
+                        .filter(line -> !line.isEmpty())
                         .map(line -> line.split(","))
                         .map(e -> new Object() {
                             NodeAddress addr = new NodeAddress(e[0]);
@@ -133,11 +140,8 @@ public abstract class AbstractMote implements Runnable {
                 }
                 core.rxRadioPacket(np, rssi);
             }
-
         } catch (IOException | RuntimeException ex) {
-            logger.log(Level.SEVERE, ex.getMessage());
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(AbstractMote.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, ex.toString());
         }
     }
 
@@ -236,7 +240,7 @@ public abstract class AbstractMote implements Runnable {
                     radioTX(core.getNetworkPacketToBeSend());
                 }
             } catch (InterruptedException ex) {
-                logger.log(Level.SEVERE, ex.getLocalizedMessage());
+                logger.log(Level.SEVERE, ex.toString());
             }
         }
     }
@@ -251,7 +255,7 @@ public abstract class AbstractMote implements Runnable {
                     logger.log(tmp.getKey(), tmp.getValue());
                 }
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, ex.getLocalizedMessage());
+                logger.log(Level.SEVERE, ex.toString());
             }
         }
     }

@@ -190,7 +190,7 @@ public class Loader {
             System.out.println("Parsing failed.  Reason: " + ex.getMessage());
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("sdn-wise-data -n id -a address -p port [-i ip] "
-                    + "-t filename [-l level] [-sd dpid -sm mac -sp port]", 
+                    + "-t filename [-l level] [-sd dpid -sm mac -sp port]",
                     options);
         }
     }
