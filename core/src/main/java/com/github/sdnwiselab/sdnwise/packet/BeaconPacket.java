@@ -21,7 +21,8 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
 
 /**
- * This class models a Beacon packet.
+ * This class models a Beacon packet. The Beacon packet is used to advertise the
+ * existence of a node.
  *
  * @author Sebastiano Milardo
  */
@@ -33,9 +34,19 @@ public class BeaconPacket extends NetworkPacket {
     /**
      * This constructor initialize a beacon packet starting from a byte array.
      *
-     * @param data the byte array representing the beacon packet.
+     * @param data the byte array representing the beacon packet
      */
     public BeaconPacket(byte[] data) {
+        super(data);
+    }
+
+    /**
+     * This constructor initialize a beacon packet starting from a int array.
+     *
+     * @param data the int array representing the beacon packet, all int are
+     * casted to byte
+     */
+    public BeaconPacket(int[] data) {
         super(data);
     }
 
@@ -43,7 +54,7 @@ public class BeaconPacket extends NetworkPacket {
      * This constructor initialize a beacon packet starting from a
      * NetworkPacket.
      *
-     * @param data the NetworkPacket representing the beacon packet.
+     * @param data the NetworkPacket representing the beacon packet
      */
     public BeaconPacket(NetworkPacket data) {
         super(data.toByteArray());
@@ -51,13 +62,14 @@ public class BeaconPacket extends NetworkPacket {
 
     /**
      * This constructor initialize a beacon packet. The type of the packet is
-     * set to SDN_WISE_BEACON and the destination address is BROADCAST_ADDR.
+     * set to {@code BEACON} and the destination address is
+     * {@code BROADCAST_ADDR}.
      *
-     * @param net
-     * @param src
-     * @param sink
-     * @param distance
-     * @param battery
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param sink sink address of the source node
+     * @param distance the distance from the sink in no. of hops
+     * @param battery the residual charge of the node
      */
     public BeaconPacket(int net, NodeAddress src, NodeAddress sink,
             int distance, int battery) {
@@ -69,19 +81,9 @@ public class BeaconPacket extends NetworkPacket {
     }
 
     /**
-     * This constructor initialize a beacon packet starting from a int array.
-     *
-     * @param data the int array representing the beacon packet, all int are
-     * casted to byte.
-     */
-    public BeaconPacket(int[] data) {
-        super(data);
-    }
-
-    /**
      * Getter for the number of hops between the source node and the sink.
      *
-     * @return the number of hops between the source node and the sink.
+     * @return the number of hops between the source node and the sink
      */
     public final int getDistance() {
         return Byte.toUnsignedInt(getPayloadAt(DIST_INDEX));
@@ -90,7 +92,7 @@ public class BeaconPacket extends NetworkPacket {
     /**
      * Setter for the number of hops between the source node and the sink.
      *
-     * @param value the number of hops.
+     * @param value the number of hops between the source node and the sink
      * @return the packet itself
      */
     public final BeaconPacket setDistance(byte value) {
@@ -100,7 +102,8 @@ public class BeaconPacket extends NetworkPacket {
 
     /**
      * Returns an estimation of the residual charge of the batteries of the
-     * node. The possible values are: [0-255] 0 = no charge, 255 = full charge.
+     * node. The possible values are: [0x00-0xFF] 0x00 = no charge, 0xFF = full
+     * charge.
      *
      * @return an estimation of the residual charge of the batteries of the node
      */
@@ -109,10 +112,10 @@ public class BeaconPacket extends NetworkPacket {
     }
 
     /**
-     * Set the battery level in the packet. The possible values are: [0-FF] 0 =
-     * no charge,FF = full charge.
+     * Set the battery level in the packet. The possible values are: [0x00-0xFF]
+     * 0x00 = no charge, 0xFF = full charge.
      *
-     * @param value the value of the battery level.
+     * @param value the value of the battery level
      * @return the packet itself
      */
     public final BeaconPacket setBattery(byte value) {
@@ -121,9 +124,9 @@ public class BeaconPacket extends NetworkPacket {
     }
 
     /**
-     * Set the address of the Sink to which this node is connected.
+     * Set the address of the sink to which this node is connected.
      *
-     * @param addr the address of the Sink.
+     * @param addr the address of the sink
      * @return the packet itself
      */
     public final BeaconPacket setSinkAddress(NodeAddress addr) {
@@ -132,9 +135,9 @@ public class BeaconPacket extends NetworkPacket {
     }
 
     /**
-     * Get the address of the Sink to which this node is connected.
+     * Get the address of the sink to which this node is connected.
      *
-     * @return the address of the Sink.
+     * @return the address of the sink
      */
     public final NodeAddress getSinkAddress() {
         return this.getNxh();

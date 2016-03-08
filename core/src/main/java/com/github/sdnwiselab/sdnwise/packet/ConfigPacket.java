@@ -20,7 +20,9 @@ import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.CONFIG;
 import com.github.sdnwiselab.sdnwise.util.*;
 
 /**
- * This class models a Configuration packet.
+ * This class models a Configuration packet. This packet is sent to a node to
+ * read/write a parameter or to get/set/remove a rule, a funtion, or a node
+ * address alias.
  *
  * @author Sebastiano Milardo
  */
@@ -69,30 +71,63 @@ public class ConfigPacket extends NetworkPacket {
 
     private final static byte CNF_WRITE = 1;
 
+    /**
+     * This constructor initialize a config packet starting from a byte array.
+     *
+     * @param data the byte array representing the config packet
+     */
     public ConfigPacket(byte[] data) {
         super(data);
     }
 
-    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty read) {
-        super(net, src, dst);
-        this.setConfigId(read)
-                .setTyp(CONFIG);
+    /**
+     * This constructor initialize a config packet starting from a int array.
+     *
+     * @param data the int array representing the config packet, all int are
+     * casted to byte
+     */
+    public ConfigPacket(int[] data) {
+        super(data);
     }
 
-    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty write, byte[] value) {
-        super(net, src, dst);
-        this.setConfigId(write)
-                .setWrite()
-                .setParams(value, write.size)
-                .setTyp(CONFIG);
-    }
-
+    /**
+     * This constructor initialize a config packet starting from a
+     * NetworkPacket.
+     *
+     * @param data the NetworkPacket representing the beacon packet
+     */
     public ConfigPacket(NetworkPacket data) {
         super(data.toByteArray());
     }
 
-    public ConfigPacket(int[] data) {
-        super(data);
+    /**
+     * This constructor initialize a config packet. The type of the packet is
+     * set to {@code CONFIG} and the read/write bit is set to {@code READ}.
+     *
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
+     * @param read the name of the property to read
+     */
+    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty read) {
+        super(net, src, dst);
+        setConfigId(read).setTyp(CONFIG);
+    }
+
+    /**
+     * This constructor initialize a config packet. The type of the packet is
+     * set to {@code CONFIG} and the read/write bit is set to {@code WRITE}.
+     *
+     * @param net the Network ID of the node
+     * @param src source address
+     * @param dst destination address
+     * @param write the name of the property to write
+     * @param value the value to be written
+     */
+    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty write, byte[] value) {
+        super(net, src, dst);
+        this.setConfigId(write).setWrite().setParams(value, write.size)
+                .setTyp(CONFIG);
     }
 
     public final ConfigProperty getConfigId() {

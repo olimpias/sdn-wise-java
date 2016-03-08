@@ -20,7 +20,8 @@ import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
- * This class models a Data packet.
+ * This class models a Data packet. The data packet is used for application
+ * layer messages.
  *
  * @author Sebastiano Milardo
  */
@@ -32,6 +33,16 @@ public class DataPacket extends NetworkPacket {
      * @param data the byte array representing the data packet.
      */
     public DataPacket(byte[] data) {
+        super(data);
+    }
+
+    /**
+     * This constructor initialize a data packet starting from a int array.
+     *
+     * @param data the int array representing the data packet, all int are
+     * casted to byte.
+     */
+    public DataPacket(int[] data) {
         super(data);
     }
 
@@ -48,25 +59,15 @@ public class DataPacket extends NetworkPacket {
      * This constructor initialize a data packet. The type of the packet is set
      * to SDN_WISE_DATA.
      *
-     * @param net the Network ID of the node
-     * @param src the NodeAddress address of the source node
-     * @param dst the NodeAddress address of the destination node
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
      * @param payload the byte[] containing the payload of the packet
      */
     public DataPacket(int net, NodeAddress src, NodeAddress dst, byte[] payload) {
         super(net, src, dst);
         this.setTyp(DATA);
         this.setPayload(payload);
-    }
-
-    /**
-     * This constructor initialize a data packet starting from a int array.
-     *
-     * @param data the int array representing the data packet, all int are
-     * casted to byte.
-     */
-    public DataPacket(int[] data) {
-        super(data);
     }
 
     @Override

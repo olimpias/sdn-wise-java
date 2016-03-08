@@ -51,9 +51,9 @@ public class ResponsePacket extends NetworkPacket {
      * This constructor initialize a response packet. The type of the packet is
      * set to SDN_WISE_RESPONSE.
      *
-     * @param net the Network ID of the node
-     * @param src the NodeAddress address of the source node
-     * @param dst the NodeAddress address of the destination node
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
      * @param entry the FlowTableEntry sent from the Control Plane
      */
     public ResponsePacket(int net, NodeAddress src, NodeAddress dst, FlowTableEntry entry) {
@@ -94,5 +94,4 @@ public class ResponsePacket extends NetworkPacket {
         FlowTableEntry rule = new FlowTableEntry(this.getPayload());
         return rule;
     }
-
 }

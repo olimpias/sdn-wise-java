@@ -44,9 +44,9 @@ public class ReportPacket extends BeaconPacket {
      * This constructor initialize a report packet. The type of the packet is
      * set to SDN_WISE_REPORT.
      *
-     * @param net the Network ID of the node
-     * @param src the NodeAddress address of the source node
-     * @param dst the NodeAddress address of the destination node
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
      * @param distance the distance in hops between the source node and the sink
      * @param battery the battery level of the source node
      */

@@ -48,7 +48,6 @@ public final class ControllerGui extends javax.swing.JFrame {
         initComponents();
         setIconImage(getToolkit().getImage(
                 getClass().getResource("/sdn-wise_icon.png")));
-
     }
 
     /**

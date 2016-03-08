@@ -42,11 +42,11 @@ public class OpenPathPacket extends NetworkPacket {
 
     /**
      * This constructor initialize an open path packet. The type of the packet
-     * is set to SDN_WISE_OPEN_PATH.
+     * is set to {@code OPEN_PATH}.
      *
-     * @param net
-     * @param src
-     * @param dst
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
      * @param path
      */
     public OpenPathPacket(int net, NodeAddress src, NodeAddress dst, List<NodeAddress> path) {
