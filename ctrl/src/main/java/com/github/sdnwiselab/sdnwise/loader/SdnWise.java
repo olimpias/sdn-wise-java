@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * SdnWise class of the SDN-WISE project. This class loads the configuration 
+ * SdnWise class of the SDN-WISE project. This class loads the configuration
  * file and starts the Adaptation, the FlowVisor, and the Controller.
  *
  * @author Sebastiano Milardo
@@ -49,16 +49,16 @@ public class SdnWise {
     private static final String CONFIG_FILE = "/config.ini";
 
     /**
-     * Starts the components of the SDN-WISE AbstractController. An
-     * SdnWise object is made of three main components: A Controller, an
-     * Adaptation, and a FlowVisor. The Controller manages the requests
-     * coming from the network, and creates a representation of the
-     * topology. The Adaptation adapts the format of the packets
-     * coming from the nodes in order to be accepted by the other components of
-     * the architecture and vice versa. The FlowVisor is responsible for
-     * authenticating nodes and controllers, allowing the slicing of the network.
+     * Starts the components of the SDN-WISE AbstractController. An SdnWise
+     * object is made of three main components: A Controller, an Adaptation, and
+     * a FlowVisor. The Controller manages the requests coming from the network,
+     * and creates a representation of the topology. The Adaptation adapts the
+     * format of the packets coming from the nodes in order to be accepted by
+     * the other components of the architecture and vice versa. The FlowVisor is
+     * responsible for authenticating nodes and controllers, allowing the
+     * slicing of the network.
      *
-     * @param args the first argument is the path to the configuration file. if 
+     * @param args the first argument is the path to the configuration file. if
      * not specificated, the default one is loaded
      */
     public static void main(String[] args) {
@@ -78,17 +78,17 @@ public class SdnWise {
     }
 
     /**
-     * Starts the AbstractController layer of the SDN-WISE network. The configurator
-     * class contains the configuration parameters of the Controller layer. 
-     * In particular: a "lower" Adapter, that specifies hoe to communicate
-     * with the FlowVisor, an "algorithm" to calculate the shortest path in the 
-     * network. The only supported at the moment is "DIJKSTRA". A "map" which contains
-     * a "TIMEOUT" value in seconds, after which a non responding
-     * node is removed from the topology, a "RSSI_RESOLUTION" value that triggers an event
-     * when a link rssi value changes more than this threshold. "GRAPH"
-     * option that set the kind of gui used for the representation of the
-     * network, the only possible values at the moment is "GFX" for a
-     * GraphStream graph.
+     * Starts the AbstractController layer of the SDN-WISE network. The
+     * configurator class contains the configuration parameters of the
+     * Controller layer. In particular: a "lower" Adapter, that specifies hoe to
+     * communicate with the FlowVisor, an "algorithm" to calculate the shortest
+     * path in the network. The only supported at the moment is "DIJKSTRA". A
+     * "map" which contains a "TIMEOUT" value in seconds, after which a non
+     * responding node is removed from the topology, a "RSSI_RESOLUTION" value
+     * that triggers an event when a link rssi value changes more than this
+     * threshold. "GRAPH" option that set the kind of gui used for the
+     * representation of the network, the only possible values at the moment is
+     * "GFX" for a GraphStream graph.
      *
      * @param conf contains the configuration parameters of the layer
      * @return the AbstractController layer of the current SDN-WISE network
@@ -100,9 +100,9 @@ public class SdnWise {
     }
 
     /**
-     * Starts the FlowVisor layer of the SDN-WISE network. The configurator class
-     * contains the configuration parameters of the FlowVisor layer. 
-     * In particular: a "lower"  Adapter, in order to communicate with the 
+     * Starts the FlowVisor layer of the SDN-WISE network. The configurator
+     * class contains the configuration parameters of the FlowVisor layer. In
+     * particular: a "lower" Adapter, in order to communicate with the
      * Adaptation and an "upper" Adapter to communicate with the Controller.
      *
      * @param conf contains the configuration parameters of the layer
@@ -116,9 +116,9 @@ public class SdnWise {
 
     /**
      * Starts the Adaptation layer of the SDN-WISE network. The configurator
-     * contains the parameters of the Adaptation layer. In particular: a "lower" 
-     * Adapter, in order to communicate
-     * with the Nodes and an "upper" Adapter to communicate with the FlowVisor
+     * contains the parameters of the Adaptation layer. In particular: a "lower"
+     * Adapter, in order to communicate with the Nodes and an "upper" Adapter to
+     * communicate with the FlowVisor
      *
      * @param conf
      * @return the AbstractController layer of the current SDN-WISE network
