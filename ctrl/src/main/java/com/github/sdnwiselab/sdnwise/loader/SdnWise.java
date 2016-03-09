@@ -35,137 +35,113 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * SdnWise class of the SDN-WISE project. It loads the configuration file and
- * starts the Adaptation, the FlowVisor and the AbstractController.
+ * SdnWise class of the SDN-WISE project. This class loads the configuration 
+ * file and starts the Adaptation, the FlowVisor, and the Controller.
  *
  * @author Sebastiano Milardo
  */
 public class SdnWise {
 
-    /**
-     * Starts the components of the SDN-WISE AbstractController. In its default
-     * configuration a simulated network of SDN-WISE nodes is started. An
-     * SdnWise object is made of three main components: A AbstractController, an
-     * Adaptation, and a FlowVisor. The AbstractController manages the requests
-     * coming from the network, and creates a virtual representation of the
-     * topology of the network. The Adaptation adapts the format of the packets
-     * coming from the nodes in order to be accepted by the other components of
-     * the architecture and vice versa. The FlowVisor is responsible for
-     * authenticating nodes and controllers, allowing the slicing of the network
-     * (The FlowVisor code is not yet complete).
-     *
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        SdnWise sw = new SdnWise();
-        sw.startExemplaryControlPlane();
-    }
-
     private FlowVisor flowVisor;
     private Adaptation adaptation;
     private AbstractController controller;
     private final boolean isEmulated = true;
+    private static final String CONFIG_FILE = "/config.ini";
 
     /**
-     * Starts the AbstractController layer of the SDN-WISE network. The path to
-     * the configurations are specified in the configFilePath String. The
-     * options to be specified in this file are: a "lower" Adapter, in order to
-     * communicate with the flowVisor (See the Adapter javadoc for more info),
-     * an "algorithm" for calculating the shortest path in the network. The only
-     * supported at the moment is "DIJKSTRA". A "map" which contains
-     * informations regarding the "TIMEOUT" in order to remove a non responding
-     * node from the topology, a "RSSI_RESOLUTION" value that triggers an event
-     * when a link rssi value changes more than the set threshold. "GRAPH"
+     * Starts the components of the SDN-WISE AbstractController. An
+     * SdnWise object is made of three main components: A Controller, an
+     * Adaptation, and a FlowVisor. The Controller manages the requests
+     * coming from the network, and creates a representation of the
+     * topology. The Adaptation adapts the format of the packets
+     * coming from the nodes in order to be accepted by the other components of
+     * the architecture and vice versa. The FlowVisor is responsible for
+     * authenticating nodes and controllers, allowing the slicing of the network.
+     *
+     * @param args the first argument is the path to the configuration file. if 
+     * not specificated, the default one is loaded
+     */
+    public static void main(String[] args) {
+        SdnWise sw = new SdnWise();
+        InputStream is = null;
+
+        if (args.length > 0) {
+            try {
+                is = new FileInputStream(args[0]);
+            } catch (FileNotFoundException ex) {
+                Logger.getGlobal().log(Level.SEVERE, ex.toString());
+            }
+        } else {
+            is = SdnWise.class.getResourceAsStream(CONFIG_FILE);
+        }
+        sw.startExemplaryControlPlane(Configurator.load(is));
+    }
+
+    /**
+     * Starts the AbstractController layer of the SDN-WISE network. The configurator
+     * class contains the configuration parameters of the Controller layer. 
+     * In particular: a "lower" Adapter, that specifies hoe to communicate
+     * with the FlowVisor, an "algorithm" to calculate the shortest path in the 
+     * network. The only supported at the moment is "DIJKSTRA". A "map" which contains
+     * a "TIMEOUT" value in seconds, after which a non responding
+     * node is removed from the topology, a "RSSI_RESOLUTION" value that triggers an event
+     * when a link rssi value changes more than this threshold. "GRAPH"
      * option that set the kind of gui used for the representation of the
      * network, the only possible values at the moment is "GFX" for a
-     * GraphStream map
+     * GraphStream graph.
      *
-     * @param configFilePath a String that specifies the path to the
-     * configuration file.
-     * @return the AbstractController layer of the current SDN-WISE network.
+     * @param conf contains the configuration parameters of the layer
+     * @return the AbstractController layer of the current SDN-WISE network
      */
-    public AbstractController startController(String configFilePath) {
-        InputStream configFileURI = null;
-        if (configFilePath == null || configFilePath.isEmpty()) {
-            configFileURI = this.getClass().getResourceAsStream("/config.ini");
-        } else {
-            try {
-                configFileURI = new FileInputStream(configFilePath);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(SdnWise.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        Configurator conf = Configurator.load(configFileURI);
-        controller = new ControllerFactory().getController(conf.getController());
+    public AbstractController startController(Configurator conf) {
+        controller = new ControllerFactory().getController(conf);
         new Thread(controller).start();
         return controller;
     }
 
     /**
-     * Starts the FlowVisor layer of the SDN-WISE network. The path to the
-     * configurations are specified in the configFilePath String. The options to
-     * be specified in this file are: a "lower" Adapter, in order to communicate
-     * with the Adaptation and an "upper" Adapter to communicate with the
-     * AbstractController (See the Adapter javadoc for more info).
+     * Starts the FlowVisor layer of the SDN-WISE network. The configurator class
+     * contains the configuration parameters of the FlowVisor layer. 
+     * In particular: a "lower"  Adapter, in order to communicate with the 
+     * Adaptation and an "upper" Adapter to communicate with the Controller.
      *
-     * @param configFilePath a String that specifies the path to the
-     * configuration file.
-     * @return the AbstractController layer of the current SDN-WISE network.
+     * @param conf contains the configuration parameters of the layer
+     * @return the AbstractController layer of the current SDN-WISE network
      */
-    public FlowVisor startFlowVisor(String configFilePath) {
-        InputStream configFileURI = null;
-        if (configFilePath == null || configFilePath.isEmpty()) {
-            configFileURI = this.getClass().getResourceAsStream("/config.ini");
-        } else {
-            try {
-                configFileURI = new FileInputStream(configFilePath);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(SdnWise.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        Configurator conf = Configurator.load(configFileURI);
-        flowVisor = FlowVisorFactory.getFlowvisor(conf.getFlowvisor());
+    public FlowVisor startFlowVisor(Configurator conf) {
+        flowVisor = FlowVisorFactory.getFlowvisor(conf);
         new Thread(flowVisor).start();
         return flowVisor;
     }
 
     /**
-     * Starts the Adaptation layer of the SDN-WISE network. The path to the
-     * configurations are specified in the configFilePath String. The options to
-     * be specified in this file are: a "lower" Adapter, in order to communicate
+     * Starts the Adaptation layer of the SDN-WISE network. The configurator
+     * contains the parameters of the Adaptation layer. In particular: a "lower" 
+     * Adapter, in order to communicate
      * with the Nodes and an "upper" Adapter to communicate with the FlowVisor
-     * (See the Adapter javaoc for more info).
      *
-     * @param configFilePath a String that specifies the path to the
-     * configuration file.
-     * @return the AbstractController layer of the current SDN-WISE network.
+     * @param conf
+     * @return the AbstractController layer of the current SDN-WISE network
      */
-    public Adaptation startAdaptation(String configFilePath) {
-        InputStream configFileURI = null;
-        if (configFilePath == null || configFilePath.isEmpty()) {
-            configFileURI = this.getClass().getResourceAsStream("/config.ini");
-        } else {
-            try {
-                configFileURI = new FileInputStream(configFilePath);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(SdnWise.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        Configurator conf = Configurator.load(configFileURI);
-        adaptation = AdaptationFactory.getAdaptation(conf.getAdaptation());
+    public Adaptation startAdaptation(Configurator conf) {
+        adaptation = AdaptationFactory.getAdaptation(conf);
         new Thread(adaptation).start();
         return adaptation;
     }
 
     /**
      * Creates a SDN-WISE network. This method creates a Controller, a FlowVisor
-     * and an Adaptation plus a simulated network.
+     * and an Adaptation plus a simulated network
+     *
+     * @param conf contains the configuration parameters for the Control plane
+     * layers
      */
-    public void startExemplaryControlPlane() {
+    public void startExemplaryControlPlane(Configurator conf) {
+
         // Start the elements of the Control Plane
-        controller = startController("");
-        adaptation = startAdaptation("");
-        flowVisor = startFlowVisor("");
+        controller = startController(conf);
+        adaptation = startAdaptation(conf);
+        flowVisor = startFlowVisor(conf);
 
         // Add the nodes IDs that will be managed
         HashSet<NodeAddress> nodeSetAll = new HashSet<>();

@@ -17,7 +17,7 @@
 package com.github.sdnwiselab.sdnwise.adaptation;
 
 import com.github.sdnwiselab.sdnwise.adapter.*;
-import com.github.sdnwiselab.sdnwise.configuration.ConfigAdaptation;
+import com.github.sdnwiselab.sdnwise.configuration.*;
 import java.util.Map;
 
 /**
@@ -44,8 +44,8 @@ public class AdaptationFactory {
      * @param config contains the configurations for the adaptation object
      * @return an adaptation object
      */
-    public static final Adaptation getAdaptation(ConfigAdaptation config) {
-        conf = config;
+    public static final Adaptation getAdaptation(Configurator config) {
+        conf = config.getAdaptation();
         AbstractAdapter lower = getAdapter(conf.getLower());
         AbstractAdapter upper = getAdapter(conf.getUpper());
         return new Adaptation(lower, upper);

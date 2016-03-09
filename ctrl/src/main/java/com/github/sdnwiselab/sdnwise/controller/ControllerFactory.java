@@ -19,7 +19,7 @@ package com.github.sdnwiselab.sdnwise.controller;
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
-import com.github.sdnwiselab.sdnwise.configuration.ConfigController;
+import com.github.sdnwiselab.sdnwise.configuration.*;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.topology.VisualNetworkGraph;
 import java.net.InetSocketAddress;
@@ -94,9 +94,9 @@ public class ControllerFactory {
      * @param config a ConfigController object.
      * @return a AbstractController object.
      */
-    public final AbstractController getController(ConfigController config) {
-        AbstractAdapter adapt = getLower(config);
-        NetworkGraph ng = getNetworkGraph(config);
-        return getControllerType(config, newId, adapt, ng);
+    public final AbstractController getController(Configurator config) {
+        AbstractAdapter adapt = getLower(config.getController());
+        NetworkGraph ng = getNetworkGraph(config.getController());
+        return getControllerType(config.getController(), newId, adapt, ng);
     }
 }
