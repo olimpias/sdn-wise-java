@@ -40,7 +40,7 @@ public class FlowVisorFactory {
      * @return FlowVisor object with a new AdapterUdp for Lower AbstractAdapter
      * and Upper AbstractAdapter
      */
-    public final static FlowVisor getFlowvisor(Configurator config) {
+    public static final FlowVisor getFlowvisor(Configurator config) {
         conf = config.getFlowvisor();
         return new FlowVisor(getLower(), getUpper());
     }

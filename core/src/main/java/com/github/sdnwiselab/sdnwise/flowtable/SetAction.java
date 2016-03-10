@@ -30,14 +30,14 @@ import static com.github.sdnwiselab.sdnwise.util.Utils.*;
 public final class SetAction extends AbstractAction {
 
     // operators
-    public final static byte SDN_WISE_ADD = 0;
-    public final static byte SDN_WISE_SUB = 1;
-    public final static byte SDN_WISE_MUL = 2;
-    public final static byte SDN_WISE_DIV = 3;
-    public final static byte SDN_WISE_MOD = 4;
-    public final static byte SDN_WISE_AND = 5;
-    public final static byte SDN_WISE_OR = 6;
-    public final static byte SDN_WISE_XOR = 7;
+    public static final byte SDN_WISE_ADD = 0;
+    public static final byte SDN_WISE_SUB = 1;
+    public static final byte SDN_WISE_MUL = 2;
+    public static final byte SDN_WISE_DIV = 3;
+    public static final byte SDN_WISE_MOD = 4;
+    public static final byte SDN_WISE_AND = 5;
+    public static final byte SDN_WISE_OR = 6;
+    public static final byte SDN_WISE_XOR = 7;
 
     private final static byte operatorBit = 3;
     private final static byte operatorLen = 3;

@@ -60,7 +60,7 @@ public class AdapterCom extends AbstractAdapter {
      *
      * @param conf contains the serial port configuration data.
      */
-    public AdapterCom(Map<String, String> conf) {
+    public AdapterCom(final Map<String, String> conf) {
         this.PARITY = Integer.parseInt(conf.get("PARITY"));
         this.STOP_BITS = Integer.parseInt(conf.get("STOP_BITS"));
         this.DATA_BITS = Integer.parseInt(conf.get("DATA_BITS"));
@@ -84,7 +84,8 @@ public class AdapterCom extends AbstractAdapter {
                     log(Level.INFO, "Serial Port Found: " + portName);
                     if (portName.equals(PORT_NAME)) {
                         log(Level.INFO, "SINK");
-                        serialPort = (SerialPort) portId.open("AdapterCOM", 2000);
+                        serialPort = (SerialPort) portId
+                                .open("AdapterCOM", 2000);
                         break;
                     }
                 }
@@ -94,7 +95,8 @@ public class AdapterCom extends AbstractAdapter {
             out = new BufferedOutputStream(serialPort.getOutputStream());
             InternalSerialListener sl = new InternalSerialListener(in);
             sl.addObserver(this);
-            serialPort.setSerialPortParams(BAUD_RATE, DATA_BITS, STOP_BITS, PARITY);
+            serialPort.setSerialPortParams(
+                    BAUD_RATE, DATA_BITS, STOP_BITS, PARITY);
             serialPort.addEventListener(sl);
             serialPort.notifyOnDataAvailable(true);
             return true;
@@ -105,7 +107,7 @@ public class AdapterCom extends AbstractAdapter {
     }
 
     @Override
-    public final void send(byte[] data) {
+    public final void send(final byte[] data) {
         try {
             int len = Byte.toUnsignedInt(data[0]);
             if (len <= MAX_PAYLOAD) { // MAX 802.15.4 DATA FRAME PAYLOAD = 116
@@ -131,7 +133,8 @@ public class AdapterCom extends AbstractAdapter {
         }
     }
 
-    private class InternalSerialListener extends Observable implements SerialPortEventListener {
+    private class InternalSerialListener extends Observable implements
+            SerialPortEventListener {
 
         boolean startFlag;
         boolean idFlag;

@@ -52,7 +52,7 @@ public class AdapterUdp extends AbstractAdapter {
      *
      * @param conf contains the serial port configuration data.
      */
-    public AdapterUdp(Map<String, String> conf) {
+    public AdapterUdp(final Map<String, String> conf) {
         this.OUT_IP = conf.get("OUT_IP");
         this.OUT_PORT = Integer.parseInt(conf.get("OUT_PORT"));
         this.IN_PORT = Integer.parseInt(conf.get("IN_PORT"));
@@ -82,9 +82,10 @@ public class AdapterUdp extends AbstractAdapter {
     }
 
     @Override
-    public final void send(byte[] data) {
+    public final void send(final byte[] data) {
         try {
-            DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getByName(OUT_IP), OUT_PORT);
+            DatagramPacket packet = new DatagramPacket(
+                    data, data.length, InetAddress.getByName(OUT_IP), OUT_PORT);
             sck.send(packet);
         } catch (IOException ex) {
             log(Level.SEVERE, ex.toString());
@@ -96,12 +97,13 @@ public class AdapterUdp extends AbstractAdapter {
      * destination IP address and UDP port.
      *
      * @param data the array to be sent
-     * @param OUT_IP a string containing the IP address of the destination
-     * @param OUT_PORT an integer containing the UDP port of the destination
+     * @param ip a string containing the IP address of the destination
+     * @param port an integer containing the UDP port of the destination
      */
-    public final void send(byte[] data, String OUT_IP, int OUT_PORT) {
+    public final void send(final byte[] data, final String ip, final int port) {
         try {
-            DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getByName(OUT_IP), OUT_PORT);
+            DatagramPacket packet = new DatagramPacket(
+                    data, data.length, InetAddress.getByName(ip), port);
             sck.send(packet);
         } catch (IOException ex) {
             log(Level.SEVERE, ex.toString());
@@ -113,19 +115,19 @@ public class AdapterUdp extends AbstractAdapter {
         boolean isStopped;
         DatagramSocket sck;
 
-        UDPServer(DatagramSocket sck) {
-            this.sck = sck;
+        UDPServer(final DatagramSocket socket) {
+            this.sck = socket;
         }
 
         @Override
         public void run() {
             try {
                 byte[] buffer = new byte[MAX_PAYLOAD];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                DatagramPacket p = new DatagramPacket(buffer, buffer.length);
                 while (!isStopped) {
-                    sck.receive(packet);
+                    sck.receive(p);
                     setChanged();
-                    notifyObservers(Arrays.copyOf(packet.getData(), packet.getLength()));
+                    notifyObservers(Arrays.copyOf(p.getData(), p.getLength()));
                 }
             } catch (IOException ex) {
                 log(Level.SEVERE, ex.toString());

@@ -24,27 +24,27 @@ package com.github.sdnwiselab.sdnwise.mote.core;
 public class Constants {
 
     // routing
-    public final static int SDN_WISE_DFLT_RSSI_MIN = 180;
+    public static final int SDN_WISE_DFLT_RSSI_MIN = 180;
 
     // tables
-    public final static byte ENTRY_TTL_DECR = 10;
+    public static final byte ENTRY_TTL_DECR = 10;
 
     // timers
-    public final static byte SDN_WISE_DFLT_CNT_DATA_MAX = 10;
-    public final static byte SDN_WISE_DFLT_CNT_BEACON_MAX = 10;
-    public final static byte SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX;
-    public final static byte SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6;   // TTL = 150s
+    public static final byte SDN_WISE_DFLT_CNT_DATA_MAX = 10;
+    public static final byte SDN_WISE_DFLT_CNT_BEACON_MAX = 10;
+    public static final byte SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX;
+    public static final byte SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6;   // TTL = 150s
 
     // status register
-    public final static int SDN_WISE_STATUS_LEN = 10000;
+    public static final int SDN_WISE_STATUS_LEN = 10000;
 
     // COM ports
-    public final static int SDN_WISE_COM_START_BYTE = 0x7A;
-    public final static int SDN_WISE_COM_STOP_BYTE = 0x7E;
+    public static final int SDN_WISE_COM_START_BYTE = 0x7A;
+    public static final int SDN_WISE_COM_STOP_BYTE = 0x7E;
 
     // send
-    public final static boolean SDN_WISE_MAC_SEND_UNICAST = false;
-    public final static boolean SDN_WISE_MAC_SEND_BROADCAST = true;
+    public static final boolean SDN_WISE_MAC_SEND_UNICAST = false;
+    public static final boolean SDN_WISE_MAC_SEND_BROADCAST = true;
 
     private Constants() {
     }

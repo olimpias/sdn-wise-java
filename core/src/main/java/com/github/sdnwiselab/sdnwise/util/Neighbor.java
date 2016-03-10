@@ -22,7 +22,7 @@ package com.github.sdnwiselab.sdnwise.util;
  *
  * @author Sebastiano Milardo
  */
-public class Neighbor {
+public final class Neighbor {
 
     private final NodeAddress addr;
     private final int rssi;
@@ -31,14 +31,14 @@ public class Neighbor {
     /**
      * Constructor method for this class by following attributes.
      *
-     * @param addr NodeAddress Object.
-     * @param rssi rssi of the NodeAddress.
-     * @param batt battery value of the NodeAddress.
+     * @param a NodeAddress Object.
+     * @param r r of the NodeAddress.
+     * @param b battery value of the NodeAddress.
      */
-    public Neighbor(NodeAddress addr, int rssi, int batt) {
-        this.addr = addr;
-        this.rssi = rssi;
-        this.batt = batt;
+    public Neighbor(final NodeAddress a, final int r, final int b) {
+        this.addr = a;
+        this.rssi = r;
+        this.batt = b;
     }
 
     /**

@@ -36,7 +36,7 @@ public class BeaconPacket extends NetworkPacket {
      *
      * @param data the byte array representing the beacon packet
      */
-    public BeaconPacket(byte[] data) {
+    public BeaconPacket(final byte[] data) {
         super(data);
     }
 
@@ -46,7 +46,7 @@ public class BeaconPacket extends NetworkPacket {
      * @param data the int array representing the beacon packet, all int are
      * casted to byte
      */
-    public BeaconPacket(int[] data) {
+    public BeaconPacket(final int[] data) {
         super(data);
     }
 
@@ -56,7 +56,7 @@ public class BeaconPacket extends NetworkPacket {
      *
      * @param data the NetworkPacket representing the beacon packet
      */
-    public BeaconPacket(NetworkPacket data) {
+    public BeaconPacket(final NetworkPacket data) {
         super(data.toByteArray());
     }
 
@@ -71,8 +71,9 @@ public class BeaconPacket extends NetworkPacket {
      * @param distance the distance from the sink in no. of hops
      * @param battery the residual charge of the node
      */
-    public BeaconPacket(int net, NodeAddress src, NodeAddress sink,
-            int distance, int battery) {
+    public BeaconPacket(final int net, final NodeAddress src,
+            final NodeAddress sink,
+            final int distance, final int battery) {
         super(net, src, BROADCAST_ADDR);
         setTyp(BEACON);
         setSinkAddress(sink);
@@ -95,7 +96,7 @@ public class BeaconPacket extends NetworkPacket {
      * @param value the number of hops between the source node and the sink
      * @return the packet itself
      */
-    public final BeaconPacket setDistance(byte value) {
+    public final BeaconPacket setDistance(final byte value) {
         this.setPayloadAt(value, DIST_INDEX);
         return this;
     }
@@ -118,7 +119,7 @@ public class BeaconPacket extends NetworkPacket {
      * @param value the value of the battery level
      * @return the packet itself
      */
-    public final BeaconPacket setBattery(byte value) {
+    public final BeaconPacket setBattery(final byte value) {
         this.setPayloadAt(value, BATT_INDEX);
         return this;
     }
@@ -129,7 +130,7 @@ public class BeaconPacket extends NetworkPacket {
      * @param addr the address of the sink
      * @return the packet itself
      */
-    public final BeaconPacket setSinkAddress(NodeAddress addr) {
+    public final BeaconPacket setSinkAddress(final NodeAddress addr) {
         this.setNxh(addr);
         return this;
     }

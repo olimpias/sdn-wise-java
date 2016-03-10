@@ -29,19 +29,19 @@ import java.util.Arrays;
  */
 public class Window implements FlowTableInterface {
 
-    public final static byte SIZE = 5;
+    public static final byte SIZE = 5;
 
     // size
-    public final static byte W_SIZE_1 = 0;
-    public final static byte W_SIZE_2 = 1;
+    public static final byte W_SIZE_1 = 0;
+    public static final byte W_SIZE_2 = 1;
 
     // operators
-    public final static byte EQUAL = 0;
-    public final static byte NOT_EQUAL = 1;
-    public final static byte GREATER = 2;
-    public final static byte LESS = 3;
-    public final static byte GREATER_OR_EQUAL = 4;
-    public final static byte LESS_OR_EQUAL = 5;
+    public static final byte EQUAL = 0;
+    public static final byte NOT_EQUAL = 1;
+    public static final byte GREATER = 2;
+    public static final byte LESS = 3;
+    public static final byte GREATER_OR_EQUAL = 4;
+    public static final byte LESS_OR_EQUAL = 5;
 
     private final static byte operatorBit = 5;
     private final static byte operatorLen = 3;

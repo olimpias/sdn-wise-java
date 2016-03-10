@@ -32,7 +32,7 @@ public class DataPacket extends NetworkPacket {
      *
      * @param data the byte array representing the data packet.
      */
-    public DataPacket(byte[] data) {
+    public DataPacket(final byte[] data) {
         super(data);
     }
 
@@ -42,7 +42,7 @@ public class DataPacket extends NetworkPacket {
      * @param data the int array representing the data packet, all int are
      * casted to byte.
      */
-    public DataPacket(int[] data) {
+    public DataPacket(final int[] data) {
         super(data);
     }
 
@@ -51,7 +51,7 @@ public class DataPacket extends NetworkPacket {
      *
      * @param data the NetworkPacket representing the data packet.
      */
-    public DataPacket(NetworkPacket data) {
+    public DataPacket(final NetworkPacket data) {
         super(data.toByteArray());
     }
 
@@ -64,7 +64,9 @@ public class DataPacket extends NetworkPacket {
      * @param dst destination address of the packet
      * @param payload the byte[] containing the payload of the packet
      */
-    public DataPacket(int net, NodeAddress src, NodeAddress dst, byte[] payload) {
+    public DataPacket(final int net, final NodeAddress src,
+            final NodeAddress dst,
+            final byte[] payload) {
         super(net, src, dst);
         this.setTyp(DATA);
         this.setPayload(payload);
@@ -76,7 +78,7 @@ public class DataPacket extends NetworkPacket {
     }
 
     @Override
-    public final DataPacket setPayload(byte[] payload) {
+    public final DataPacket setPayload(final byte[] payload) {
         super.setPayload(payload);
         return this;
     }

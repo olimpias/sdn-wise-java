@@ -33,18 +33,18 @@ public class SimplerFormatter extends Formatter {
     private final SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
     /**
-     * Creates a SimplerFormatter given a name. The name is used in the log to
+     * Creates a SimplerFormatter given a n. The n is used in the log to
      * identify the writer of the message.
      *
-     * @param name the name of layer that creates the log. It is appended in the
-     * log message
+     * @param n the n of layer that creates the log. It is appended in the log
+     * message
      */
-    public SimplerFormatter(String name) {
-        this.name = name;
+    public SimplerFormatter(final String n) {
+        this.name = n;
     }
 
     @Override
-    public String format(LogRecord record) {
+    public final String format(final LogRecord record) {
         StringBuilder sb = new StringBuilder(formatter
                 .format(new Date(record.getMillis())));
         sb.append(" [")

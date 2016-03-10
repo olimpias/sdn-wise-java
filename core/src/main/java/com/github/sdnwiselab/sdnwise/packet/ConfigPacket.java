@@ -35,7 +35,7 @@ public class ConfigPacket extends NetworkPacket {
      *
      * @param data the byte array representing the config packet
      */
-    public ConfigPacket(byte[] data) {
+    public ConfigPacket(final byte[] data) {
         super(data);
     }
 
@@ -45,7 +45,7 @@ public class ConfigPacket extends NetworkPacket {
      * @param data the int array representing the config packet, all int are
      * casted to byte
      */
-    public ConfigPacket(int[] data) {
+    public ConfigPacket(final int[] data) {
         super(data);
     }
 
@@ -55,7 +55,7 @@ public class ConfigPacket extends NetworkPacket {
      *
      * @param data the NetworkPacket representing the beacon packet
      */
-    public ConfigPacket(NetworkPacket data) {
+    public ConfigPacket(final NetworkPacket data) {
         super(data.toByteArray());
     }
 
@@ -68,7 +68,9 @@ public class ConfigPacket extends NetworkPacket {
      * @param dst destination address of the packet
      * @param read the name of the property to read
      */
-    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty read) {
+    public ConfigPacket(final int net, final NodeAddress src,
+            final NodeAddress dst,
+            final ConfigProperty read) {
         super(net, src, dst);
         setConfigId(read).setTyp(CONFIG);
     }
@@ -83,7 +85,10 @@ public class ConfigPacket extends NetworkPacket {
      * @param write the name of the property to write
      * @param value the value to be written
      */
-    public ConfigPacket(int net, NodeAddress src, NodeAddress dst, ConfigProperty write, byte[] value) {
+    public ConfigPacket(final int net, final NodeAddress src,
+            final NodeAddress dst,
+            final ConfigProperty write,
+            final byte[] value) {
         super(net, src, dst);
         this.setConfigId(write).setWrite().setParams(value, write.size)
                 .setTyp(CONFIG);
@@ -94,7 +99,7 @@ public class ConfigPacket extends NetworkPacket {
      *
      * @return a boolean indicating if the packet is a write packet
      */
-    public boolean isWrite() {
+    public final boolean isWrite() {
         int value = (getPayloadAt((byte) 0) & 0xFF) >> 7;
         return (value == CNF_WRITE);
     }
@@ -117,7 +122,7 @@ public class ConfigPacket extends NetworkPacket {
      * @param size the size of the property
      * @return the packet itself
      */
-    public ConfigPacket setParams(byte[] bytes, int size) {
+    public final ConfigPacket setParams(final byte[] bytes, final int size) {
         if (size != -1) {
             for (int i = 0; i < size; i++) {
                 setPayloadAt(bytes[i], i + 1);
@@ -135,7 +140,7 @@ public class ConfigPacket extends NetworkPacket {
      *
      * @return the configuration property as a byte[]
      */
-    public byte[] getParams() {
+    public final byte[] getParams() {
         return getPayloadFromTo(1, getPayloadSize());
     }
 
@@ -144,7 +149,7 @@ public class ConfigPacket extends NetworkPacket {
         return this;
     }
 
-    private ConfigPacket setConfigId(ConfigProperty id) {
+    private ConfigPacket setConfigId(final ConfigProperty id) {
         setPayloadAt(id.value, 0);
         return this;
     }
@@ -172,15 +177,15 @@ public class ConfigPacket extends NetworkPacket {
         private final byte value;
         public final int size;
 
-        private final static ConfigProperty[] configPropertyValues = ConfigProperty.values();
+        private static final ConfigProperty[] VALUES = ConfigProperty.values();
 
-        public static ConfigProperty fromByte(byte value) {
-            return configPropertyValues[value];
+        public static ConfigProperty fromByte(final byte value) {
+            return VALUES[value];
         }
 
-        private ConfigProperty(int value, int size) {
-            this.value = (byte) value;
-            this.size = size;
+        private ConfigProperty(final int v, final int s) {
+            this.value = (byte) v;
+            this.size = s;
         }
     }
 }

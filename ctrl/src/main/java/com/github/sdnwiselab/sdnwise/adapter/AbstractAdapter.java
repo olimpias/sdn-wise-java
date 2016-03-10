@@ -57,7 +57,7 @@ public abstract class AbstractAdapter extends Observable implements Observer {
     public abstract void send(byte[] data);
 
     @Override
-    public final void update(Observable o, Object arg) {
+    public final void update(final Observable o, final Object arg) {
         setChanged();
         notifyObservers(arg);
     }
@@ -68,7 +68,7 @@ public abstract class AbstractAdapter extends Observable implements Observer {
      * @param level a standard logging level
      * @param msg the string message to be logged
      */
-    protected final void log(Level level, String msg) {
+    protected final void log(final Level level, final String msg) {
         LOGGER.log(level, msg);
     }
 }

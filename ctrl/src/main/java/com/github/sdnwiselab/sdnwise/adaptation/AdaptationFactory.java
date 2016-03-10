@@ -31,8 +31,11 @@ import java.util.Map;
  *
  * @author Sebastiano Milardo
  */
-public class AdaptationFactory {
+public final class AdaptationFactory {
 
+    /**
+     * Contains the configuration parameters of the class.
+     */
     private static ConfigAdaptation conf;
 
     /**
@@ -40,11 +43,11 @@ public class AdaptationFactory {
      * the adapter cannot be instantiated then this method throws an
      * UnsupportedOperationException.
      *
-     * @param config contains the configurations for the adaptation object
+     * @param c contains the configurations for the adaptation object
      * @return an adaptation object
      */
-    public static final Adaptation getAdaptation(Configurator config) {
-        conf = config.getAdaptation();
+    public static Adaptation getAdaptation(final Configurator c) {
+        conf = c.getAdaptation();
         AbstractAdapter lower = getAdapter(conf.getLower());
         AbstractAdapter upper = getAdapter(conf.getUpper());
         return new Adaptation(lower, upper);
@@ -52,25 +55,25 @@ public class AdaptationFactory {
 
     /**
      * Returns an adapter depending on the options specified. The supported
-     * types at the moment are "UDP/TCP" for udp/tcp communication and "COM" for
-     * serial port communication. "OMNET" adapter is still under development.
-     * Details regarding the adapters are contained in the config map.
+ types at the moment are "UDP/TCP" for udp/tcp communication and "COM" for
+ serial port communication. "OMNET" adapter is still under development.
+ Details regarding the adapters are contained in the c map.
      *
-     * @param config the type of adapter that will be instantiated.
+     * @param c the type of adapter that will be instantiated.
      * @return an adapter object
      */
-    private static AbstractAdapter getAdapter(Map<String, String> config) {
-        switch (config.get("TYPE")) {
+    private static AbstractAdapter getAdapter(final Map<String, String> c) {
+        switch (c.get("TYPE")) {
             case "UDP":
-                return new AdapterUdp(config);
+                return new AdapterUdp(c);
             case "COM":
-                return new AdapterCom(config);
+                return new AdapterCom(c);
             case "TCP":
-                return new AdapterTcp(config);
+                return new AdapterTcp(c);
             default:
                 throw new UnsupportedOperationException(
-                        "Error in configuration file: Unsupported Adapter of type "
-                        + config.get("TYPE"));
+                    "Error in configuration file: Unsupported Adapter of type "
+                    + c.get("TYPE"));
         }
     }
 

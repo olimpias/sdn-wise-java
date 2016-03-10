@@ -37,7 +37,9 @@ import java.util.logging.*;
  */
 public class Adaptation extends ControlPlaneLayer {
 
-    // to avoid garbage collector
+    /**
+     * To avoid garbage collector.
+     */
     protected static final Logger LOGGER = Logger.getLogger("ADA");
 
     /**
@@ -46,20 +48,20 @@ public class Adaptation extends ControlPlaneLayer {
      * @param lower the adapter that receives messages from the sensor network
      * @param upper the adapter that receives messages from the controller
      */
-    Adaptation(AbstractAdapter lower, AbstractAdapter upper) {
+    Adaptation(final AbstractAdapter lower, final AbstractAdapter upper) {
         super("ADA", lower, upper);
         ControlPlaneLogger.setupLogger(layerShortName);
     }
 
     /**
-     * Called by each message coming from the adapters. Messages coming from
-     * the lower adapter are sent to the upper one and vice versa.
+     * Called by each message coming from the adapters. Messages coming from the
+     * lower adapter are sent to the upper one and vice versa.
      *
      * @param o the adapter that has received the message
      * @param arg the message received as a byte array
      */
     @Override
-    public final void update(Observable o, Object arg) {
+    public final void update(final Observable o, final Object arg) {
         if (o.equals(lower)) {
             log(Level.INFO, "\u2191" + Arrays.toString((byte[]) arg));
             upper.send((byte[]) arg);

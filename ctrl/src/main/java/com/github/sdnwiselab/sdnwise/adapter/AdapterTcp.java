@@ -55,7 +55,7 @@ public class AdapterTcp extends AbstractAdapter {
      *
      * @param conf contains the serial port configuration data.
      */
-    public AdapterTcp(Map<String, String> conf) {
+    public AdapterTcp(final Map<String, String> conf) {
         this.IS_SERVER = Boolean.parseBoolean(conf.get("IS_SERVER"));
         this.IP = conf.get("IP");
         this.PORT = Integer.parseInt(conf.get("PORT"));
@@ -82,7 +82,7 @@ public class AdapterTcp extends AbstractAdapter {
     }
 
     @Override
-    public final void send(byte[] data) {
+    public final void send(final byte[] data) {
         tcpElement.send(data);
     }
 
@@ -91,18 +91,18 @@ public class AdapterTcp extends AbstractAdapter {
         boolean isStopped;
         final int port;
 
-        TcpElement(int port) {
+        TcpElement(final int port) {
             this.port = port;
         }
 
-        public abstract void send(byte[] data);
+        public abstract void send(final byte[] data);
 
         synchronized boolean isStopped() {
             return this.isStopped;
         }
 
         @Override
-        public final void update(Observable o, Object arg) {
+        public final void update(final Observable o, final Object arg) {
             setChanged();
             notifyObservers(arg);
         }
@@ -114,7 +114,7 @@ public class AdapterTcp extends AbstractAdapter {
         private final LinkedList<Socket> clientSockets = new LinkedList<>();
         private final LinkedList<Socket> removableSockets = new LinkedList<>();
 
-        TcpServer(int port) {
+        TcpServer(final int port) {
             super(port);
         }
 
@@ -157,7 +157,7 @@ public class AdapterTcp extends AbstractAdapter {
         }
 
         @Override
-        public void send(byte[] data) {
+        public void send(final byte[] data) {
             clientSockets.stream().forEach((sck) -> {
                 try {
                     OutputStream out = sck.getOutputStream();
@@ -211,7 +211,7 @@ public class AdapterTcp extends AbstractAdapter {
 
         Socket socket;
 
-        TcpClient(String ip, int port) {
+        TcpClient(final String ip, final int port) {
             super(port);
             try {
                 socket = new Socket(ip, port);
@@ -222,7 +222,7 @@ public class AdapterTcp extends AbstractAdapter {
         }
 
         @Override
-        public void send(byte[] data) {
+        public void send(final byte[] data) {
             try {
                 OutputStream out = socket.getOutputStream();
                 DataOutputStream dos = new DataOutputStream(out);

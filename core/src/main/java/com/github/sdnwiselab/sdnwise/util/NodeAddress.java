@@ -30,7 +30,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
 
     private static final long serialVersionUID = 1L;
     private final byte[] addr = new byte[2];
-    public final static NodeAddress BROADCAST_ADDR = new NodeAddress("255.255");
+    public static final NodeAddress BROADCAST_ADDR = new NodeAddress("255.255");
 
     /**
      * Constructor method to create a Node Address from an int.
@@ -46,27 +46,27 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      *
      * Constructor method to create a Node Address from a byte array.
      *
-     * @param addr byte array value to set a Node Address.
+     * @param a byte array value to set a Node Address.
      */
-    public NodeAddress(byte[] addr) {
-        if (addr.length == 2) {
-            this.addr[0] = addr[0];
-            this.addr[1] = addr[1];
+    public NodeAddress(final byte[] a) {
+        if (a.length == 2) {
+            this.addr[0] = a[0];
+            this.addr[1] = a[1];
         }
     }
 
     /**
      * Constructor method to create a Node Address from a string.
      *
-     * @param addr string value to set a Node Address.
+     * @param a string value to set a Node Address.
      */
-    public NodeAddress(String addr) {
-        String[] add = addr.split("\\s*\\.\\s*");
+    public NodeAddress(final String a) {
+        String[] add = a.split("\\s*\\.\\s*");
         if (add.length == 2) {
             this.addr[0] = (byte) Integer.parseInt(add[0]);
             this.addr[1] = (byte) Integer.parseInt(add[1]);
         } else {
-            int adr = Integer.parseInt(addr);
+            int adr = Integer.parseInt(a);
             this.addr[0] = (byte) (adr >> 8);
             this.addr[1] = (byte) (adr & 0xFF);
         }
@@ -78,7 +78,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      * @param addr0 int value to set fist part of Node Address.
      * @param addr1 int value to set second part of a Node Address.
      */
-    public NodeAddress(int addr0, int addr1) {
+    public NodeAddress(final int addr0, final int addr1) {
         this.addr[0] = (byte) addr0;
         this.addr[1] = (byte) addr1;
     }
@@ -134,7 +134,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     @Override
-    public int compareTo(NodeAddress other) {
+    public int compareTo(final NodeAddress other) {
         return Integer.valueOf(this.intValue()).compareTo(other.intValue());
     }
 
@@ -144,12 +144,13 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof NodeAddress && ((NodeAddress) obj).intValue() == this.intValue();
+    public boolean equals(final Object obj) {
+        return obj instanceof NodeAddress
+                && ((NodeAddress) obj).intValue() == this.intValue();
     }
 
     /**
-     * Checks if the address is a broadcast address
+     * Checks if the address is a broadcast address.
      *
      * @return true if equal to 255.255 false otherwise
      */

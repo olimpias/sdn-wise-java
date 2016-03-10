@@ -26,7 +26,7 @@ import java.util.Arrays;
  */
 public class Stats implements FlowTableInterface {
 
-    public final static byte SIZE = 2;
+    public static final byte SIZE = 2;
     public static final int ENTRY_TTL_PERMANENT = 255;
     public static final int SDN_WISE_RL_TTL_MAX = 254;
 

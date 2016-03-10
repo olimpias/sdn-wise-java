@@ -24,14 +24,14 @@ import java.nio.ByteBuffer;
 public class Utils {
 
     private static final String DIGITS = "0123456789abcdef";
-
+    
     /**
      * Return the passed in byte array as a hex string.
      *
      * @param data the bytes to be converted.
      * @return a hex representation of data.
      */
-    public final static String toHex(byte[] data) {
+    public static final String toHex(final byte[] data) {
         StringBuilder buf = new StringBuilder();
 
         for (int i = 0; i < data.length; i++) {
@@ -43,28 +43,27 @@ public class Utils {
         return buf.toString();
     }
 
-    public final static int mergeBytes(int high, int low) {
-        high = (byte) high;
-        low = (byte) low;
-        return ((high & 0xFF) << 8) | (low & 0xFF);
+    public static final int mergeBytes(final int high, final int low) {
+        return (((byte) high & 0xFF) << 8) | ((byte) low & 0xFF);
     }
 
-    public final static byte[] splitInteger(int value) {
+    public static final byte[] splitInteger(final int value) {
         ByteBuffer b = ByteBuffer.allocate(2);
         b.putShort((short) value);
         return b.array();
     }
 
-    public final static int getBitRange(int b, int s, int n) {
+    public static final int getBitRange(final int b, final int s, final int n) {
         return (((b & 0xFF) >> (s & 0xFF)) & ((1 << (n & 0xFF)) - 1)) & 0xFF;
     }
 
-    public final static int setBitRange(int val, int start, int len, int newVal) {
+    public static final int setBitRange(final int val,
+            final int start, final int len, final int newVal) {
         int mask = ((1 << len) - 1) << start;
         return (val & ~mask) | ((newVal << start) & mask);
     }
 
-    public final static byte[] concatByteArray(byte[] a, byte[] b) {
+    public static final byte[] concatByteArray(final byte[] a, final byte[] b) {
         return ByteBuffer.allocate(a.length + b.length).put(a).put(b).array();
     }
 }
