@@ -17,9 +17,12 @@
 package com.github.sdnwiselab.sdnwise.packet;
 
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REG_PROXY;
-import com.github.sdnwiselab.sdnwise.util.*;
+import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+import com.github.sdnwiselab.sdnwise.util.Utils;
 import java.math.BigInteger;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 

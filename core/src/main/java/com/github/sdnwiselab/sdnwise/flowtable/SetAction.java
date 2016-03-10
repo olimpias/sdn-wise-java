@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,9 +17,10 @@
 package com.github.sdnwiselab.sdnwise.flowtable;
 
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.SET;
-import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
-import static com.github.sdnwiselab.sdnwise.util.Utils.*;
+import static com.github.sdnwiselab.sdnwise.util.Utils.getBitRange;
+import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
+import static com.github.sdnwiselab.sdnwise.util.Utils.setBitRange;
 
 /**
  * Window is part of the structure of the Entry of a FlowTable. This Class
@@ -29,15 +30,17 @@ import static com.github.sdnwiselab.sdnwise.util.Utils.*;
  */
 public final class SetAction extends AbstractAction {
 
-    // operators
-    public static final byte SDN_WISE_ADD = 0;
-    public static final byte SDN_WISE_SUB = 1;
-    public static final byte SDN_WISE_MUL = 2;
-    public static final byte SDN_WISE_DIV = 3;
-    public static final byte SDN_WISE_MOD = 4;
-    public static final byte SDN_WISE_AND = 5;
-    public static final byte SDN_WISE_OR = 6;
-    public static final byte SDN_WISE_XOR = 7;
+    /**
+     * SetAction operators.
+     */
+    public static final byte SDN_WISE_ADD = 0,
+            SDN_WISE_SUB = 1,
+            SDN_WISE_MUL = 2,
+            SDN_WISE_DIV = 3,
+            SDN_WISE_MOD = 4,
+            SDN_WISE_AND = 5,
+            SDN_WISE_OR = 6,
+            SDN_WISE_XOR = 7;
 
     private static final byte operatorBit = 3;
     private static final byte operatorLen = 3;
@@ -69,8 +72,51 @@ public final class SetAction extends AbstractAction {
         super(SET, SIZE);
     }
 
-    public SetAction(byte[] value) {
+    public SetAction(final byte[] value) {
         super(value);
+    }
+
+    public SetAction(final String val) {
+        super(SET, SIZE);
+        String[] operands = val.split(" ");
+        if (operands.length == 6) {
+            String res = operands[1];
+            String lhs = operands[3];
+            String rhs = operands[5];
+
+            int[] tmpRes = getResFromString(res);
+            int[] tmpLhs = getOperandFromString(lhs);
+            int[] tmpRhs = getOperandFromString(rhs);
+
+            setResLocation(tmpRes[0]);
+            setRes(tmpRes[1]);
+
+            setLhsLocation(tmpLhs[0]);
+            setLhs(tmpLhs[1]);
+
+            setOperator(getOperatorFromString(operands[4]));
+
+            setRhsLocation(tmpRhs[0]);
+            setRhs(tmpRhs[1]);
+
+        } else if (operands.length == 4) {
+
+            String res = operands[1];
+            String lhs = operands[3];
+
+            int[] tmpRes = getResFromString(res);
+            int[] tmpLhs = getOperandFromString(lhs);
+
+            setResLocation(tmpRes[0]);
+            setRes(tmpRes[1]);
+
+            setLhsLocation(tmpLhs[0]);
+            setLhs(tmpLhs[1]);
+
+            setRhsLocation(SDN_WISE_NULL);
+            setRhs(0);
+        }
+
     }
 
     /**
@@ -115,7 +161,7 @@ public final class SetAction extends AbstractAction {
      * @param value value to set
      * @return this Window
      */
-    public SetAction setResLocation(int value) {
+    public SetAction setResLocation(final int value) {
         setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
                 resBit, resLen, value));
         return this;
@@ -127,7 +173,7 @@ public final class SetAction extends AbstractAction {
      * @param value value to set
      * @return this Window
      */
-    public SetAction setOperator(int value) {
+    public SetAction setOperator(final int value) {
         setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
                 operatorBit, operatorLen, value));
         return this;
@@ -139,7 +185,7 @@ public final class SetAction extends AbstractAction {
      * @param value value to set
      * @return this Window
      */
-    public SetAction setRhsLocation(int value) {
+    public SetAction setRhsLocation(final int value) {
         setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
                 rightBit, rightLen, value));
         return this;
@@ -151,7 +197,7 @@ public final class SetAction extends AbstractAction {
      * @param value value to set
      * @return this Window
      */
-    public SetAction setLhsLocation(int value) {
+    public SetAction setLhsLocation(final int value) {
         setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
                 leftBit, leftLen, value));
         return this;
@@ -172,7 +218,7 @@ public final class SetAction extends AbstractAction {
      * @param val value to set
      * @return this Window
      */
-    public SetAction setLhs(int val) {
+    public SetAction setLhs(final int val) {
         setValue(leftIndexL, (byte) (val & 0xFF));
         setValue(leftIndexH, (byte) (val >> 8));
         return this;
@@ -202,7 +248,7 @@ public final class SetAction extends AbstractAction {
      * @param val value to set
      * @return this Window
      */
-    public SetAction setRes(int val) {
+    public SetAction setRes(final int val) {
         setValue(resIndexL, (byte) (val & 0xFF));
         setValue(resIndexH, (byte) (val >> 8));
         return this;
@@ -214,7 +260,7 @@ public final class SetAction extends AbstractAction {
      * @param val value to set
      * @return this Window
      */
-    public SetAction setRhs(int val) {
+    public SetAction setRhs(final int val) {
         setValue(rightIndexL, (byte) (val & 0xFF));
         setValue(rightIndexH, (byte) (val >> 8));
         return this;
@@ -259,11 +305,12 @@ public final class SetAction extends AbstractAction {
                 return " | ";
             case (SDN_WISE_XOR):
                 return " ^ ";
+            default:
+                return "";
         }
-        return "";
     }
 
-    public int getOperatorFromString(String val) {
+    public int getOperatorFromString(final String val) {
         switch (val.trim()) {
             case ("+"):
                 return SDN_WISE_ADD;
@@ -295,7 +342,8 @@ public final class SetAction extends AbstractAction {
         switch (getResLocation()) {
             case SDN_WISE_PACKET:
                 return SET.name() + " P."
-                        + NetworkPacket.getNetworkPacketByteName(getRes()) + " = ";
+                        + NetworkPacket.getNetworkPacketByteName(getRes())
+                        + " = ";
             case SDN_WISE_STATUS:
                 return SET.name() + " R." + getRes() + " = ";
             default:
@@ -343,7 +391,7 @@ public final class SetAction extends AbstractAction {
         }
     }
 
-    public int[] getOperandFromString(String val) {
+    public int[] getOperandFromString(final String val) {
         int[] tmp = new int[2];
         String[] strVal = val.split("\\.");
         switch (strVal[0]) {
@@ -367,7 +415,7 @@ public final class SetAction extends AbstractAction {
         return tmp;
     }
 
-    public int[] getResFromString(String val) {
+    public int[] getResFromString(final String val) {
         int[] tmp = new int[2];
         String[] strVal = val.split("\\.");
         switch (strVal[0]) {
@@ -389,46 +437,4 @@ public final class SetAction extends AbstractAction {
         return tmp;
     }
 
-    public SetAction(String val) {
-        super(SET, SIZE);
-        String[] operands = val.split(" ");
-        if (operands.length == 6) {
-            String res = operands[1];
-            String lhs = operands[3];
-            String rhs = operands[5];
-
-            int[] tmpRes = getResFromString(res);
-            int[] tmpLhs = getOperandFromString(lhs);
-            int[] tmpRhs = getOperandFromString(rhs);
-
-            setResLocation(tmpRes[0]);
-            setRes(tmpRes[1]);
-
-            setLhsLocation(tmpLhs[0]);
-            setLhs(tmpLhs[1]);
-
-            setOperator(getOperatorFromString(operands[4]));
-
-            setRhsLocation(tmpRhs[0]);
-            setRhs(tmpRhs[1]);
-
-        } else if (operands.length == 4) {
-
-            String res = operands[1];
-            String lhs = operands[3];
-
-            int[] tmpRes = getResFromString(res);
-            int[] tmpLhs = getOperandFromString(lhs);
-
-            setResLocation(tmpRes[0]);
-            setRes(tmpRes[1]);
-
-            setLhsLocation(tmpLhs[0]);
-            setLhs(tmpLhs[1]);
-
-            setRhsLocation(SDN_WISE_NULL);
-            setRhs(0);
-        }
-
-    }
 }

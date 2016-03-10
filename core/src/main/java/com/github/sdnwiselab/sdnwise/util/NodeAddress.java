@@ -35,11 +35,11 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     /**
      * Constructor method to create a Node Address from an int.
      *
-     * @param addr int value to set a Node Address.
+     * @param a int value to set a Node Address.
      */
-    public NodeAddress(int addr) {
-        this.addr[0] = (byte) (addr >> 8);
-        this.addr[1] = (byte) (addr & 0xFF);
+    public NodeAddress(final int a) {
+        this.addr[0] = (byte) (a >> 8);
+        this.addr[1] = (byte) (a & 0xFF);
     }
 
     /**

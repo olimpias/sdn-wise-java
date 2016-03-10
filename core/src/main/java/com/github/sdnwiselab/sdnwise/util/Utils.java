@@ -21,10 +21,10 @@ import java.nio.ByteBuffer;
 
 /**
  * An utility class.
- * 
+ *
  * @author Sebastiano Milardo
  */
-public class Utils {
+public final class Utils {
 
     private static final String DIGITS = "0123456789abcdef";
 
@@ -46,27 +46,30 @@ public class Utils {
         return buf.toString();
     }
 
-    public static final int mergeBytes(final int high, final int low) {
+    public static int mergeBytes(final int high, final int low) {
         return (((byte) high & 0xFF) << 8) | ((byte) low & 0xFF);
     }
 
-    public static final byte[] splitInteger(final int value) {
+    public static byte[] splitInteger(final int value) {
         ByteBuffer b = ByteBuffer.allocate(2);
         b.putShort((short) value);
         return b.array();
     }
 
-    public static final int getBitRange(final int b, final int s, final int n) {
+    public static int getBitRange(final int b, final int s, final int n) {
         return (((b & 0xFF) >> (s & 0xFF)) & ((1 << (n & 0xFF)) - 1)) & 0xFF;
     }
 
-    public static final int setBitRange(final int val,
+    public static int setBitRange(final int val,
             final int start, final int len, final int newVal) {
         int mask = ((1 << len) - 1) << start;
         return (val & ~mask) | ((newVal << start) & mask);
     }
 
-    public static final byte[] concatByteArray(final byte[] a, final byte[] b) {
+    public static byte[] concatByteArray(final byte[] a, final byte[] b) {
         return ByteBuffer.allocate(a.length + b.length).put(a).put(b).array();
+    }
+
+    private Utils() {
     }
 }

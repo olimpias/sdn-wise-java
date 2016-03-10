@@ -225,7 +225,7 @@ public final class FlowTableEntry implements FlowTableInterface {
         return hash;
     }
 
-    public boolean equalWindows(FlowTableEntry other) {
+    public boolean equalWindows(final FlowTableEntry other) {
         return Objects.deepEquals(this.windows, other.windows);
     }
 

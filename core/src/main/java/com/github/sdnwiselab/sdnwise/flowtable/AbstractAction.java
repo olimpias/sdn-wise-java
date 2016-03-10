@@ -46,12 +46,12 @@ public abstract class AbstractAction implements FlowTableInterface {
             return A_VALUES[value];
         }
 
-        private ActionType(final int value) {
-            this.value = (byte) value;
+        ActionType(final int v) {
+            this.value = (byte) v;
         }
     }
 
-    protected final static int TYPE_INDEX = 0;
+    protected static final int TYPE_INDEX = 0;
     protected byte[] action;
 
     /**

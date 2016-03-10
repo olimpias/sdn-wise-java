@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ import java.util.Arrays;
 /**
  * @author Sebastiano Milardo
  */
-public class FunctionAction extends AbstractAction {
+public final class FunctionAction extends AbstractAction {
 
     /**
      * Function id is at index 0, the arguments starts at 1.
@@ -34,20 +34,20 @@ public class FunctionAction extends AbstractAction {
         super(value);
     }
 
-    public final FunctionAction setId(final int id) {
+    public FunctionAction setId(final int id) {
         setValue(ID_INDEX, id);
         return this;
     }
 
-    public final int getId() {
+    public int getId() {
         return getValue(ID_INDEX);
     }
 
-    public final byte[] getArgs() {
+    public byte[] getArgs() {
         return Arrays.copyOfRange(action, ARGS_INDEX, action.length);
     }
 
-    public FunctionAction setArgs(byte[] args) {
+    public FunctionAction setArgs(final byte[] args) {
         System.arraycopy(args, 0, action, ARGS_INDEX, args.length);
         return this;
     }
@@ -62,7 +62,7 @@ public class FunctionAction extends AbstractAction {
         return sb.toString();
     }
 
-    public FunctionAction(String str) {
+    public FunctionAction(final String str) {
         super(FUNCTION, 0);
         String[] tmp = str.split(" ");
 

@@ -16,10 +16,12 @@
  */
 package com.github.sdnwiselab.sdnwise.util;
 
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.*;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 
 /**
  * The SimplerFormatter class formats all the logs. The format used is: HH:mm:ss

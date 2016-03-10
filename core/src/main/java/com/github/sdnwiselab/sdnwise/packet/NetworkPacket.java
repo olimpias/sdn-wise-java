@@ -17,9 +17,11 @@
 package com.github.sdnwiselab.sdnwise.packet;
 
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class represents a generic SDN-WISE packet.
@@ -511,7 +513,7 @@ public class NetworkPacket implements Cloneable {
         return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
 
-    private byte[] fromIntArrayToByteArray(int[] array) {
+    private byte[] fromIntArrayToByteArray(final int[] array) {
         byte[] dataToByte = new byte[array.length];
         for (int i = 0; i < array.length; i++) {
             dataToByte[i] = (byte) array[i];

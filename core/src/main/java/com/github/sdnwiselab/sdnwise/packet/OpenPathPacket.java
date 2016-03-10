@@ -19,7 +19,8 @@ package com.github.sdnwiselab.sdnwise.packet;
 import com.github.sdnwiselab.sdnwise.flowtable.Window;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.OPEN_PATH;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class models an Open Path packet.
@@ -138,7 +139,8 @@ public class OpenPathPacket extends NetworkPacket {
         int nWindows = this.getPayloadAt(WINDOWS_SIZE_INDEX);
         int j = 0;
         for (int i = 0; i < nWindows; i++) {
-            Window win = new Window(this.getPayloadFromTo(WINDOWS_SIZE_INDEX + 1 + j,
+            Window win = new Window(this.getPayloadFromTo(
+                    WINDOWS_SIZE_INDEX + 1 + j,
                     WINDOWS_SIZE_INDEX + 1 + Window.SIZE + j));
             w.add(win);
             j = j + Window.SIZE;

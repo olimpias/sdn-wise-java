@@ -32,17 +32,21 @@ public final class Window implements FlowTableInterface {
 
     public static final byte SIZE = 5;
 
-    // size
-    public static final byte W_SIZE_1 = 0;
-    public static final byte W_SIZE_2 = 1;
+    /**
+     * Window Sizes.
+     */
+    public static final byte W_SIZE_1 = 0,
+        W_SIZE_2 = 1;
 
-    // operators
-    public static final byte EQUAL = 0;
-    public static final byte NOT_EQUAL = 1;
-    public static final byte GREATER = 2;
-    public static final byte LESS = 3;
-    public static final byte GREATER_OR_EQUAL = 4;
-    public static final byte LESS_OR_EQUAL = 5;
+    /**
+     * Window Operators.
+     */
+    public static final byte EQUAL = 0,
+        NOT_EQUAL = 1,
+        GREATER = 2,
+        LESS = 3,
+        GREATER_OR_EQUAL = 4,
+        LESS_OR_EQUAL = 5;
 
     private static final byte operatorBit = 5;
     private static final byte operatorLen = 3;
