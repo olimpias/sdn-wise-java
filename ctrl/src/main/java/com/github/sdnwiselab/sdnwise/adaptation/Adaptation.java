@@ -17,21 +17,21 @@
 package com.github.sdnwiselab.sdnwise.adaptation;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
-import com.github.sdnwiselab.sdnwise.controlplane.*;
-import java.util.*;
-import java.util.logging.*;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLayer;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLogger;
+import java.util.Arrays;
+import java.util.Observable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Incorporates the communication adapters for connecting the controller to the
- * sensor networks and vice versa.
- * <p>
- * This class is implemented as an Observer, so it has an update method that is
- * called every time a new message is received by one of the two adapters. This
- * class also implements runnable and it works on a separate thread.
- * <p>
- * The behavior of this class is equal to a transparent proxy that send messages
- * coming from the lower adapter to the upper adapter and from the upper adapter
- * to the lower.
+ * sensor networks and vice versa. This class is implemented as an Observer, so
+ * it has an update method that is called every time a new message is received
+ * by one of the two adapters. This class also implements runnable and it works
+ * on a separate thread. The behavior of this class is equal to a transparent
+ * proxy that send messages coming from the lower adapter to the upper adapter
+ * and from the upper adapter to the lower.
  *
  * @author Sebastiano Milardo
  */

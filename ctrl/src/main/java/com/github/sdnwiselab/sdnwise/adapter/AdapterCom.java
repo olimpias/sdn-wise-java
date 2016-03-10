@@ -16,9 +16,21 @@
  */
 package com.github.sdnwiselab.sdnwise.adapter;
 
-import gnu.io.*;
-import java.io.*;
-import java.util.*;
+import gnu.io.CommPortIdentifier;
+import gnu.io.PortInUseException;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
+import gnu.io.UnsupportedCommOperationException;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Observable;
+import java.util.TooManyListenersException;
+
 import java.util.logging.Level;
 
 /**
@@ -30,45 +42,56 @@ import java.util.logging.Level;
  */
 public class AdapterCom extends AbstractAdapter {
 
-    private final String PORT_NAME;
-    private final int BAUD_RATE;
-    private final int DATA_BITS;
-    private final int STOP_BITS;
-    private final int PARITY;
-    private final int MAX_PAYLOAD;
-    private final byte START_BYTE;
-    private final byte STOP_BYTE;
+    /**
+     * Name of the COM port.
+     */
+    private final String portName;
+
+    /**
+     * Configuration parameters of the COM port.
+     */
+    private final int baudRate,
+            dataBits,
+            stopBits,
+            parity,
+            maxPayload;
+
+    /**
+     * Each packet sent over the COM port has to start with the start byte and
+     * it has end with the stopByte.
+     */
+    private final byte startByte, stopByte;
 
     private InputStream in;
     private BufferedOutputStream out;
-    private SerialPort serialPort;
+    private SerialPort comPort;
 
     /**
      * Creates an AdapterCom object. The conf map is used to pass the
      * configuration settings for the serial port as strings. Specifically
      * needed parameters are:
      * <ol>
-     * <li>PARITY</li>
-     * <li>STOP_BITS</li>
-     * <li>DATA_BITS</li>
-     * <li>BAUD_RATE</li>
-     * <li>PORT_NAME</li>
-     * <li>STOP_BYTE</li>
-     * <li>START_BYTE</li>
-     * <li>MAX_PAYLOAD</li>
+     * <li>parity</li>
+     * <li>stopBits</li>
+     * <li>dataBits</li>
+     * <li>baudRate</li>
+     * <li>port</li>
+     * <li>stopByte</li>
+     * <li>startByte</li>
+     * <li>maxPayload</li>
      * </ol>
      *
      * @param conf contains the serial port configuration data.
      */
     public AdapterCom(final Map<String, String> conf) {
-        this.PARITY = Integer.parseInt(conf.get("PARITY"));
-        this.STOP_BITS = Integer.parseInt(conf.get("STOP_BITS"));
-        this.DATA_BITS = Integer.parseInt(conf.get("DATA_BITS"));
-        this.BAUD_RATE = Integer.parseInt(conf.get("BAUD_RATE"));
-        this.PORT_NAME = conf.get("PORT_NAME");
-        this.STOP_BYTE = Byte.parseByte(conf.get("STOP_BYTE"));
-        this.START_BYTE = Byte.parseByte(conf.get("START_BYTE"));
-        this.MAX_PAYLOAD = Integer.parseInt(conf.get("MAX_PAYLOAD"));
+        this.parity = Integer.parseInt(conf.get("PARITY"));
+        this.stopBits = Integer.parseInt(conf.get("STOP_BITS"));
+        this.dataBits = Integer.parseInt(conf.get("DATA_BITS"));
+        this.baudRate = Integer.parseInt(conf.get("BAUD_RATE"));
+        this.portName = conf.get("PORT_NAME");
+        this.stopByte = Byte.parseByte(conf.get("STOP_BYTE"));
+        this.startByte = Byte.parseByte(conf.get("START_BYTE"));
+        this.maxPayload = Integer.parseInt(conf.get("MAX_PAYLOAD"));
     }
 
     @Override
@@ -80,25 +103,24 @@ public class AdapterCom extends AbstractAdapter {
             while (portList.hasMoreElements()) {
                 portId = (CommPortIdentifier) portList.nextElement();
                 if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                    String portName = portId.getName();
-                    log(Level.INFO, "Serial Port Found: " + portName);
-                    if (portName.equals(PORT_NAME)) {
+                    String port = portId.getName();
+                    log(Level.INFO, "Serial Port Found: " + port);
+                    if (port.equals(this.portName)) {
                         log(Level.INFO, "SINK");
-                        serialPort = (SerialPort) portId
+                        comPort = (SerialPort) portId
                                 .open("AdapterCOM", 2000);
                         break;
                     }
                 }
             }
 
-            in = serialPort.getInputStream();
-            out = new BufferedOutputStream(serialPort.getOutputStream());
+            in = comPort.getInputStream();
+            out = new BufferedOutputStream(comPort.getOutputStream());
             InternalSerialListener sl = new InternalSerialListener(in);
             sl.addObserver(this);
-            serialPort.setSerialPortParams(
-                    BAUD_RATE, DATA_BITS, STOP_BITS, PARITY);
-            serialPort.addEventListener(sl);
-            serialPort.notifyOnDataAvailable(true);
+            comPort.setSerialPortParams(baudRate, dataBits, stopBits, parity);
+            comPort.addEventListener(sl);
+            comPort.notifyOnDataAvailable(true);
             return true;
         } catch (PortInUseException | IOException | UnsupportedCommOperationException | TooManyListenersException ex) {
             log(Level.SEVERE, "Unable to open Serial Port" + ex.toString());
@@ -110,10 +132,10 @@ public class AdapterCom extends AbstractAdapter {
     public final void send(final byte[] data) {
         try {
             int len = Byte.toUnsignedInt(data[0]);
-            if (len <= MAX_PAYLOAD) { // MAX 802.15.4 DATA FRAME PAYLOAD = 116
-                this.out.write(START_BYTE);
+            if (len <= maxPayload) { // MAX 802.15.4 DATA FRAME PAYLOAD = 116
+                this.out.write(startByte);
                 this.out.write(data);
-                this.out.write(STOP_BYTE);
+                this.out.write(stopByte);
                 this.out.flush();
             }
         } catch (IOException ex) {
@@ -124,7 +146,7 @@ public class AdapterCom extends AbstractAdapter {
     @Override
     public final boolean close() {
         try {
-            serialPort.close();
+            comPort.close();
             in.close();
             return true;
         } catch (IOException ex) {
@@ -164,7 +186,7 @@ public class AdapterCom extends AbstractAdapter {
 
                     while (!receivedBytes.isEmpty()) {
                         a = receivedBytes.poll();
-                        if (!startFlag && a == START_BYTE) {
+                        if (!startFlag && a == startByte) {
                             startFlag = true;
                             packet.add(a);
                         } else if (startFlag && !idFlag) {
@@ -177,7 +199,7 @@ public class AdapterCom extends AbstractAdapter {
                             packet.add(a);
                         } else if (startFlag && idFlag && expected > 0 && packet.size() == expected + 1) {
                             packet.add(a);
-                            if (a == STOP_BYTE) {
+                            if (a == stopByte) {
                                 packet.removeFirst();
                                 packet.removeLast();
                                 byte[] bytePacket = new byte[packet.size()];

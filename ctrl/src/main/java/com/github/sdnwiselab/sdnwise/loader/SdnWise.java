@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,16 +16,24 @@
  */
 package com.github.sdnwiselab.sdnwise.loader;
 
-import com.github.sdnwiselab.sdnwise.adaptation.*;
+import com.github.sdnwiselab.sdnwise.adaptation.Adaptation;
+import com.github.sdnwiselab.sdnwise.adaptation.AdaptationFactory;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
-import com.github.sdnwiselab.sdnwise.controller.*;
+import com.github.sdnwiselab.sdnwise.controller.AbstractController;
+import com.github.sdnwiselab.sdnwise.controller.ControllerFactory;
+import com.github.sdnwiselab.sdnwise.controller.ControllerGui;
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
-import com.github.sdnwiselab.sdnwise.flowvisor.*;
-import com.github.sdnwiselab.sdnwise.mote.standalone.*;
+import com.github.sdnwiselab.sdnwise.flowvisor.FlowVisor;
+import com.github.sdnwiselab.sdnwise.flowvisor.FlowVisorFactory;
+import com.github.sdnwiselab.sdnwise.mote.standalone.Mote;
+import com.github.sdnwiselab.sdnwise.mote.standalone.Sink;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashSet;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Starter class of the SDN-WISE project. This class loads the configuration
@@ -35,6 +43,9 @@ import java.util.logging.*;
  */
 public class SdnWise {
 
+    /**
+     * Dafault config file location.
+     */
     private static final String CONFIG_FILE = "/config.ini";
 
     /**
@@ -50,7 +61,7 @@ public class SdnWise {
      * @param args the first argument is the path to the configuration file. if
      * not specificated, the default one is loaded
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SdnWise sw = new SdnWise();
         InputStream is = null;
 
@@ -87,7 +98,7 @@ public class SdnWise {
      * @param conf contains the configuration parameters of the layer
      * @return the AbstractController layer of the current SDN-WISE network
      */
-    public AbstractController startController(Configurator conf) {
+    public final AbstractController startController(final Configurator conf) {
         controller = new ControllerFactory().getController(conf);
         new Thread(controller).start();
         return controller;
@@ -102,7 +113,7 @@ public class SdnWise {
      * @param conf contains the configuration parameters of the layer
      * @return the AbstractController layer of the current SDN-WISE network
      */
-    public FlowVisor startFlowVisor(Configurator conf) {
+    public final FlowVisor startFlowVisor(final Configurator conf) {
         flowVisor = FlowVisorFactory.getFlowvisor(conf);
         new Thread(flowVisor).start();
         return flowVisor;
@@ -114,10 +125,11 @@ public class SdnWise {
      * Adapter, in order to communicate with the Nodes and an "upper" Adapter to
      * communicate with the FlowVisor
      *
-     * @param conf
+     * @param conf contains the configuration parameters for the Adaptation
+     * layer
      * @return the AbstractController layer of the current SDN-WISE network
      */
-    public Adaptation startAdaptation(Configurator conf) {
+    public final Adaptation startAdaptation(final Configurator conf) {
         adaptation = AdaptationFactory.getAdaptation(conf);
         new Thread(adaptation).start();
         return adaptation;
@@ -128,9 +140,8 @@ public class SdnWise {
      * and an Adaptation plus a simulated network
      *
      * @param conf contains the configuration parameters for the Control plane
-     * layers
      */
-    public void startExemplaryControlPlane(Configurator conf) {
+    public final void startExemplaryControlPlane(final Configurator conf) {
 
         // Start the elements of the Control Plane
         controller = startController(conf);

@@ -17,8 +17,10 @@
 package com.github.sdnwiselab.sdnwise.adapter;
 
 import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLogger;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Representation of an abstract adapter. It is an observable class for the
@@ -29,8 +31,14 @@ import java.util.logging.*;
  */
 public abstract class AbstractAdapter extends Observable implements Observer {
 
+    /**
+     * Logger.
+     */
     protected static final Logger LOGGER = Logger.getLogger("ADP");
 
+    /**
+     * Creates an AbstractAdapter.
+     */
     AbstractAdapter() {
         ControlPlaneLogger.setupLogger("ADP");
     }

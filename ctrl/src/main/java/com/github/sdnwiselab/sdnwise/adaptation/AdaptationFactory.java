@@ -16,8 +16,12 @@
  */
 package com.github.sdnwiselab.sdnwise.adaptation;
 
-import com.github.sdnwiselab.sdnwise.adapter.*;
-import com.github.sdnwiselab.sdnwise.configuration.*;
+import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterCom;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.configuration.ConfigAdaptation;
+import com.github.sdnwiselab.sdnwise.configuration.Configurator;
 import java.util.Map;
 
 /**
@@ -72,11 +76,15 @@ public final class AdaptationFactory {
                 return new AdapterTcp(c);
             default:
                 throw new UnsupportedOperationException(
-                        "Error in configuration file: Unsupported Adapter of type "
+                        "Error in configuration file: "
+                        + "Unsupported Adapter of type "
                         + c.get("TYPE"));
         }
     }
 
+    /**
+     * Private constructor.
+     */
     private AdaptationFactory() {
     }
 }
