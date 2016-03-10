@@ -41,9 +41,10 @@ public class MoteCore extends AbstractCore {
     }
 
     @Override
-    public void SDN_WISE_Callback(DataPacket packet) {
+    public void SDN_WISE_Callback(final DataPacket packet) {
         if (this.functions.get(1) == null) {
-            log(Level.INFO, new String(packet.getPayload(), Charset.forName("UTF-8")));
+            log(Level.INFO, new String(packet.getData(),
+                    Charset.forName("UTF-8")));
             packet.setSrc(myAddress)
                     .setDst(getActualSinkAddress())
                     .setTtl((byte) rule_ttl);

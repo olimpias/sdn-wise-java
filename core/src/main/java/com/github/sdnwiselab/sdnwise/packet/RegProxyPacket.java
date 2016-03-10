@@ -43,7 +43,7 @@ public class RegProxyPacket extends NetworkPacket {
      *
      * @param data the byte array representing the beacon packet.
      */
-    public RegProxyPacket(byte[] data) {
+    public RegProxyPacket(final byte[] data) {
         super(data);
     }
 
@@ -53,7 +53,7 @@ public class RegProxyPacket extends NetworkPacket {
      *
      * @param data the NetworkPacket representing the beacon packet.
      */
-    public RegProxyPacket(NetworkPacket data) {
+    public RegProxyPacket(final NetworkPacket data) {
         super(data.toByteArray());
     }
 
@@ -89,11 +89,11 @@ public class RegProxyPacket extends NetworkPacket {
      * @param data the int array representing the beacon packet, all int are
      * casted to byte.
      */
-    public RegProxyPacket(int[] data) {
+    public RegProxyPacket(final int[] data) {
         super(data);
     }
 
-    public final RegProxyPacket setMac(String mac) {
+    public final RegProxyPacket setMac(final String mac) {
         String[] elements = mac.split(":");
         if (elements.length != MAC_LEN) {
             throw new IllegalArgumentException("Invalid MAC address");
@@ -117,7 +117,7 @@ public class RegProxyPacket extends NetworkPacket {
         return sb.toString();
     }
 
-    public final RegProxyPacket setDpid(String dPid) {
+    public final RegProxyPacket setDpid(final String dPid) {
         byte[] dpid = dPid.getBytes(Charset.forName("UTF-8"));
         int len = Math.min(DPID_LEN, dpid.length);
         this.setPayload(dpid, 0, DPID_INDEX, len);
@@ -128,7 +128,7 @@ public class RegProxyPacket extends NetworkPacket {
         return new String(this.getPayloadFromTo(DPID_INDEX, MAC_INDEX));
     }
 
-    public final RegProxyPacket setPort(long port) {
+    public final RegProxyPacket setPort(final long port) {
         byte[] bytes = ByteBuffer
                 .allocate(Long.SIZE / Byte.SIZE).putLong(port).array();
         this.setPayload(bytes, (byte) 0, PORT_INDEX, PORT_LEN);
@@ -145,10 +145,10 @@ public class RegProxyPacket extends NetworkPacket {
         return setInetSocketAddress(ip, port);
     }
 
-    private RegProxyPacket setInetSocketAddress(byte[] ip, int port) {
+    private RegProxyPacket setInetSocketAddress(final byte[] ip, final int p) {
         this.setPayload(ip, 0, IP_INDEX, IP_LEN);
-        this.setPayloadAt((byte) (port), TCP_INDEX + 1);
-        this.setPayloadAt((byte) (port >> 8), TCP_INDEX);
+        this.setPayloadAt((byte) (p), TCP_INDEX + 1);
+        this.setPayloadAt((byte) (p >> 8), TCP_INDEX);
         return this;
     }
 

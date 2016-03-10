@@ -36,7 +36,7 @@ public class OpenPathPacket extends NetworkPacket {
      *
      * @param data the byte array representing the open path packet.
      */
-    public OpenPathPacket(byte[] data) {
+    public OpenPathPacket(final byte[] data) {
         super(data);
     }
 
@@ -47,9 +47,11 @@ public class OpenPathPacket extends NetworkPacket {
      * @param net Network ID of the packet
      * @param src source address of the packet
      * @param dst destination address of the packet
-     * @param path
+     * @param path the list of NodeAddresses included in the path
      */
-    public OpenPathPacket(int net, NodeAddress src, NodeAddress dst, List<NodeAddress> path) {
+    public OpenPathPacket(final int net, final NodeAddress src,
+            final NodeAddress dst,
+            final List<NodeAddress> path) {
         super(net, src, dst);
         this.setTyp(OPEN_PATH);
         this.setPayloadAt((byte) 0, WINDOWS_SIZE_INDEX);
@@ -63,7 +65,7 @@ public class OpenPathPacket extends NetworkPacket {
      * @param data the int array representing the open path packet, all int are
      * casted to byte.
      */
-    public OpenPathPacket(int[] data) {
+    public OpenPathPacket(final int[] data) {
         super(data);
     }
 
@@ -73,7 +75,7 @@ public class OpenPathPacket extends NetworkPacket {
      *
      * @param data the NetworkPacket representing the open path packet.
      */
-    public OpenPathPacket(NetworkPacket data) {
+    public OpenPathPacket(final NetworkPacket data) {
         super(data.toByteArray());
     }
 
@@ -86,7 +88,7 @@ public class OpenPathPacket extends NetworkPacket {
      * @param path a list containing all the node in a path.
      * @return the packet itself
      */
-    public final OpenPathPacket setPath(List<NodeAddress> path) {
+    public final OpenPathPacket setPath(final List<NodeAddress> path) {
         int i = (getPayloadAt(WINDOWS_SIZE_INDEX) * Window.SIZE) + 1;
         for (NodeAddress addr : path) {
             setPayloadAt(addr.getHigh(), i);
@@ -115,7 +117,7 @@ public class OpenPathPacket extends NetworkPacket {
         return list;
     }
 
-    public final OpenPathPacket setWindows(List<Window> conditions) {
+    public final OpenPathPacket setWindows(final List<Window> conditions) {
         List<NodeAddress> tmp = getPath();
 
         this.setPayloadAt((byte) conditions.size(), WINDOWS_SIZE_INDEX);

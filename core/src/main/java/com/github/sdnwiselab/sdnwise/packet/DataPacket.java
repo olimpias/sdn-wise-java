@@ -72,14 +72,12 @@ public class DataPacket extends NetworkPacket {
         this.setPayload(payload);
     }
 
-    @Override
-    public final byte[] getPayload() {
+    /**
+     * Returns the payload of the packet as a byte array.
+     *
+     * @return the payload of the packet
+     */
+    public final byte[] getData() {
         return super.getPayload();
-    }
-
-    @Override
-    public final DataPacket setPayload(final byte[] payload) {
-        super.setPayload(payload);
-        return this;
     }
 }

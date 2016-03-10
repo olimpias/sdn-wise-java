@@ -33,7 +33,7 @@ public class ResponsePacket extends NetworkPacket {
      *
      * @param data the byte array representing the response packet.
      */
-    public ResponsePacket(byte[] data) {
+    public ResponsePacket(final byte[] data) {
         super(data);
     }
 
@@ -43,7 +43,7 @@ public class ResponsePacket extends NetworkPacket {
      *
      * @param data the NetworkPacket representing the response packet.
      */
-    public ResponsePacket(NetworkPacket data) {
+    public ResponsePacket(final NetworkPacket data) {
         super(data.toByteArray());
     }
 
@@ -56,7 +56,9 @@ public class ResponsePacket extends NetworkPacket {
      * @param dst destination address of the packet
      * @param entry the FlowTableEntry sent from the Control Plane
      */
-    public ResponsePacket(int net, NodeAddress src, NodeAddress dst, FlowTableEntry entry) {
+    public ResponsePacket(final int net, final NodeAddress src,
+            final NodeAddress dst,
+            final FlowTableEntry entry) {
         super(net, src, dst);
         this.setTyp(RESPONSE);
         this.setRule(entry);
@@ -68,7 +70,7 @@ public class ResponsePacket extends NetworkPacket {
      * @param data the int array representing the response packet, all int are
      * casted to byte.
      */
-    public ResponsePacket(int[] data) {
+    public ResponsePacket(final int[] data) {
         super(data);
     }
 
@@ -78,7 +80,7 @@ public class ResponsePacket extends NetworkPacket {
      * @param rule the FlowTableEntry item used in the NetworkPacket.
      * @return the packet itself
      */
-    public final ResponsePacket setRule(FlowTableEntry rule) {
+    public final ResponsePacket setRule(final FlowTableEntry rule) {
         byte[] tmp = rule.toByteArray();
         // the last byte is for stats so it is useless to send it in a response
         this.setPayload(Arrays.copyOf(tmp, tmp.length - 1));

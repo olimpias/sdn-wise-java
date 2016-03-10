@@ -41,7 +41,7 @@ public class RequestPacket extends NetworkPacket {
      *
      * @param data the byte array representing the data packet.
      */
-    public RequestPacket(byte[] data) {
+    public RequestPacket(final byte[] data) {
         super(data);
     }
 
@@ -50,17 +50,17 @@ public class RequestPacket extends NetworkPacket {
      *
      * @param data the NetworkPacket representing the data packet.
      */
-    public RequestPacket(NetworkPacket data) {
+    public RequestPacket(final NetworkPacket data) {
         super(data.toByteArray());
     }
 
-    private RequestPacket(int net,
-            NodeAddress src,
-            NodeAddress dst,
-            int id,
-            int part,
-            int total,
-            byte[] data) {
+    private RequestPacket(final int net,
+            final NodeAddress src,
+            final NodeAddress dst,
+            final int id,
+            final int part,
+            final int total,
+            final byte[] data) {
         super(net, src, dst);
         this.setTyp(REQUEST);
         this.setId(id);
@@ -75,16 +75,16 @@ public class RequestPacket extends NetworkPacket {
      * @param data the int array representing the data packet, all int are
      * casted to byte.
      */
-    public RequestPacket(int[] data) {
+    public RequestPacket(final int[] data) {
         super(data);
     }
 
     public static RequestPacket[] createPackets(
-            int net,
-            NodeAddress src,
-            NodeAddress dest,
-            byte id,
-            byte[] buf) {
+            final int net,
+            final NodeAddress src,
+            final NodeAddress dest,
+            final byte id,
+            final byte[] buf) {
 
         int i = (buf.length > REQUEST_PAYLOAD_SIZE) ? 2 : 1;
 
@@ -106,47 +106,50 @@ public class RequestPacket extends NetworkPacket {
         return ll;
     }
 
-    public static NetworkPacket mergePackets(RequestPacket rp0, RequestPacket rp1) {
+    public static NetworkPacket mergePackets(final RequestPacket rp0,
+            final RequestPacket rp1) {
         if (rp0.getPart() == 0) {
-            return new NetworkPacket(concatByteArray(rp0.getData(), rp1.getData()));
+            return new NetworkPacket(
+                    concatByteArray(rp0.getData(), rp1.getData()));
         } else {
-            return new NetworkPacket(concatByteArray(rp1.getData(), rp0.getData()));
+            return new NetworkPacket(
+                    concatByteArray(rp1.getData(), rp0.getData()));
         }
     }
 
-    private void setId(int id) {
+    private void setId(final int id) {
         this.setPayloadAt((byte) id, ID_INDEX);
     }
 
-    public int getId() {
+    public final int getId() {
         return this.getPayloadAt(ID_INDEX);
     }
 
-    private void setPart(int part) {
+    private void setPart(final int part) {
         this.setPayloadAt((byte) part, PART_INDEX);
     }
 
-    public int getPart() {
+    public final int getPart() {
         return this.getPayloadAt(PART_INDEX);
     }
 
-    private void setTotal(int total) {
+    private void setTotal(final int total) {
         this.setPayloadAt((byte) total, TOTAL_INDEX);
     }
 
-    public int getTotal() {
+    public final int getTotal() {
         return this.getPayloadAt(TOTAL_INDEX);
     }
 
-    private void setData(byte[] data) {
+    private void setData(final byte[] data) {
         this.setPayload(data, 0, TOTAL_INDEX + 1, data.length);
     }
 
-    public byte[] getData() {
+    public final byte[] getData() {
         return this.getPayloadFromTo(TOTAL_INDEX + 1, getPayloadSize());
     }
 
-    public int getDataSize() {
+    public final int getDataSize() {
         return this.getPayloadSize() - (TOTAL_INDEX + 1);
     }
 }
