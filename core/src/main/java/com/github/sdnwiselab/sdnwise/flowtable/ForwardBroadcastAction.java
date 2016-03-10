@@ -29,7 +29,7 @@ public final class ForwardBroadcastAction extends AbstractForwardAction {
         setNextHop(BROADCAST_ADDR);
     }
 
-    public ForwardBroadcastAction(byte[] value) {
+    public ForwardBroadcastAction(final byte[] value) {
         super(value);
     }
 

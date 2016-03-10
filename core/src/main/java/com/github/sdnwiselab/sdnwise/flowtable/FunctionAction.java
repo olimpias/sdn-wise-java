@@ -24,24 +24,26 @@ import java.util.Arrays;
  */
 public class FunctionAction extends AbstractAction {
 
-    // convert to array
-    private static final byte ID_INDEX = 0;
-    private static final byte ARGS_INDEX = 1;
+    /**
+     * Function id is at index 0, the arguments starts at 1.
+     */
+    private static final byte ID_INDEX = 0,
+        ARGS_INDEX = 1;
 
-    public FunctionAction(byte[] value) {
+    public FunctionAction(final byte[] value) {
         super(value);
     }
 
-    public final FunctionAction setId(int id) {
+    public final FunctionAction setId(final int id) {
         setValue(ID_INDEX, id);
         return this;
     }
 
-    public int getId() {
+    public final int getId() {
         return getValue(ID_INDEX);
     }
 
-    public byte[] getArgs() {
+    public final byte[] getArgs() {
         return Arrays.copyOfRange(action, ARGS_INDEX, action.length);
     }
 

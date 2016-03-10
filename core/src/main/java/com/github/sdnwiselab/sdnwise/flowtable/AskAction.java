@@ -23,8 +23,10 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.
  */
 public final class AskAction extends AbstractAction {
 
+    private static final byte SIZE = 0;
+
     public AskAction() {
-        super(ASK, 0);
+        super(ASK, SIZE);
     }
 
     public AskAction(final byte[] value) {

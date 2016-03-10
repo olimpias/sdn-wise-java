@@ -23,16 +23,18 @@ package com.github.sdnwiselab.sdnwise.flowtable;
  */
 public interface FlowTableInterface {
 
-    // location
-    public static final byte SDN_WISE_NULL = 0;
-    public static final byte SDN_WISE_CONST = 1;
-    public static final byte SDN_WISE_PACKET = 2;
-    public static final byte SDN_WISE_STATUS = 3;
+    /**
+     * Location constants.
+     */
+    byte SDN_WISE_NULL = 0,
+        SDN_WISE_CONST = 1,
+        SDN_WISE_PACKET = 2,
+        SDN_WISE_STATUS = 3;
 
     /**
      * Converts a FlowTable entry part in a byte array.
      *
      * @return byte array from an element.
      */
-    public byte[] toByteArray();
+    byte[] toByteArray();
 }

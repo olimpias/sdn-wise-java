@@ -17,7 +17,10 @@
 package com.github.sdnwiselab.sdnwise.flowtable;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * FlowTableEntry represents the structure of the Entry of a FlowTable. It is
@@ -26,21 +29,21 @@ import java.util.*;
  *
  * @author Sebastiano Milardo
  */
-public class FlowTableEntry implements FlowTableInterface {
+public final class FlowTableEntry implements FlowTableInterface {
 
-    public static FlowTableEntry fromString(String val) {
-        val = val.toUpperCase();
+    public static FlowTableEntry fromString(final String s) {
+        String val = s.toUpperCase();
         FlowTableEntry res = new FlowTableEntry();
 
-        String[] strWindows
-                = (val.substring(val.indexOf("(") + 1, val.indexOf(")"))).split("&&");
+        String[] strWindows = (val.substring(
+                val.indexOf("(") + 1, val.indexOf(")"))).split("&&");
 
         for (String w : strWindows) {
             res.addWindow(Window.fromString(w.trim()));
         }
 
-        String[] strActions
-                = (val.substring(val.indexOf("{") + 1, val.indexOf("}"))).trim().split(";");
+        String[] strActions = (val.substring(
+                val.indexOf("{") + 1, val.indexOf("}"))).trim().split(";");
 
         for (String a : strActions) {
             res.addAction(ActionBuilder.build(a.trim()));
@@ -66,23 +69,26 @@ public class FlowTableEntry implements FlowTableInterface {
      *
      * @param entry From byte array to FlowTableEntry
      */
-    public FlowTableEntry(byte[] entry) {
+    public FlowTableEntry(final byte[] entry) {
         int i = 0;
 
         int nWindows = entry[i];
 
         for (i = 1; i <= nWindows; i += Window.SIZE) {
-            windows.add(new Window(Arrays.copyOfRange(entry, i, i + Window.SIZE)));
+            windows.add(new Window(
+                    Arrays.copyOfRange(entry, i, i + Window.SIZE)));
         }
 
         while (i < entry.length - (Stats.SIZE)) {
             int len = entry[i++];
-            actions.add(ActionBuilder.build(Arrays.copyOfRange(entry, i, i + len)));
+            actions.add(ActionBuilder.build(
+                    Arrays.copyOfRange(entry, i, i + len)));
             i += len;
         }
 
         stats = new Stats(
-                Arrays.copyOfRange(entry, entry.length - (Stats.SIZE + 1), entry.length)
+                Arrays.copyOfRange(
+                        entry, entry.length - (Stats.SIZE + 1), entry.length)
         );
 
     }
@@ -124,16 +130,16 @@ public class FlowTableEntry implements FlowTableInterface {
     }
 
     /**
-     * Setter method to set window array of the FlowTable entry.
+     * Sets a window list in the FlowTable entry.
      *
-     * @param windows the window[] to set
+     * @param w the windows list to set
      */
-    public void setWindows(List<Window> windows) {
+    public void setWindows(final List<Window> w) {
         this.windows.clear();
-        this.windows.addAll(windows);
+        this.windows.addAll(w);
     }
 
-    public boolean addWindow(Window window) {
+    public boolean addWindow(final Window window) {
         return windows.add(window);
     }
 
@@ -149,15 +155,21 @@ public class FlowTableEntry implements FlowTableInterface {
     /**
      * Setter method to set the AbstractAction part of the FlowTable entry.
      *
-     * @param actions the action to set
+     * @param a the action to set
      */
-    public void setAction(List<AbstractAction> actions) {
+    public void setAction(final List<AbstractAction> a) {
         this.actions.clear();
-        this.actions.addAll(actions);
+        this.actions.addAll(a);
     }
 
-    public boolean addAction(AbstractAction action) {
-        return actions.add(action);
+    /**
+     * Adds an action to the FlowTable entry.
+     *
+     * @param a the action to add
+     * @return <tt>true</tt> (as specified by {@link Collection#add})
+     */
+    public boolean addAction(final AbstractAction a) {
+        return actions.add(a);
     }
 
     /**
@@ -172,10 +184,10 @@ public class FlowTableEntry implements FlowTableInterface {
     /**
      * Setter method to set statistics of the FlowTable entry.
      *
-     * @param stats the statistics will be set.
+     * @param s the statistics will be set.
      */
-    public void setStats(Stats stats) {
-        this.stats = stats;
+    public void setStats(final Stats s) {
+        this.stats = s;
     }
 
     @Override
@@ -218,7 +230,7 @@ public class FlowTableEntry implements FlowTableInterface {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == null) {
             return false;
         }

@@ -24,7 +24,7 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
  */
 public final class ForwardUnicastAction extends AbstractForwardAction {
 
-    public ForwardUnicastAction(String str) {
+    public ForwardUnicastAction(final String str) {
         super(FORWARD_U);
         if (FORWARD_U.name().equals(str.split(" ")[0].trim())) {
             setNextHop(new NodeAddress(str.split(" ")[1].trim()));
@@ -33,12 +33,12 @@ public final class ForwardUnicastAction extends AbstractForwardAction {
         }
     }
 
-    public ForwardUnicastAction(NodeAddress nextHop) {
+    public ForwardUnicastAction(final NodeAddress nextHop) {
         super(FORWARD_U);
         setNextHop(nextHop);
     }
 
-    public ForwardUnicastAction(byte[] value) {
+    public ForwardUnicastAction(final byte[] value) {
         super(value);
     }
 

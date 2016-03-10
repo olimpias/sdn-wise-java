@@ -24,7 +24,7 @@ import java.util.Arrays;
  *
  * @author Sebastiano Milardo
  */
-public class Stats implements FlowTableInterface {
+public final class Stats implements FlowTableInterface {
 
     public static final byte SIZE = 2;
     public static final int ENTRY_TTL_PERMANENT = 255;
@@ -49,7 +49,7 @@ public class Stats implements FlowTableInterface {
      *
      * @param value byte array to copy into the statistical part.
      */
-    public Stats(byte[] value) {
+    public Stats(final byte[] value) {
         switch (value.length) {
             case 2:
                 stats[TTL_INDEX] = value[TTL_INDEX];
@@ -95,7 +95,7 @@ public class Stats implements FlowTableInterface {
      * @param count to be set
      * @return this Stats
      */
-    public Stats setCounter(int count) {
+    public Stats setCounter(final int count) {
         stats[COUNT_INDEX] = (byte) count;
         return this;
     }

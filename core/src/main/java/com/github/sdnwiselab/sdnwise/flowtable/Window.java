@@ -18,7 +18,8 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.Utils;
-import static com.github.sdnwiselab.sdnwise.util.Utils.*;
+import static com.github.sdnwiselab.sdnwise.util.Utils.getBitRange;
+import static com.github.sdnwiselab.sdnwise.util.Utils.setBitRange;
 import java.util.Arrays;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Arrays;
  *
  * @author Sebastiano Milardo
  */
-public class Window implements FlowTableInterface {
+public final class Window implements FlowTableInterface {
 
     public static final byte SIZE = 5;
 
@@ -101,7 +102,7 @@ public class Window implements FlowTableInterface {
      *
      * @param value byte array contains value to copy in actions[]
      */
-    public Window(byte[] value) {
+    public Window(final byte[] value) {
         if (value.length == SIZE) {
             System.arraycopy(value, 0, window, 0, value.length);
         } else {
@@ -151,8 +152,9 @@ public class Window implements FlowTableInterface {
      * @param value value to set
      * @return this Window
      */
-    public Window setSize(int value) {
-        window[operationIndex] = (byte) setBitRange(window[operationIndex], sizeBit, sizeLen, value);
+    public Window setSize(final int value) {
+        window[operationIndex] = (byte) setBitRange(
+                window[operationIndex], sizeBit, sizeLen, value);
         return this;
     }
 
@@ -162,8 +164,9 @@ public class Window implements FlowTableInterface {
      * @param value value to set
      * @return this Window
      */
-    public Window setOperator(int value) {
-        window[operationIndex] = (byte) setBitRange(window[operationIndex], operatorBit, operatorLen, value);
+    public Window setOperator(final int value) {
+        window[operationIndex] = (byte) setBitRange(
+                window[operationIndex], operatorBit, operatorLen, value);
         return this;
     }
 
@@ -173,8 +176,9 @@ public class Window implements FlowTableInterface {
      * @param value value to set
      * @return this Window
      */
-    public Window setRhsLocation(int value) {
-        window[operationIndex] = (byte) setBitRange(window[operationIndex], rightBit, rightLen, value);
+    public Window setRhsLocation(final int value) {
+        window[operationIndex] = (byte) setBitRange(
+                window[operationIndex], rightBit, rightLen, value);
         return this;
     }
 
@@ -184,8 +188,9 @@ public class Window implements FlowTableInterface {
      * @param value value to set
      * @return this Window
      */
-    public Window setLhsLocation(int value) {
-        window[operationIndex] = (byte) setBitRange(window[operationIndex], leftBit, leftLen, value);
+    public Window setLhsLocation(final int value) {
+        window[operationIndex] = (byte) setBitRange(
+                window[operationIndex], leftBit, leftLen, value);
         return this;
     }
 
@@ -204,7 +209,7 @@ public class Window implements FlowTableInterface {
      * @param val value to set
      * @return this Window
      */
-    public Window setLhs(int val) {
+    public Window setLhs(final int val) {
         this.window[leftHighIndex] = (byte) ((val >> 8) & 0xFF);
         this.window[leftLowIndex] = (byte) (val & 0xFF);
         return this;
@@ -313,7 +318,7 @@ public class Window implements FlowTableInterface {
         }
     }
 
-    public int[] getOperandFromString(String val) {
+    public int[] getOperandFromString(final String val) {
         int[] tmp = new int[2];
         String[] strVal = val.split("\\.");
         switch (strVal[0]) {
@@ -342,7 +347,7 @@ public class Window implements FlowTableInterface {
         return tmp;
     }
 
-    public int getValueFromString(String val) {
+    public int getValueFromString(final String val) {
         return Integer.parseInt(val.split("\\.")[1]);
     }
 

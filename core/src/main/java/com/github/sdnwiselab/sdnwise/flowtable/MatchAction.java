@@ -23,7 +23,7 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.
  */
 public final class MatchAction extends AbstractAction {
 
-    private static byte SIZE = 0;
+    private static final byte SIZE = 0;
 
     public MatchAction() {
         super(MATCH, SIZE);

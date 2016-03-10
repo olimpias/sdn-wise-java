@@ -16,17 +16,18 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.*;
+import com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.TYPE_INDEX;
 
 /**
  * @author Sebastiano Milardo
  */
-public class ActionBuilder {
+public final class ActionBuilder {
 
     private ActionBuilder() {
     }
 
-    public static AbstractAction build(String val) {
+    public static AbstractAction build(final String val) {
         switch (ActionType.valueOf(val.split(" ")[0])) {
             case FORWARD_U:
                 return new ForwardUnicastAction(val);
@@ -54,7 +55,7 @@ public class ActionBuilder {
         }
     }
 
-    public static AbstractAction build(byte[] array) {
+    public static AbstractAction build(final byte[] array) {
         switch (ActionType.fromByte(array[TYPE_INDEX])) {
             case FORWARD_U:
                 return new ForwardUnicastAction(array);
