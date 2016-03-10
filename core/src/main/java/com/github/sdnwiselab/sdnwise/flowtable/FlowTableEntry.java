@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,12 @@ import java.util.Objects;
  */
 public final class FlowTableEntry implements FlowTableInterface {
 
+    /**
+     * Creates a FlowTableEntry object from a String.
+     *
+     * @param s the String used to create the FlowTableEntry
+     * @return a new FlowTableEntry object
+     */
     public static FlowTableEntry fromString(final String s) {
         String val = s.toUpperCase();
         FlowTableEntry res = new FlowTableEntry();
@@ -139,8 +145,14 @@ public final class FlowTableEntry implements FlowTableInterface {
         this.windows.addAll(w);
     }
 
-    public boolean addWindow(final Window window) {
-        return windows.add(window);
+    /**
+     * Adds a window to the list of the windows in the FlowTable entry.
+     *
+     * @param w element to be appended
+     * @return <tt>true</tt> (as specified by {@link Collection#add})
+     */
+    public boolean addWindow(final Window w) {
+        return windows.add(w);
     }
 
     /**
@@ -165,7 +177,7 @@ public final class FlowTableEntry implements FlowTableInterface {
     /**
      * Adds an action to the FlowTable entry.
      *
-     * @param a the action to add
+     * @param a element to be appended
      * @return <tt>true</tt> (as specified by {@link Collection#add})
      */
     public boolean addAction(final AbstractAction a) {
@@ -225,6 +237,13 @@ public final class FlowTableEntry implements FlowTableInterface {
         return hash;
     }
 
+    /**
+     * Indicates whether the windows of another FlowTableEntry object are
+     * "equal to" the windows of this one.
+     * @param other the other FlowTableEntry object
+     * @return {@code true} if this object is the same as the obj
+     * argument; {@code false} otherwise.
+     */
     public boolean equalWindows(final FlowTableEntry other) {
         return Objects.deepEquals(this.windows, other.windows);
     }

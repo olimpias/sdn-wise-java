@@ -437,7 +437,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         try {
             byte res[] = sendQuery(cp).getParams();
             if (cfp.size == 1) {
-                return res[0] & 0xFF;
+                return res[0] & Byte.MAX_VALUE;
             } else {
                 return mergeBytes(res[0], res[1]);
             }

@@ -520,7 +520,7 @@ public final class ControllerGui extends javax.swing.JFrame {
             model.setRowCount(0);
 
             list.stream().forEach((na) -> {
-                model.addRow(new Integer[]{(int) na.getHigh() & 0xFF, (int) na.getLow() & 0xFF});
+                model.addRow(new Integer[]{(int) na.getHigh() & Byte.MAX_VALUE, (int) na.getLow() & Byte.MAX_VALUE});
             });
 
         } catch (ParseException ex) {
@@ -542,7 +542,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                         new NodeAddress(
                                 (Integer) this.jSpinnerAddrH.getValue(),
                                 (Integer) this.jSpinnerAddrL.getValue()),
-                        (byte) (index & 0xFF));
+                        (byte) (index & Byte.MAX_VALUE));
 
                 ((DefaultTableModel) this.jTableAccepted.getModel()).removeRow(index);
 
@@ -566,7 +566,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                 addr = new NodeAddress(Integer.parseInt(addrStr));
             }
 
-            model.addRow(new Integer[]{(int) addr.getHigh() & 0xFF, (int) addr.getLow() & 0xFF});
+            model.addRow(new Integer[]{(int) addr.getHigh() & Byte.MAX_VALUE, (int) addr.getLow() & Byte.MAX_VALUE});
 
             jSpinnerNetID.commitEdit();
             jSpinnerAddrH.commitEdit();

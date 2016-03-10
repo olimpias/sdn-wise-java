@@ -100,7 +100,7 @@ public class ConfigPacket extends NetworkPacket {
      * @return a boolean indicating if the packet is a write packet
      */
     public final boolean isWrite() {
-        int value = (getPayloadAt((byte) 0) & 0xFF) >> 7;
+        int value = (getPayloadAt((byte) 0) & Byte.MAX_VALUE) >> 7;
         return (value == CNF_WRITE);
     }
 

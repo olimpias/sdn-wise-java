@@ -16,6 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.util;
 
+import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
 import java.io.Serializable;
 
 /**
@@ -39,7 +40,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      */
     public NodeAddress(final int a) {
         this.addr[0] = (byte) (a >> 8);
-        this.addr[1] = (byte) (a & 0xFF);
+        this.addr[1] = (byte) (a & Byte.MAX_VALUE);
     }
 
     /**
@@ -68,7 +69,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
         } else {
             int adr = Integer.parseInt(a);
             this.addr[0] = (byte) (adr >> 8);
-            this.addr[1] = (byte) (adr & 0xFF);
+            this.addr[1] = (byte) (adr & Byte.MAX_VALUE);
         }
     }
 
@@ -89,7 +90,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      * @return int value of the NodeAddress.
      */
     public int intValue() {
-        return ((addr[0] & 0xFF) * 256) + (addr[1] & 0xFF);
+        return mergeBytes(addr[0], addr[1]);
     }
 
     /**
@@ -130,7 +131,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
 
     @Override
     public String toString() {
-        return ((addr[0] & 0xFF) + "." + (addr[1] & 0xFF));
+        return ((addr[0] & Byte.MAX_VALUE) + "." + (addr[1] & Byte.MAX_VALUE));
     }
 
     @Override

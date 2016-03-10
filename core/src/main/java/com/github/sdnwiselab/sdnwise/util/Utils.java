@@ -47,7 +47,8 @@ public final class Utils {
     }
 
     public static int mergeBytes(final int high, final int low) {
-        return (((byte) high & 0xFF) << 8) | ((byte) low & 0xFF);
+        return (((byte) high & Byte.MAX_VALUE) << 8)
+                | ((byte) low & Byte.MAX_VALUE);
     }
 
     public static byte[] splitInteger(final int value) {
@@ -57,7 +58,8 @@ public final class Utils {
     }
 
     public static int getBitRange(final int b, final int s, final int n) {
-        return (((b & 0xFF) >> (s & 0xFF)) & ((1 << (n & 0xFF)) - 1)) & 0xFF;
+        return (((b & Byte.MAX_VALUE) >> (s & Byte.MAX_VALUE))
+                & ((1 << (n & Byte.MAX_VALUE)) - 1)) & Byte.MAX_VALUE;
     }
 
     public static int setBitRange(final int val,
