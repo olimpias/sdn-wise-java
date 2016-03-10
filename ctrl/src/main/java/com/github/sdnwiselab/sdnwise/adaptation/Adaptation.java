@@ -22,8 +22,8 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- * Adaptation is the class that incorporates the communication adapters for
- * connecting the controller to the sensor networks and vice versa.
+ * Incorporates the communication adapters for connecting the controller to the
+ * sensor networks and vice versa.
  * <p>
  * This class is implemented as an Observer, so it has an update method that is
  * called every time a new message is received by one of the two adapters. This
@@ -52,8 +52,8 @@ public class Adaptation extends ControlPlaneLayer {
     }
 
     /**
-     * This method is called for each message coming from the adapters. Messages
-     * coming from the lower adapter are sent to the upper one and vice versa.
+     * Called by each message coming from the adapters. Messages coming from
+     * the lower adapter are sent to the upper one and vice versa.
      *
      * @param o the adapter that has received the message
      * @param arg the message received as a byte array

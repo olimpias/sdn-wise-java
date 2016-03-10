@@ -30,8 +30,7 @@ import java.util.concurrent.TimeoutException;
 public interface ControllerInterface {
 
     /**
-     * This method adds a new address in the list of addresses accepted by the
-     * node.
+     * Adds a new address in the list of addresses accepted by the node.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -42,7 +41,7 @@ public interface ControllerInterface {
     void addNodeFunction(byte net, NodeAddress dst, byte id, String className);
 
     /**
-     * This method installs a rule in the node
+     * Installs a rule in the node.
      *
      * @param net network id of the destination node.
      * @param destination network address of the destination node.
@@ -53,14 +52,14 @@ public interface ControllerInterface {
     InetSocketAddress getId();
 
     /**
-     * This method gets the NetworkGraph of the controller.
+     * Gets the NetworkGraph of the controller.
      *
      * @return returns a NetworkGraph object.
      */
     NetworkGraph getNetworkGraph();
 
     /**
-     * This method reads the address of a node.
+     * Reads the address of a node.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -69,7 +68,7 @@ public interface ControllerInterface {
     NodeAddress getNodeAddress(byte net, NodeAddress dst);
 
     /**
-     * This method returns the list of addresses accepted by the node.
+     * Returns the list of addresses accepted by the node.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -79,7 +78,7 @@ public interface ControllerInterface {
     NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index);
 
     /**
-     * This method returns the list of addresses accepted by the node.
+     * Returns the list of addresses accepted by the node.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -88,7 +87,7 @@ public interface ControllerInterface {
     List<NodeAddress> getNodeAliases(byte net, NodeAddress dst);
 
     /**
-     * This method reads the beacon period of a node.
+     * Reads the beacon period of a node.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -97,7 +96,7 @@ public interface ControllerInterface {
     int getNodeBeaconPeriod(byte net, NodeAddress dst);
 
     /**
-     * This method reads the Update table period of a node.
+     * Reads the entry TTL of a node.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -106,7 +105,7 @@ public interface ControllerInterface {
     int getNodeEntryTtl(byte net, NodeAddress dst);
 
     /**
-     * This method reads the Network ID of a node.
+     * Reads the network ID of a node.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -115,8 +114,7 @@ public interface ControllerInterface {
     int getNodeNet(byte net, NodeAddress dst);
 
     /**
-     * This method reads the maximum time to live for each message sent by a
-     * node.
+     * Reads the maximum time to live for each message sent by a node.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -125,7 +123,7 @@ public interface ControllerInterface {
     int getNodePacketTtl(byte net, NodeAddress dst);
 
     /**
-     * This method reads the report period of a node.
+     * Reads the report period of a node.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -134,8 +132,7 @@ public interface ControllerInterface {
     int getNodeReportPeriod(byte net, NodeAddress dst);
 
     /**
-     * This method reads the minimum RSSI in order to consider a node as a
-     * neighbor.
+     * Reads the minimum RSSI in order to accept a packet.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -144,7 +141,7 @@ public interface ControllerInterface {
     int getNodeRssiMin(byte net, NodeAddress dst);
 
     /**
-     * This method gets the WISE flow table entry of a node at position n.
+     * Gets the WISE flow table entry of a node at position n.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -155,7 +152,7 @@ public interface ControllerInterface {
     FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) throws TimeoutException;
 
     /**
-     * This method gets the WISE flow table of a node.
+     * Gets the WISE flow table of a node.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -166,8 +163,8 @@ public interface ControllerInterface {
     NodeAddress getSinkAddress();
 
     /**
-     * This method removes an address in the list of addresses accepted by the
-     * node at position index.
+     * Removes an address in the list of addresses accepted by the node at
+     * position index.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -178,7 +175,7 @@ public interface ControllerInterface {
     void removeNodeFunction(byte net, NodeAddress dst, byte index);
 
     /**
-     * This method removes a rule in the node.
+     * Removes a rule in the node at position index.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -187,8 +184,7 @@ public interface ControllerInterface {
     void removeNodeRule(byte net, NodeAddress dst, byte index);
 
     /**
-     * This method sets the Network ID of a node. The new value is passed using
-     * a byte.
+     * Sets the Network ID of a node. The new value is passed using a byte.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -196,9 +192,8 @@ public interface ControllerInterface {
     void resetNode(byte net, NodeAddress dst);
 
     /**
-     * This method sends a SDN_WISE_OPEN_PATH messages to a generic node. This
-     * kind of message holds a list of nodes that will create a path inside the
-     * network.
+     * Sends an OpenPath message to a generic node. This kind of message holds a
+     * list of nodes that will create a path inside the network.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -207,8 +202,8 @@ public interface ControllerInterface {
     void sendPath(byte net, NodeAddress dst, List<NodeAddress> path);
 
     /**
-     * This method sets the address of a node. The new address value is passed
-     * using two bytes.
+     * Sets the address of a node. The new address value is passed using two
+     * bytes.
      *
      *
      * @param net network id of the destination node.
@@ -218,8 +213,7 @@ public interface ControllerInterface {
     void setNodeAddress(byte net, NodeAddress dst, NodeAddress newAddress);
 
     /**
-     * This method sets the beacon period of a node. The new value is passed
-     * using a short.
+     * Sets the beacon period of a node. The new value is passed using a short.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -228,8 +222,8 @@ public interface ControllerInterface {
     void setNodeBeaconPeriod(byte net, NodeAddress dst, short period);
 
     /**
-     * This method sets the update table period of a node. The new value is
-     * passed using a short.
+     * Sets the update table period of a node. The new value is passed using a
+     * short.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -238,8 +232,7 @@ public interface ControllerInterface {
     void setNodeEntryTtl(byte net, NodeAddress dst, short period);
 
     /**
-     * This method sets the Network ID of a node. The new value is passed using
-     * a byte.
+     * Sets the Network ID of a node. The new value is passed using a byte.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -248,8 +241,8 @@ public interface ControllerInterface {
     void setNodeNet(byte net, NodeAddress dst, byte newNet);
 
     /**
-     * This method sets the maximum time to live for each message sent by a
-     * node. The new value is passed using a byte.
+     * Sets the maximum time to live for each message sent by a node. The new
+     * value is passed using a byte.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -258,8 +251,7 @@ public interface ControllerInterface {
     void setNodePacketTtl(byte net, NodeAddress dst, byte newTtl);
 
     /**
-     * This method sets the report period of a node. The new value is passed
-     * using a short.
+     * Sets the report period of a node. The new value is passed using a short.
      *
      * @param net network id of the destination node
      * @param dst network address of the destination node
@@ -268,8 +260,7 @@ public interface ControllerInterface {
     void setNodeReportPeriod(byte net, NodeAddress dst, short period);
 
     /**
-     * This method sets the minimum RSSI in order to consider a node as a
-     * neighbor.
+     * Sets the minimum RSSI in order accept a packet.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
@@ -278,19 +269,19 @@ public interface ControllerInterface {
     void setNodeRssiMin(byte net, NodeAddress dst, byte newRssi);
 
     /**
-     * Method called when the network starts. It could be used to configuration
-     * rules or network at the beginning of the application.
+     * Called when the network starts. It could be used to configuration rules
+     * or network at the beginning of the application.
      */
     void setupNetwork();
 
     /**
-     * Method called to update the graph of Network.
+     * Called to update the graph of Network.
      *
      */
     void graphUpdate();
 
     /**
-     * Method to manage Request about Routing for a NetworkPacket.
+     * Manages Request packets.
      *
      * @param req the last RequestPacket containing the request
      * @param data NetworkPacket will be managed.

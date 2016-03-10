@@ -27,10 +27,10 @@ import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.Node;
 
 /**
- * This class implements the AbstractController class using the Dijkstra routing
- * algorithm in order to find the shortest path between nodes. When a request
- * from the network is sent, this class sends a SDN_WISE_OPEN_PATH message with
- * the shortest path. No action is taken if the topology of the network changes.
+ * Representation of a Dijkstra routing algorithm based SDN-WISE controller.
+ * When a request from the network is sent, this class sends a
+ * OpenPath message with the shortest path. No action is taken if the
+ * topology of the network changes.
  *
  * @author Sebastiano Milardo
  */
@@ -40,8 +40,8 @@ public class ControllerDijkstra extends AbstractController {
     private String lastSource = "";
     private long lastModification = -1;
 
-    /*
-     * Constructor method fo ControllerDijkstra.
+    /**
+     * Creates a ControllerDijkstra object.
      * 
      * @param id ControllerId object.
      * @param lower Lower Adpater object.

@@ -59,7 +59,6 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
         }
     }
 
-    protected abstract void setupLayer();
 
     private boolean setupAdapter(AbstractAdapter a) {
         if (a == null) {
@@ -77,6 +76,8 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
             a.close();
         }
     }
+    
+    protected abstract void setupLayer();
 
     /**
      * Logs messages depending on the verbosity level.

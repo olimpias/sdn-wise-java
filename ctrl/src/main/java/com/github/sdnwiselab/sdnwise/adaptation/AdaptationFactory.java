@@ -21,9 +21,8 @@ import com.github.sdnwiselab.sdnwise.configuration.*;
 import java.util.Map;
 
 /**
- * AdaptationFactory creates an Adaptation object given the specifications
- * contained in a ConfigAdaptation object. This class implements the factory
- * object pattern.
+ * Creates an Adaptation object given the specifications contained in a
+ * Configurator object. This class implements the factory object pattern.
  * <p>
  * This class is used in the initialization phase of the network in order to
  * create an adaptation object. The different types of adapter are chosen using

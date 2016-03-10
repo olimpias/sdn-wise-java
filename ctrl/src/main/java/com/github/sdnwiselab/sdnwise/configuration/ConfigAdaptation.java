@@ -16,14 +16,11 @@
  */
 package com.github.sdnwiselab.sdnwise.configuration;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
- * This class holds the two {@code Map<String,String>} containing the
- * configuration parameters for the lower and upper adapter of an adaptation
- * object.
+ * Holder of the two {@code Map<String,String>} containing the configuration
+ * parameters for the lower and upper adapter of an adaptation object.
  *
  * @author Sebastiano Milardo
  */

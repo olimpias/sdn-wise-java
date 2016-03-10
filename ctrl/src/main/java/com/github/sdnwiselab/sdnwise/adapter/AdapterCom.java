@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.logging.Level;
 
 /**
- * The adapter class for serial port communication. Configuration data are
+ * Representation of the serial port communication. Configuration data are
  * passed using a {@code Map<String,String>} which contains all the options
  * needed in the constructor of the class.
  *
@@ -71,11 +71,6 @@ public class AdapterCom extends AbstractAdapter {
         this.MAX_PAYLOAD = Integer.parseInt(conf.get("MAX_PAYLOAD"));
     }
 
-    /**
-     * Opens this adapter.
-     *
-     * @return a boolean indicating the correct ending of the operation
-     */
     @Override
     public final boolean open() {
         try {
@@ -97,7 +92,7 @@ public class AdapterCom extends AbstractAdapter {
 
             in = serialPort.getInputStream();
             out = new BufferedOutputStream(serialPort.getOutputStream());
-            SerialListener sl = new SerialListener(in);
+            InternalSerialListener sl = new InternalSerialListener(in);
             sl.addObserver(this);
             serialPort.setSerialPortParams(BAUD_RATE, DATA_BITS, STOP_BITS, PARITY);
             serialPort.addEventListener(sl);
@@ -109,11 +104,6 @@ public class AdapterCom extends AbstractAdapter {
         }
     }
 
-    /**
-     * Sends a byte array using this adapter.
-     *
-     * @param data the array to be sent
-     */
     @Override
     public final void send(byte[] data) {
         try {
@@ -129,11 +119,6 @@ public class AdapterCom extends AbstractAdapter {
         }
     }
 
-    /**
-     * Closes this adapter.
-     *
-     * @return a boolean indicating the correct ending of the operation
-     */
     @Override
     public final boolean close() {
         try {
@@ -146,7 +131,7 @@ public class AdapterCom extends AbstractAdapter {
         }
     }
 
-    private class SerialListener extends Observable implements SerialPortEventListener {
+    private class InternalSerialListener extends Observable implements SerialPortEventListener {
 
         boolean startFlag;
         boolean idFlag;
@@ -157,18 +142,12 @@ public class AdapterCom extends AbstractAdapter {
         final LinkedList<Byte> packet;
         InputStream in;
 
-        SerialListener(InputStream in) {
+        InternalSerialListener(InputStream in) {
             this.packet = new LinkedList<>();
             this.receivedBytes = new LinkedList<>();
             this.in = in;
         }
 
-        /*
-         * Manage an event that occurs during serial port communications.
-         * If the data are available, receive operations will occur.
-         *
-         * @param event the event to manage
-         */
         @Override
         public void serialEvent(SerialPortEvent event) {
             if (event.getEventType() == SerialPortEvent.DATA_AVAILABLE) {

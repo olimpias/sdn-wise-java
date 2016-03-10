@@ -17,19 +17,14 @@
 package com.github.sdnwiselab.sdnwise.adapter;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Observable;
+import java.net.*;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
- * The adapter class for UDP port communication. Configuration data are passed
- * using a {@code Map<String,String>} which contains all the options needed in
- * the constructor of the class.
+ * Representation an UDP Adapter. Configuration data are passed using a
+ * {@code Map<String,String>} which contains all the options needed in the
+ * constructor of the class.
  *
  * @author Sebastiano Milardo
  */
@@ -38,13 +33,11 @@ public class AdapterUdp extends AbstractAdapter {
     private final int IN_PORT;
     private final int OUT_PORT;
     private final String OUT_IP;
-    final int MAX_PAYLOAD;
-
-    public final boolean FULL_PACKET;
 
     private UDPServer udpServer;
     private Thread th;
     private DatagramSocket sck;
+    final int MAX_PAYLOAD;
 
     /**
      * Creates an AdapterUDP object. The conf map is used to pass the
@@ -64,23 +57,13 @@ public class AdapterUdp extends AbstractAdapter {
         this.OUT_PORT = Integer.parseInt(conf.get("OUT_PORT"));
         this.IN_PORT = Integer.parseInt(conf.get("IN_PORT"));
         this.MAX_PAYLOAD = Integer.parseInt(conf.get("MAX_PAYLOAD"));
-        this.FULL_PACKET = Boolean.parseBoolean(conf.get("FULL_PACKET"));
     }
 
-    /**
-     * Opens this adapter.
-     *
-     * @return a boolean indicating the correct completion of the operations
-     */
     @Override
     public final boolean open() {
         try {
             sck = new DatagramSocket(IN_PORT);
-            if (this.FULL_PACKET) {
-                udpServer = new UDPDatagramServer(sck);
-            } else {
-                udpServer = new UDPServer(sck);
-            }
+            udpServer = new UDPServer(sck);
             udpServer.addObserver(this);
             th = new Thread(udpServer);
             th.start();
@@ -91,11 +74,6 @@ public class AdapterUdp extends AbstractAdapter {
         }
     }
 
-    /**
-     * Closes this adapter.
-     *
-     * @return a boolean indicating the correct ending of the operations
-     */
     @Override
     public final boolean close() {
         udpServer.isStopped = true;
@@ -103,11 +81,6 @@ public class AdapterUdp extends AbstractAdapter {
         return true;
     }
 
-    /**
-     * Sends a byte array using this adapter.
-     *
-     * @param data the array to be sent
-     */
     @Override
     public final void send(byte[] data) {
         try {
@@ -153,28 +126,6 @@ public class AdapterUdp extends AbstractAdapter {
                     sck.receive(packet);
                     setChanged();
                     notifyObservers(Arrays.copyOf(packet.getData(), packet.getLength()));
-                }
-            } catch (IOException ex) {
-                log(Level.SEVERE, ex.toString());
-            }
-        }
-    }
-
-    private class UDPDatagramServer extends UDPServer {
-
-        UDPDatagramServer(DatagramSocket sck) {
-            super(sck);
-        }
-
-        @Override
-        public void run() {
-            try {
-                byte[] buffer = new byte[MAX_PAYLOAD];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                while (!isStopped) {
-                    sck.receive(packet);
-                    setChanged();
-                    notifyObservers(packet);
                 }
             } catch (IOException ex) {
                 log(Level.SEVERE, ex.toString());

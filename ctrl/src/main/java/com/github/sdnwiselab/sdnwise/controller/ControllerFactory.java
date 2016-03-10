@@ -16,22 +16,15 @@
  */
 package com.github.sdnwiselab.sdnwise.controller;
 
-import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
-import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
-import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.adapter.*;
 import com.github.sdnwiselab.sdnwise.configuration.*;
-import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
-import com.github.sdnwiselab.sdnwise.topology.VisualNetworkGraph;
+import com.github.sdnwiselab.sdnwise.topology.*;
 import java.net.InetSocketAddress;
 
 /**
- * This class creates a AbstractController object given the specifications
- * contained in a ConfigController object. In the current version the only
- * possible lower adapter is an AdapterUdp while the algorithm can be Dijkstra
- * or static.
- * <p>
- * It is also possible to specify some parameters for the network
- * representation.
+ * Builder of AbstractController objects given the specifications contained in a
+ * Configurator object. In the current version the only possible lower adapter
+ * is an AdapterUdp while the only possible algorithm is Dijkstra
  *
  * @author Sebastiano Milardo
  */
@@ -88,11 +81,11 @@ public class ControllerFactory {
     }
 
     /**
-     * Return the corresponding AbstractController object given a
-     * ConfigController object.
+     * Returns the corresponding AbstractController object given a Configurator
+     * object.
      *
-     * @param config a ConfigController object.
-     * @return a AbstractController object.
+     * @param config a Configurator object.
+     * @return an AbstractController object.
      */
     public final AbstractController getController(Configurator config) {
         AbstractAdapter adapt = getLower(config.getController());

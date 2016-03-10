@@ -31,9 +31,9 @@ import java.util.Observer;
 import java.util.logging.Level;
 
 /**
- * The adapter class for UDP port communication. Configuration data are passed
- * using a {@code Map<String,String>} which contains all the options needed in
- * the constructor of the class.
+ * Representation of a TCP Adapter. Configuration data are passed using a
+ * {@code Map<String,String>} which contains all the options needed in the
+ * constructor of the class.
  *
  * @author Sebastiano Milardo
  */
@@ -46,7 +46,7 @@ public class AdapterTcp extends AbstractAdapter {
     private Thread th;
 
     /**
-     * Creates an AdapterUDP object. The conf map is used to pass the
+     * Creates an AdapterTCP object. The conf map is used to pass the
      * configuration settings for the serial port as strings. Specifically
      * needed parameters are:
      * <ol>
@@ -61,11 +61,6 @@ public class AdapterTcp extends AbstractAdapter {
         this.PORT = Integer.parseInt(conf.get("PORT"));
     }
 
-    /**
-     * Opens this adapter.
-     *
-     * @return a boolean indicating the correct ending of the operation
-     */
     @Override
     public final boolean open() {
         if (IS_SERVER) {
@@ -80,22 +75,12 @@ public class AdapterTcp extends AbstractAdapter {
         return true;
     }
 
-    /**
-     * Closes this adapter.
-     *
-     * @return a boolean indicating the correct ending of the operation
-     */
     @Override
     public final boolean close() {
         tcpElement.isStopped = true;
         return true;
     }
 
-    /**
-     * Sends a byte array using this adapter.
-     *
-     * @param data the array to be sent
-     */
     @Override
     public final void send(byte[] data) {
         tcpElement.send(data);

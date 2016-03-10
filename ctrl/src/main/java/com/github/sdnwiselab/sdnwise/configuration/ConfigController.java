@@ -16,14 +16,12 @@
  */
 package com.github.sdnwiselab.sdnwise.configuration;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
- * This class holds the three {@code Map<String,String>} containing the
- * configuration parameters for the lower adapter, the algorithm and the network
- * map of a controller object.
+ * Holder of the three {@code Map<String,String>} containing the configuration
+ * parameters for the lower adapter, the algorithm and the network map of a
+ * controller object.
  *
  * @author Sebastiano Milardo
  */

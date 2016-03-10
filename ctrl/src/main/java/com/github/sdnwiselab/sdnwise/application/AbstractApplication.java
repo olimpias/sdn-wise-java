@@ -19,8 +19,7 @@ package com.github.sdnwiselab.sdnwise.application;
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.controller.AbstractController;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
-import com.github.sdnwiselab.sdnwise.packet.DataPacket;
-import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
+import com.github.sdnwiselab.sdnwise.packet.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
@@ -29,13 +28,13 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.*;
 
 /**
- * This class holds a representation of the sensor network and resolves all the
- * requests coming from the network itself. This abstract class has two main
- * private methods. managePacket and graphUpdate(abstract). The first is called
- * when a request is coming from the network while the latter is called when
- * something in the topology of the network changes.
+ * Representation of the sensor network and resolver of all the data packets
+ * coming from the network itself. This abstract class has two main private
+ * methods. managePacket and graphUpdate(abstract). The first is called when a
+ * request is coming from the network while the latter is called when something
+ * in the topology of the network changes.
  * <p>
- * There are send and receive(abstract) methods to and from the Adaptation Layer
+ * There are a send and a receive methods to/from the Adaptation Layer
  *
  * @author Sebastiano Milardo
  */
@@ -44,14 +43,14 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     // to avoid garbage collection of the logger
     protected static final Logger LOGGER = Logger.getLogger("APP");
 
-    final AbstractController controller;
     private final ArrayBlockingQueue<NetworkPacket> bQ;
+    final AbstractController controller;
 
     /**
-     * Constructor method for Application Abstract Class.
+     * Creates an Application Abstract Class.
      *
-     * @param ctrl the ctrl to be set
-     * @param lower the adapter to be set
+     * @param ctrl the controller to be used
+     * @param lower the adapter to be used
      */
     public AbstractApplication(AbstractController ctrl, AbstractAdapter lower) {
         super("APP", lower, null);
@@ -64,22 +63,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
 
     public abstract void graphUpdate();
 
-    private void managePacket(NetworkPacket data) {
-        if (data.getTyp() == DATA) {
-            receivePacket(new DataPacket(data));
-        }
-    }
 
-    /**
-     * This methods manages updates coming from the lower adapter or the network
-     * representation. When a message is received from the lower adapter it is
-     * inserted in a ArrayBlockingQueue and then the method managePacket it is
-     * called on it. While for updates coming from the network representation
-     * the method graphUpdate is invoked.
-     *
-     * @param o
-     * @param arg
-     */
     @Override
     public final void update(Observable o, Object arg) {
         if (o.equals(lower)) {
@@ -91,10 +75,6 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
         }
     }
 
-    @Override
-    protected final void setupLayer() {
-        new Thread(new Worker(bQ)).start();
-    }
 
     /**
      * Stops the working thread that manages incoming requests.
@@ -104,8 +84,8 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     }
 
     /**
-     * This method sends a generic message to a node. The message is represented
-     * by an array of bytes.
+     * Sends a generic message to a node. The message is represented by an array
+     * of bytes.
      *
      * @param net network id of the dst node
      * @param dst network address of the dst node
@@ -120,8 +100,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     }
 
     /**
-     * This method sends a generic message to a node. The message is represented
-     * by string.
+     * Sends a generic message to a node. The message is represented by string.
      *
      * @param net network id of the destination node
      * @param destination network address of the destination node
@@ -134,12 +113,21 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     }
 
     /**
-     * Getter method to obtain the Network Graph of this AbstractController.
+     * Gets the Network Graph of this AbstractController.
      *
      * @return the controller network graph.
      */
     public NetworkGraph getNetworkGraph() {
         return controller.getNetworkGraph();
+    }
+    private void managePacket(NetworkPacket data) {
+        if (data.getTyp() == DATA) {
+            receivePacket(new DataPacket(data));
+        }
+    }
+    @Override
+    protected final void setupLayer() {
+        new Thread(new Worker(bQ)).start();
     }
 
     private class Worker implements Runnable {

@@ -21,9 +21,9 @@ import java.util.*;
 import java.util.logging.*;
 
 /**
- * This class is the abstract class that every adapter has to extend. It is an
- * observable class for the adaptation, but it is also an observer for changes
- * coming from the specific adapter type.
+ * Representation of an abstract adapter. It is an observable class for the
+ * adaptation, but it is also an observer for changes coming from the specific
+ * adapter type.
  *
  * @author Sebastiano Milardo
  */
@@ -56,12 +56,6 @@ public abstract class AbstractAdapter extends Observable implements Observer {
      */
     public abstract void send(byte[] data);
 
-    /**
-     * This method is called whenever the observed object is changed.
-     *
-     * @param o the observable object
-     * @param arg an argument passed to the notifyObservers method
-     */
     @Override
     public final void update(Observable o, Object arg) {
         setChanged();
@@ -74,7 +68,7 @@ public abstract class AbstractAdapter extends Observable implements Observer {
      * @param level a standard logging level
      * @param msg the string message to be logged
      */
-    void log(Level level, String msg) {
+    protected final void log(Level level, String msg) {
         LOGGER.log(level, msg);
     }
 }
