@@ -27,7 +27,7 @@ public final class AskAction extends AbstractAction {
         super(ASK, 0);
     }
 
-    public AskAction(byte[] value) {
+    public AskAction(final byte[] value) {
         super(value);
     }
 

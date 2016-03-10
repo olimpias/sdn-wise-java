@@ -27,7 +27,7 @@ public final class DropAction extends AbstractAction {
         super(DROP, 0);
     }
 
-    public DropAction(byte[] value) {
+    public DropAction(final byte[] value) {
         super(value);
     }
 }

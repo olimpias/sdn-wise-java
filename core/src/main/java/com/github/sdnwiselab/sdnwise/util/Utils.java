@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,11 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.github.sdnwiselab.sdnwise.util;
 
 import java.nio.ByteBuffer;
 
 /**
+ * An utility class.
+ * 
  * @author Sebastiano Milardo
  */
 public class Utils {

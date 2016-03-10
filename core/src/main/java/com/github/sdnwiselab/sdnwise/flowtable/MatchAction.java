@@ -29,7 +29,7 @@ public final class MatchAction extends AbstractAction {
         super(MATCH, SIZE);
     }
 
-    public MatchAction(byte[] array) {
+    public MatchAction(final byte[] array) {
         super(array);
     }
 }

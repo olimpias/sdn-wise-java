@@ -28,6 +28,9 @@ import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
  */
 public class BeaconPacket extends NetworkPacket {
 
+    /**
+     * Distance is at payload position 0, the residual charge at position 1.
+     */
     private static final byte DIST_INDEX = 0,
             BATT_INDEX = 1;
 

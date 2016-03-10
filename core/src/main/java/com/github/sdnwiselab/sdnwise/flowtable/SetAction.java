@@ -343,19 +343,6 @@ public final class SetAction extends AbstractAction {
         }
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        return super.equals(obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
     public int[] getOperandFromString(String val) {
         int[] tmp = new int[2];
         String[] strVal = val.split("\\.");

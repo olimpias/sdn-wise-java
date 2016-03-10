@@ -20,7 +20,10 @@ import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.Neighbor;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -47,7 +50,7 @@ public interface FunctionInterface {
      * @param args is an array of parameters passed by the action.
      * @param np the NetworkPacket that triggered this function.
      */
-    public void function(
+    void function(
             HashMap<String, Object> adcRegister,
             List<FlowTableEntry> flowTable,
             Set<Neighbor> neighborTable,

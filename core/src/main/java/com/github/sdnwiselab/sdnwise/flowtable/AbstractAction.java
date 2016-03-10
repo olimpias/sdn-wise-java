@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,9 @@ import java.util.Arrays;
  */
 public abstract class AbstractAction implements FlowTableInterface {
 
-    // actions
+    /**
+     * Representation of the different types of actions.
+     */
     public enum ActionType {
         NULL(0),
         FORWARD_U(1),
@@ -38,13 +40,13 @@ public abstract class AbstractAction implements FlowTableInterface {
         MATCH(7);
 
         private final byte value;
-        private static final ActionType[] actionTypeValues = ActionType.values();
+        private static final ActionType[] A_VALUES = ActionType.values();
 
-        public static ActionType fromByte(byte value) {
-            return actionTypeValues[value];
+        public static ActionType fromByte(final byte value) {
+            return A_VALUES[value];
         }
 
-        private ActionType(int value) {
+        private ActionType(final int value) {
             this.value = (byte) value;
         }
     }
@@ -58,7 +60,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param actionType the type of action that will be created
      * @param size the size of the action
      */
-    public AbstractAction(ActionType actionType, int size) {
+    public AbstractAction(final ActionType actionType, final int size) {
         action = new byte[size + 1];
         setType(actionType);
     }
@@ -68,7 +70,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      *
      * @param value a byte array representing the action
      */
-    public AbstractAction(byte[] value) {
+    public AbstractAction(final byte[] value) {
         this.action = value;
     }
 
@@ -89,7 +91,7 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
@@ -104,7 +106,7 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int hash = 5;
         hash = 61 * hash + Arrays.hashCode(this.action);
         return hash;
@@ -118,12 +120,12 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param value will be set.
      * @return this AbstractAction.
      */
-    final AbstractAction setType(ActionType value) {
+    final AbstractAction setType(final ActionType value) {
         action[TYPE_INDEX] = value.value;
         return this;
     }
 
-    final AbstractAction setValue(int index, int value) {
+    final AbstractAction setValue(final int index, final int value) {
         if (index < 0 || index >= action.length) {
             throw new ArrayIndexOutOfBoundsException("Index out of bound");
         } else {
@@ -132,7 +134,7 @@ public abstract class AbstractAction implements FlowTableInterface {
         return this;
     }
 
-    final int getValue(int index) {
+    final int getValue(final int index) {
         if (index < 0 || index >= action.length) {
             throw new ArrayIndexOutOfBoundsException("Index out of bound");
         } else {

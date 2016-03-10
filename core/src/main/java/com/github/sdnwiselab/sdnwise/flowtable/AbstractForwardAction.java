@@ -25,15 +25,15 @@ public abstract class AbstractForwardAction extends AbstractAction {
 
     private static final byte NXH_INDEX = 0;
 
-    public AbstractForwardAction(ActionType actionType) {
+    public AbstractForwardAction(final ActionType actionType) {
         super(actionType, 2);
     }
 
-    public AbstractForwardAction(byte[] value) {
+    public AbstractForwardAction(final byte[] value) {
         super(value);
     }
 
-    public final AbstractForwardAction setNextHop(NodeAddress addr) {
+    public final AbstractForwardAction setNextHop(final NodeAddress addr) {
         setValue(NXH_INDEX, addr.getHigh());
         setValue(NXH_INDEX + 1, addr.getLow());
         return this;
