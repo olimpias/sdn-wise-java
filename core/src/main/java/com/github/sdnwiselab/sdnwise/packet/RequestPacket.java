@@ -32,7 +32,7 @@ public class RequestPacket extends NetworkPacket {
             = NetworkPacket.MAX_PACKET_LENGTH
             - (SDN_WISE_DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
 
-    private final static byte ID_INDEX = 0,
+    private static final byte ID_INDEX = 0,
             PART_INDEX = 1,
             TOTAL_INDEX = 2;
 

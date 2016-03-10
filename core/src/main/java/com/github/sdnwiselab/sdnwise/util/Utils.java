@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 public class Utils {
 
     private static final String DIGITS = "0123456789abcdef";
-    
+
     /**
      * Return the passed in byte array as a hex string.
      *

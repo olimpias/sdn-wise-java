@@ -38,7 +38,7 @@ public abstract class AbstractAction implements FlowTableInterface {
         MATCH(7);
 
         private final byte value;
-        private final static ActionType[] actionTypeValues = ActionType.values();
+        private static final ActionType[] actionTypeValues = ActionType.values();
 
         public static ActionType fromByte(byte value) {
             return actionTypeValues[value];

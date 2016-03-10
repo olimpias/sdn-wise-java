@@ -30,8 +30,8 @@ public class Stats implements FlowTableInterface {
     public static final int ENTRY_TTL_PERMANENT = 255;
     public static final int SDN_WISE_RL_TTL_MAX = 254;
 
-    private final static byte TTL_INDEX = 0;
-    private final static byte COUNT_INDEX = 1;
+    private static final byte TTL_INDEX = 0;
+    private static final byte COUNT_INDEX = 1;
     private final byte[] stats = new byte[SIZE];
 
     /**

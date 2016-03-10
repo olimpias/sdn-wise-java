@@ -25,11 +25,11 @@ package com.github.sdnwiselab.sdnwise.mote.battery;
  */
 public class Battery implements BatteryInterface {
 
-    private final static double MAX_LEVEL = 5000;    // 9000000 mC = 2 AAA batteries = 15 Days  
+    private static final double MAX_LEVEL = 5000;    // 9000000 mC = 2 AAA batteries = 15 Days  
     // 5000 mC = 12 min 
-    private final static double KEEP_ALIVE = 6.8;        // mC spent every 1 s
-    private final static double RADIO_TX = 0.0027; // mC to send 1byte
-    private final static double RADIO_RX = 0.00094; // mC to receive 1byte
+    private static final double KEEP_ALIVE = 6.8;        // mC spent every 1 s
+    private static final double RADIO_TX = 0.0027; // mC to send 1byte
+    private static final double RADIO_RX = 0.00094; // mC to receive 1byte
     private double level;
 
     /**

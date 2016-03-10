@@ -25,8 +25,8 @@ import java.util.Arrays;
 public class FunctionAction extends AbstractAction {
 
     // convert to array
-    private final static byte ID_INDEX = 0;
-    private final static byte ARGS_INDEX = 1;
+    private static final byte ID_INDEX = 0;
+    private static final byte ARGS_INDEX = 1;
 
     public FunctionAction(byte[] value) {
         super(value);

@@ -28,7 +28,7 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
  */
 public class ConfigPacket extends NetworkPacket {
 
-    private final static byte CNF_WRITE = 1;
+    private static final byte CNF_WRITE = 1;
 
     /**
      * This constructor initialize a config packet starting from a byte array.

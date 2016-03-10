@@ -39,26 +39,26 @@ public final class SetAction extends AbstractAction {
     public static final byte SDN_WISE_OR = 6;
     public static final byte SDN_WISE_XOR = 7;
 
-    private final static byte operatorBit = 3;
-    private final static byte operatorLen = 3;
-    private final static byte leftBit = 1;
-    private final static byte leftLen = 2;
-    private final static byte rightBit = 6;
-    private final static byte rightLen = leftLen;
-    private final static byte resBit = 0;
-    private final static byte resLen = 1;
+    private static final byte operatorBit = 3;
+    private static final byte operatorLen = 3;
+    private static final byte leftBit = 1;
+    private static final byte leftLen = 2;
+    private static final byte rightBit = 6;
+    private static final byte rightLen = leftLen;
+    private static final byte resBit = 0;
+    private static final byte resLen = 1;
 
-    private final static byte operationIndex = 0;
-    private final static byte resIndexH = 1;
-    private final static byte resIndexL = 2;
+    private static final byte operationIndex = 0;
+    private static final byte resIndexH = 1;
+    private static final byte resIndexL = 2;
 
-    private final static byte leftIndexH = 3;
-    private final static byte leftIndexL = 4;
+    private static final byte leftIndexH = 3;
+    private static final byte leftIndexL = 4;
 
-    private final static byte rightIndexH = 5;
-    private final static byte rightIndexL = 6;
+    private static final byte rightIndexH = 5;
+    private static final byte rightIndexL = 6;
 
-    private final static byte SIZE = 7;
+    private static final byte SIZE = 7;
 
     /**
      * Simple constructor for the Window object.

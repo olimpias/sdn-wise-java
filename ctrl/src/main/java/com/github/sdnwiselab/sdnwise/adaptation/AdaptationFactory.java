@@ -55,9 +55,9 @@ public final class AdaptationFactory {
 
     /**
      * Returns an adapter depending on the options specified. The supported
- types at the moment are "UDP/TCP" for udp/tcp communication and "COM" for
- serial port communication. "OMNET" adapter is still under development.
- Details regarding the adapters are contained in the c map.
+     * types at the moment are "UDP/TCP" for udp/tcp communication and "COM" for
+     * serial port communication. "OMNET" adapter is still under development.
+     * Details regarding the adapters are contained in the c map.
      *
      * @param c the type of adapter that will be instantiated.
      * @return an adapter object
@@ -72,8 +72,8 @@ public final class AdaptationFactory {
                 return new AdapterTcp(c);
             default:
                 throw new UnsupportedOperationException(
-                    "Error in configuration file: Unsupported Adapter of type "
-                    + c.get("TYPE"));
+                        "Error in configuration file: Unsupported Adapter of type "
+                        + c.get("TYPE"));
         }
     }
 

@@ -63,7 +63,6 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
 
     public abstract void graphUpdate();
 
-
     @Override
     public final void update(Observable o, Object arg) {
         if (o.equals(lower)) {
@@ -74,7 +73,6 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
             }
         }
     }
-
 
     /**
      * Stops the working thread that manages incoming requests.
@@ -120,11 +118,13 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     public NetworkGraph getNetworkGraph() {
         return controller.getNetworkGraph();
     }
+
     private void managePacket(NetworkPacket data) {
         if (data.getTyp() == DATA) {
             receivePacket(new DataPacket(data));
         }
     }
+
     @Override
     protected final void setupLayer() {
         new Thread(new Worker(bQ)).start();

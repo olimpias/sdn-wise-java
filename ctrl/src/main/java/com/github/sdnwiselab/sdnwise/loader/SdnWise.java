@@ -34,7 +34,9 @@ import java.util.logging.*;
  * @author Sebastiano Milardo
  */
 public class SdnWise {
+
     private static final String CONFIG_FILE = "/config.ini";
+
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
      * object is made of three main components: A Controller, an Adaptation, and

@@ -28,7 +28,7 @@ import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
  */
 public class BeaconPacket extends NetworkPacket {
 
-    private final static byte DIST_INDEX = 0,
+    private static final byte DIST_INDEX = 0,
             BATT_INDEX = 1;
 
     /**

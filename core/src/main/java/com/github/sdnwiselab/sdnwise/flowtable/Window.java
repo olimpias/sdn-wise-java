@@ -43,20 +43,20 @@ public class Window implements FlowTableInterface {
     public static final byte GREATER_OR_EQUAL = 4;
     public static final byte LESS_OR_EQUAL = 5;
 
-    private final static byte operatorBit = 5;
-    private final static byte operatorLen = 3;
-    private final static byte leftBit = 3;
-    private final static byte leftLen = 2;
-    private final static byte rightBit = 1;
-    private final static byte rightLen = leftLen;
-    private final static byte sizeBit = 0;
-    private final static byte sizeLen = 1;
+    private static final byte operatorBit = 5;
+    private static final byte operatorLen = 3;
+    private static final byte leftBit = 3;
+    private static final byte leftLen = 2;
+    private static final byte rightBit = 1;
+    private static final byte rightLen = leftLen;
+    private static final byte sizeBit = 0;
+    private static final byte sizeLen = 1;
 
-    private final static byte operationIndex = 0;
-    private final static byte leftHighIndex = 1;
-    private final static byte leftLowIndex = 2;
-    private final static byte rightHighIndex = 3;
-    private final static byte rightLowIndex = 4;
+    private static final byte operationIndex = 0;
+    private static final byte leftHighIndex = 1;
+    private static final byte leftLowIndex = 2;
+    private static final byte rightHighIndex = 3;
+    private static final byte rightLowIndex = 4;
 
     public static Window fromString(String val) {
         Window w = new Window();

@@ -23,7 +23,7 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
  */
 public abstract class AbstractForwardAction extends AbstractAction {
 
-    private final static byte NXH_INDEX = 0;
+    private static final byte NXH_INDEX = 0;
 
     public AbstractForwardAction(ActionType actionType) {
         super(actionType, 2);

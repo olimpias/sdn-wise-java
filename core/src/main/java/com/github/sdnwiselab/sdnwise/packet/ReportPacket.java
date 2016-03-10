@@ -28,8 +28,8 @@ import java.util.Map;
  */
 public class ReportPacket extends BeaconPacket {
 
-    private final static byte MAX_NEIG = 35;
-    private final static int NEIGH_INDEX = 2;
+    private static final byte MAX_NEIG = 35;
+    private static final int NEIGH_INDEX = 2;
 
     /**
      * This constructor initialize a report packet starting from a byte array.
@@ -128,7 +128,7 @@ public class ReportPacket extends BeaconPacket {
      * @param i the position where the NodeAddress will be inserted.
      * @return
      */
-    public final ReportPacket setNeighborAddressAt(final NodeAddress addr, 
+    public final ReportPacket setNeighborAddressAt(final NodeAddress addr,
             final int i) {
         if (i <= MAX_NEIG) {
             this.setPayloadAt(addr.getHigh(), (byte) (NEIGH_INDEX + 1 + i * 3));
@@ -201,8 +201,7 @@ public class ReportPacket extends BeaconPacket {
      * @param map the map of neighbors to be set
      * @return the packet itself
      */
-    public final ReportPacket setNeighbors(final HashMap<NodeAddress,
-            Byte> map) {
+    public final ReportPacket setNeighbors(final HashMap<NodeAddress, Byte> map) {
         int i = 0;
         for (Map.Entry<NodeAddress, Byte> entry : map.entrySet()) {
             this.setNeighborAddressAt(entry.getKey(), i);
