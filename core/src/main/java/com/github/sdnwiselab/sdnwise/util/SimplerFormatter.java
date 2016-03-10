@@ -17,7 +17,7 @@
 package com.github.sdnwiselab.sdnwise.util;
 
 import java.io.*;
-import java.text.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.*;
 
@@ -30,10 +30,16 @@ import java.util.logging.*;
 public class SimplerFormatter extends Formatter {
 
     private final String name;
-    private final SimpleDateFormat formatter;
+    private final SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
+    /**
+     * Creates a SimplerFormatter given a name. The name is used in the log to
+     * identify the writer of the message.
+     *
+     * @param name the name of layer that creates the log. It is appended in the
+     * log message
+     */
     public SimplerFormatter(String name) {
-        this.formatter = new SimpleDateFormat("HH:mm:ss");
         this.name = name;
     }
 

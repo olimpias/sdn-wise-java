@@ -17,7 +17,7 @@
 package com.github.sdnwiselab.sdnwise.packet;
 
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.CONFIG;
-import com.github.sdnwiselab.sdnwise.util.*;
+import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
  * This class models a Configuration packet. This packet is sent to a node to
@@ -27,47 +27,6 @@ import com.github.sdnwiselab.sdnwise.util.*;
  * @author Sebastiano Milardo
  */
 public class ConfigPacket extends NetworkPacket {
-
-    public boolean isWrite() {
-        int value = (getPayloadAt((byte) 0) & 0xFF) >> 7;
-
-        return (value == CNF_WRITE);
-    }
-
-    // Configuration Properties
-    public enum ConfigProperty {
-        RESET(0, 0),
-        MY_NET(1, 1),
-        MY_ADDRESS(2, 2),
-        PACKET_TTL(3, 1),
-        RSSI_MIN(4, 1),
-        BEACON_PERIOD(5, 2),
-        REPORT_PERIOD(6, 2),
-        RULE_TTL(7, 1),
-        ADD_ALIAS(8, 2),
-        REM_ALIAS(9, 1),
-        GET_ALIAS(10, 1),
-        ADD_RULE(11, -1),
-        REM_RULE(12, 1),
-        GET_RULE(13, 1),
-        ADD_FUNCTION(14, -1),
-        REM_FUNCTION(15, 1),
-        GET_FUNCTION(16, 1);
-
-        private final byte value;
-        public final int size;
-
-        private final static ConfigProperty[] configPropertyValues = ConfigProperty.values();
-
-        public static ConfigProperty fromByte(byte value) {
-            return configPropertyValues[value];
-        }
-
-        private ConfigProperty(int value, int size) {
-            this.value = (byte) value;
-            this.size = size;
-        }
-    }
 
     private final static byte CNF_WRITE = 1;
 
@@ -130,20 +89,34 @@ public class ConfigPacket extends NetworkPacket {
                 .setTyp(CONFIG);
     }
 
+    /**
+     * Returns true if the Config packet is a write packet.
+     *
+     * @return a boolean indicating if the packet is a write packet
+     */
+    public boolean isWrite() {
+        int value = (getPayloadAt((byte) 0) & 0xFF) >> 7;
+        return (value == CNF_WRITE);
+    }
+
+    /**
+     * Returns the Configuration ID of the property to read/write.
+     *
+     * @return the ConfigProperty set in the packet
+     */
     public final ConfigProperty getConfigId() {
         return ConfigProperty.fromByte((byte) (getPayloadAt((byte) 0) & 0x7F));
     }
 
-    private ConfigPacket setWrite() {
-        setPayloadAt((byte) ((getPayloadAt(0)) | (CNF_WRITE << 7)), 0);
-        return this;
-    }
-
-    private ConfigPacket setConfigId(ConfigProperty id) {
-        setPayloadAt(id.value, 0);
-        return this;
-    }
-
+    /**
+     * Sets the value of the property to write. If the ConfigProperty of the
+     * packet is a Get or Remove it contains the index of the item. If it is an
+     * Add, the item itself.
+     *
+     * @param bytes the value of the property as a byte[]
+     * @param size the size of the property
+     * @return the packet itself
+     */
     public ConfigPacket setParams(byte[] bytes, int size) {
         if (size != -1) {
             for (int i = 0; i < size; i++) {
@@ -157,7 +130,57 @@ public class ConfigPacket extends NetworkPacket {
         return this;
     }
 
+    /**
+     * Gets the value of the read property.
+     *
+     * @return the configuration property as a byte[]
+     */
     public byte[] getParams() {
         return getPayloadFromTo(1, getPayloadSize());
+    }
+
+    private ConfigPacket setWrite() {
+        setPayloadAt((byte) ((getPayloadAt(0)) | (CNF_WRITE << 7)), 0);
+        return this;
+    }
+
+    private ConfigPacket setConfigId(ConfigProperty id) {
+        setPayloadAt(id.value, 0);
+        return this;
+    }
+
+    // Configuration Properties
+    public enum ConfigProperty {
+        RESET(0, 0),
+        MY_NET(1, 1),
+        MY_ADDRESS(2, 2),
+        PACKET_TTL(3, 1),
+        RSSI_MIN(4, 1),
+        BEACON_PERIOD(5, 2),
+        REPORT_PERIOD(6, 2),
+        RULE_TTL(7, 1),
+        ADD_ALIAS(8, 2),
+        REM_ALIAS(9, 1),
+        GET_ALIAS(10, 1),
+        ADD_RULE(11, -1),
+        REM_RULE(12, 1),
+        GET_RULE(13, 1),
+        ADD_FUNCTION(14, -1),
+        REM_FUNCTION(15, 1),
+        GET_FUNCTION(16, 1);
+
+        private final byte value;
+        public final int size;
+
+        private final static ConfigProperty[] configPropertyValues = ConfigProperty.values();
+
+        public static ConfigProperty fromByte(byte value) {
+            return configPropertyValues[value];
+        }
+
+        private ConfigProperty(int value, int size) {
+            this.value = (byte) value;
+            this.size = size;
+        }
     }
 }

@@ -19,8 +19,10 @@ package com.github.sdnwiselab.sdnwise.util;
 import java.io.Serializable;
 
 /**
- * This Class is used to represent NodeAddress Object. It implements Comparable
- * to compare more NodeAddress and Serializable to serialize this object.
+ * This Class is used to represent NodeAddress Object. The NodeAddress is the
+ * address used by all the nodes in a SDN-WISE Network. The NodeAddress is two
+ * byte long. There is a reserved address for broadcast communication which is
+ * 255.255.
  *
  * @author Sebastiano Milardo
  */
@@ -31,7 +33,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     public final static NodeAddress BROADCAST_ADDR = new NodeAddress("255.255");
 
     /**
-     * Constructor method to create a Node Address by an int.
+     * Constructor method to create a Node Address from an int.
      *
      * @param addr int value to set a Node Address.
      */
@@ -42,7 +44,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
 
     /**
      *
-     * Constructor method to create a Node Address by a byte array.
+     * Constructor method to create a Node Address from a byte array.
      *
      * @param addr byte array value to set a Node Address.
      */
@@ -54,7 +56,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     /**
-     * Constructor method to create a Node Address by a string.
+     * Constructor method to create a Node Address from a string.
      *
      * @param addr string value to set a Node Address.
      */
@@ -71,7 +73,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     /**
-     * Constructor method to create a Node Address by two int.
+     * Constructor method to create a Node Address from two int.
      *
      * @param addr0 int value to set fist part of Node Address.
      * @param addr1 int value to set second part of a Node Address.
@@ -82,16 +84,16 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     /**
-     * Getter method to obtain int value from addr[].
+     * Returns the NodeAddress as an integer.
      *
-     * @return int value of addr[].
+     * @return int value of the NodeAddress.
      */
     public int intValue() {
         return ((addr[0] & 0xFF) * 256) + (addr[1] & 0xFF);
     }
 
     /**
-     * Get High Part of a NodeAddress.
+     * Gets the first Byte of a NodeAddress.
      *
      * @return a byte value of High Part of a NodeAddress.
      */
@@ -100,7 +102,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     /**
-     * Get Low Part of a NodeAddress.
+     * Gets the last Byte of a NodeAddress.
      *
      * @return a byte value of Low Part of a NodeAddress.
      */
@@ -109,7 +111,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     /**
-     * Get Node Address in Byte.
+     * Gets the Node Address in Byte.
      *
      * @return a byte array of Node Address.
      */
@@ -118,7 +120,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     /**
-     * Get Node Address in Byte.
+     * Gets the Node Address in Byte.
      *
      * @return a byte array of Node Address.
      */
@@ -147,7 +149,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     }
 
     /**
-     * Check if the address is a broadcast address
+     * Checks if the address is a broadcast address
      *
      * @return true if equal to 255.255 false otherwise
      */

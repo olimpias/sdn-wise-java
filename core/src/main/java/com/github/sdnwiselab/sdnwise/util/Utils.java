@@ -36,24 +36,11 @@ public class Utils {
 
         for (int i = 0; i < data.length; i++) {
             int v = Byte.toUnsignedInt(data[i]);
-
             buf.append(DIGITS.charAt(v >> 4));
             buf.append(DIGITS.charAt(v & 0xf));
         }
 
         return buf.toString();
-    }
-
-    public final void arraycopy(int[] src, int srcPos, byte[] dst, int dstPos, int len) {
-        for (int i = 0; i < len; i++) {
-            dst[dstPos + i] = (byte) src[srcPos + i];
-        }
-    }
-
-    public final void arraycopy(byte[] src, int srcPos, int[] dst, int dstPos, int len) {
-        for (int i = 0; i < len; i++) {
-            dst[dstPos + i] = src[srcPos + i];
-        }
     }
 
     public final static int mergeBytes(int high, int low) {
