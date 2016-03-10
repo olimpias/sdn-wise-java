@@ -23,7 +23,7 @@ import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.MultiGraph;
 
 /**
- * This class holds a org.graphstream.graph.Graph object which represent the
+ * Holder of the {@code org.graphstream.graph.Graph} object which represent the
  * topology of the wireless sensor network. The method updateMap is invoked when
  * a message with topology updates is sent to the controller.
  *
@@ -38,10 +38,9 @@ public class NetworkGraph extends Observable {
     final int rssiResolution;
 
     /**
-     * This constructor returns the NetworkGraph object. It requires a time to
-     * live for each node in the network and a value representing the RSSI
-     * resolution in order to consider a change of the RSSI value a change in
-     * the network.
+     * Creates the NetworkGraph object. It requires a time to live for each node
+     * in the network and a value representing the RSSI resolution in order to
+     * consider a change of the RSSI value a change in the network.
      *
      * @param timeout the time to live for a node in seconds
      * @param rssiResolution the RSSI resolution
@@ -67,7 +66,7 @@ public class NetworkGraph extends Observable {
     }
 
     /**
-     * This method gets the Graph contained in the NetworkGraph
+     * Gets the Graph contained in the NetworkGraph
      *
      * @return returns a Graph object
      */
@@ -136,9 +135,9 @@ public class NetworkGraph extends Observable {
     }
 
     /**
-     * This method is invoked when a message with topology updates is received
-     * by the controller. It updates the network topology according to the
-     * message and checks if all the nodes in the network are still alive.
+     * Invoked when a message with topology updates is received by the
+     * controller. It updates the network topology according to the message and
+     * checks if all the nodes in the network are still alive.
      *
      * @param packet the NetworkPacket received
      */
@@ -223,7 +222,7 @@ public class NetworkGraph extends Observable {
     }
 
     /**
-     * Getter Method to obtain a Node of Graph.
+     * Gets a Node of the Graph.
      *
      * @param <T> the type of node in the graph.
      * @param id string id value to get a Node.
@@ -234,7 +233,7 @@ public class NetworkGraph extends Observable {
     }
 
     /**
-     * Getter Method to obtain an Edge of Graph.
+     * Gets an Edge of the Graph.
      *
      * @param <T> the type of edge in the graph.
      * @param id string id value to get an Edge.

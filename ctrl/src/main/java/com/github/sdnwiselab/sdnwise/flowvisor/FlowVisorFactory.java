@@ -16,8 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.flowvisor;
 
-import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
-import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.adapter.*;
 import com.github.sdnwiselab.sdnwise.configuration.*;
 
 /**
@@ -30,6 +29,21 @@ import com.github.sdnwiselab.sdnwise.configuration.*;
 public class FlowVisorFactory {
 
     private static ConfigFlowVisor conf;
+
+    /**
+     *
+     * Getter Method to obtain a FlowVisor object, created by this Factory
+     * Class.
+     *
+     * @param config ConfigFlowVisor file for this FlowVisorFactory.
+     *
+     * @return FlowVisor object with a new AdapterUdp for Lower AbstractAdapter
+     * and Upper AbstractAdapter
+     */
+    public final static FlowVisor getFlowvisor(Configurator config) {
+        conf = config.getFlowvisor();
+        return new FlowVisor(getLower(), getUpper());
+    }
 
     private static AbstractAdapter getLower() {
         String type = conf.getLower().get("TYPE");
@@ -51,21 +65,6 @@ public class FlowVisorFactory {
                 throw new UnsupportedOperationException(
                         "Error in Configuration file");
         }
-    }
-
-    /**
-     *
-     * Getter Method to obtain a FlowVisor object, created by this Factory
-     * Class.
-     *
-     * @param config ConfigFlowVisor file for this FlowVisorFactory.
-     *
-     * @return FlowVisor object with a new AdapterUdp for Lower AbstractAdapter
-     * and Upper AbstractAdapter
-     */
-    public final static FlowVisor getFlowvisor(Configurator config) {
-        conf = config.getFlowvisor();
-        return new FlowVisor(getLower(), getUpper());
     }
 
     private FlowVisorFactory() {

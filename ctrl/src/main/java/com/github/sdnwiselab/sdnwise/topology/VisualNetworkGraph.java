@@ -17,24 +17,21 @@
 package com.github.sdnwiselab.sdnwise.topology;
 
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
+import org.graphstream.graph.*;
 
 /**
- * This class holds a org.graphstream.graph.Graph object which represent the
- * topology of the wireless sensor network. The method updateMap is invoked when
- * a message with topology updates is sent to the controller. This is a
- * graphical version of the NetworkGraph class.
+ * Holder of the {@code org.graphstream.graph.Graph} object which represent the
+ * topology of the wireless sensor network. This is a graphical version of the
+ * NetworkGraph class.
  *
  * @author Sebastiano Milardo
  */
 public final class VisualNetworkGraph extends NetworkGraph {
 
     /**
-     * This constructor returns the VisualNetworkGraph object. It requires a
-     * time to live for each node in the network and a value representing the
-     * RSSI resolution in order to consider a change of the RSSI value a change
-     * in the network.
+     * Creates the VisualNetworkGraph object. It requires a time to live for
+     * each node in the network and a value representing the RSSI resolution in
+     * order to consider a change of the RSSI value a change in the network.
      *
      * @param timeout the time to live for a node in seconds
      * @param rssiResolution the RSSI resolution

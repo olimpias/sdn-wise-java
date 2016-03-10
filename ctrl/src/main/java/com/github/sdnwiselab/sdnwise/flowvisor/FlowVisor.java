@@ -16,17 +16,14 @@
  */
 package com.github.sdnwiselab.sdnwise.flowvisor;
 
-import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
-import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.adapter.*;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.*;
 
 /**
@@ -120,6 +117,10 @@ public class FlowVisor extends ControlPlaneLayer {
         }
     }
 
+    @Override
+    public void setupLayer() {
+    }
+
     /**
      * This method consists of a way to manage reports.
      *
@@ -189,7 +190,4 @@ public class FlowVisor extends ControlPlaneLayer {
         lower.send(data);
     }
 
-    @Override
-    public void setupLayer() {
-    }
 }

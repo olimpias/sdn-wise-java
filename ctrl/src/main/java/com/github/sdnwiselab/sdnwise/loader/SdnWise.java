@@ -16,38 +16,25 @@
  */
 package com.github.sdnwiselab.sdnwise.loader;
 
-import com.github.sdnwiselab.sdnwise.adaptation.Adaptation;
-import com.github.sdnwiselab.sdnwise.adaptation.AdaptationFactory;
+import com.github.sdnwiselab.sdnwise.adaptation.*;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
-import com.github.sdnwiselab.sdnwise.controller.AbstractController;
-import com.github.sdnwiselab.sdnwise.controller.ControllerFactory;
-import com.github.sdnwiselab.sdnwise.controller.ControllerGui;
+import com.github.sdnwiselab.sdnwise.controller.*;
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
-import com.github.sdnwiselab.sdnwise.flowvisor.FlowVisor;
-import com.github.sdnwiselab.sdnwise.flowvisor.FlowVisorFactory;
+import com.github.sdnwiselab.sdnwise.flowvisor.*;
 import com.github.sdnwiselab.sdnwise.mote.standalone.*;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 /**
- * SdnWise class of the SDN-WISE project. This class loads the configuration
+ * Starter class of the SDN-WISE project. This class loads the configuration
  * file and starts the Adaptation, the FlowVisor, and the Controller.
  *
  * @author Sebastiano Milardo
  */
 public class SdnWise {
-
-    private FlowVisor flowVisor;
-    private Adaptation adaptation;
-    private AbstractController controller;
-    private final boolean isEmulated = true;
     private static final String CONFIG_FILE = "/config.ini";
-
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
      * object is made of three main components: A Controller, an Adaptation, and
@@ -76,6 +63,11 @@ public class SdnWise {
         }
         sw.startExemplaryControlPlane(Configurator.load(is));
     }
+
+    private FlowVisor flowVisor;
+    private Adaptation adaptation;
+    private AbstractController controller;
+    private final boolean isEmulated = true;
 
     /**
      * Starts the AbstractController layer of the SDN-WISE network. The
