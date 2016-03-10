@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -73,22 +73,22 @@ public class NetworkPacket implements Cloneable {
      * @param b the byte name
      * @return the unsigned value of the byte
      */
-    public static int getNetworkPacketByteFromName(String b) {
+    public static int getNetworkPacketByteFromName(final String b) {
         switch (b) {
             case "LEN":
-                return 1;
+                return LEN_INDEX;
             case "NET":
-                return 0;
+                return NET_INDEX;
             case "SRC":
-                return 4;
+                return SRC_INDEX;
             case "DST":
-                return 2;
+                return DST_INDEX;
             case "TYP":
-                return 6;
+                return TYP_INDEX;
             case "TTL":
-                return 7;
+                return TTL_INDEX;
             case "NXH":
-                return 8;
+                return NXH_INDEX;
             default:
                 return Integer.parseInt(b);
         }
@@ -100,7 +100,7 @@ public class NetworkPacket implements Cloneable {
      * @param data a byte array
      * @return a boolean depending if is an SDN-WISE packet or not
      */
-    public static boolean isSdnWise(byte[] data) {
+    public static boolean isSdnWise(final byte[] data) {
         return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
 
@@ -110,21 +110,21 @@ public class NetworkPacket implements Cloneable {
      * @param b an integer representing the index of a byte in the header
      * @return a string representation of a byte of the header
      */
-    public static String getNetworkPacketByteName(int b) {
+    public static String getNetworkPacketByteName(final int b) {
         switch (b) {
-            case (0):
+            case (NET_INDEX):
                 return "NET";
-            case (1):
+            case (LEN_INDEX):
                 return "LEN";
-            case (2):
+            case (DST_INDEX):
                 return "DST";
-            case (4):
+            case (SRC_INDEX):
                 return "SRC";
-            case (6):
-                return "TYPE";
-            case (7):
+            case (TYP_INDEX):
+                return "TYP";
+            case (TTL_INDEX):
                 return "TTL";
-            case (8):
+            case (NXH_INDEX):
                 return "NXH";
             default:
                 return String.valueOf(b);
@@ -136,11 +136,11 @@ public class NetworkPacket implements Cloneable {
     /**
      * Returns a NetworkPacket given a byte array.
      *
-     * @param data the data contained in the NetworkPacket
+     * @param d the d contained in the NetworkPacket
      */
-    public NetworkPacket(byte[] data) {
-        this.data = new byte[MAX_PACKET_LENGTH];
-        setArray(data);
+    public NetworkPacket(final byte[] d) {
+        data = new byte[MAX_PACKET_LENGTH];
+        setArray(d);
     }
 
     /**
@@ -151,8 +151,9 @@ public class NetworkPacket implements Cloneable {
      * @param src source address of the packet
      * @param dst destination address of the packet
      */
-    public NetworkPacket(int net, NodeAddress src, NodeAddress dst) {
-        this.data = new byte[MAX_PACKET_LENGTH];
+    public NetworkPacket(final int net, final NodeAddress src,
+            final NodeAddress dst) {
+        data = new byte[MAX_PACKET_LENGTH];
         setNet((byte) net);
         setSrc(src);
         setDst(dst);
@@ -164,14 +165,20 @@ public class NetworkPacket implements Cloneable {
      * Returns a NetworkPacket given a int array. Integer values will be
      * truncated to byte.
      *
-     * @param data the data contained in the NetworkPacket
+     * @param d the data contained in the NetworkPacket
      */
-    public NetworkPacket(int[] data) {
+    public NetworkPacket(final int[] d) {
         this.data = new byte[MAX_PACKET_LENGTH];
-        setArray(fromIntArrayToByteArray(data));
+        setArray(fromIntArrayToByteArray(d));
     }
 
-    public NetworkPacket(DataInputStream dis) {
+    /**
+     * Returns a NetworkPacket given a DataInputStream. Integer values will be
+     * truncated to byte.
+     *
+     * @param dis the DataInputStreamt
+     */
+    public NetworkPacket(final DataInputStream dis) {
         this.data = new byte[MAX_PACKET_LENGTH];
         byte[] tmpData = new byte[MAX_PACKET_LENGTH];
         try {
@@ -184,16 +191,16 @@ public class NetworkPacket implements Cloneable {
 
             }
         } catch (IOException ex) {
-            Logger.getLogger(NetworkPacket.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         setArray(tmpData);
     }
 
-    public final void setArray(int[] array) {
+    public final void setArray(final int[] array) {
         setArray(fromIntArrayToByteArray(array));
     }
 
-    public final void setArray(byte[] array) {
+    public final void setArray(final byte[] array) {
         if (isSdnWise(array)) {
             if (array.length <= MAX_PACKET_LENGTH && array.length
                     >= SDN_WISE_DFLT_HDR_LEN) {
@@ -234,7 +241,7 @@ public class NetworkPacket implements Cloneable {
      * @param value an integer representing the length of the message.
      * @return the packet itself
      */
-    public final NetworkPacket setLen(byte value) {
+    public final NetworkPacket setLen(final byte value) {
         int v = Byte.toUnsignedInt(value);
         if (v <= MAX_PACKET_LENGTH && v > 0) {
             data[LEN_INDEX] = value;
@@ -259,7 +266,7 @@ public class NetworkPacket implements Cloneable {
      * @param value the networkId of the packet.
      * @return the packet itself
      */
-    public final NetworkPacket setNet(byte value) {
+    public final NetworkPacket setNet(final byte value) {
         data[NET_INDEX] = value;
         return this;
     }
@@ -280,7 +287,7 @@ public class NetworkPacket implements Cloneable {
      * @param valueL the low byte of the address
      * @return the packet itself
      */
-    public final NetworkPacket setSrc(byte valueH, byte valueL) {
+    public final NetworkPacket setSrc(final byte valueH, final byte valueL) {
         data[SRC_INDEX] = valueH;
         data[SRC_INDEX + 1] = valueL;
         return this;
@@ -292,7 +299,7 @@ public class NetworkPacket implements Cloneable {
      * @param address the NodeAddress of the source node.
      * @return the packet itself
      */
-    public final NetworkPacket setSrc(NodeAddress address) {
+    public final NetworkPacket setSrc(final NodeAddress address) {
         setSrc(address.getHigh(), address.getLow());
         return this;
     }
@@ -313,7 +320,7 @@ public class NetworkPacket implements Cloneable {
      * @param valueL low value of the address of the destination
      * @return the packet itself
      */
-    public final NetworkPacket setDst(byte valueH, byte valueL) {
+    public final NetworkPacket setDst(final byte valueH, final byte valueL) {
         data[DST_INDEX] = valueH;
         data[DST_INDEX + 1] = valueL;
         return this;
@@ -325,7 +332,7 @@ public class NetworkPacket implements Cloneable {
      * @param address the NodeAddress value of the destination
      * @return the packet itself
      */
-    public final NetworkPacket setDst(NodeAddress address) {
+    public final NetworkPacket setDst(final NodeAddress address) {
         setDst(address.getHigh(), address.getLow());
         return this;
     }
@@ -345,7 +352,7 @@ public class NetworkPacket implements Cloneable {
      * @param value an integer representing the type of the message
      * @return the packet itself
      */
-    public final NetworkPacket setTyp(byte value) {
+    public final NetworkPacket setTyp(final byte value) {
         data[TYP_INDEX] = value;
         return this;
     }
@@ -367,7 +374,7 @@ public class NetworkPacket implements Cloneable {
      * @param value an integer representing the Time To Live of the message.
      * @return the packet itself
      */
-    public final NetworkPacket setTtl(byte value) {
+    public final NetworkPacket setTtl(final byte value) {
         data[TTL_INDEX] = value;
         return this;
     }
@@ -401,7 +408,7 @@ public class NetworkPacket implements Cloneable {
      * @param valueL low value of the address of the next hop.
      * @return packet itself.
      */
-    public final NetworkPacket setNxh(byte valueH, byte valueL) {
+    public final NetworkPacket setNxh(final byte valueH, final byte valueL) {
         data[NXH_INDEX] = valueH;
         data[NXH_INDEX + 1] = valueL;
         return this;
@@ -413,7 +420,7 @@ public class NetworkPacket implements Cloneable {
      * @param address the NodeAddress address of the next hop.
      * @return packet itself.
      */
-    public final NetworkPacket setNxh(NodeAddress address) {
+    public final NetworkPacket setNxh(final NodeAddress address) {
         NetworkPacket.this.setNxh(address.getHigh(), address.getLow());
         return this;
     }
@@ -424,7 +431,7 @@ public class NetworkPacket implements Cloneable {
      * @param address a string representing the address of the next hop.
      * @return packet itself.
      */
-    public final NetworkPacket setNxh(String address) {
+    public final NetworkPacket setNxh(final String address) {
         NetworkPacket.this.setNxh(new NodeAddress(address));
         return this;
     }
@@ -444,7 +451,7 @@ public class NetworkPacket implements Cloneable {
      * @return a String representation of the NetworkPacket
      */
     @Override
-    public String toString() {
+    public final String toString() {
         return Arrays.toString(this.toIntArray());
     }
 
@@ -471,7 +478,7 @@ public class NetworkPacket implements Cloneable {
     }
 
     @Override
-    public NetworkPacket clone() throws CloneNotSupportedException {
+    public final NetworkPacket clone() throws CloneNotSupportedException {
         super.clone();
         return new NetworkPacket(data.clone());
     }
@@ -499,7 +506,7 @@ public class NetworkPacket implements Cloneable {
         }
     }
 
-    public boolean isSdnWise() {
+    public final boolean isSdnWise() {
         return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
     }
 
