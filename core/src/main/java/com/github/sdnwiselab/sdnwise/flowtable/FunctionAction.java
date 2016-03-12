@@ -62,7 +62,7 @@ public final class FunctionAction extends AbstractAction {
         StringBuilder sb = new StringBuilder(FUNCTION.name());
         sb.append(" ").append(getId()).append(" ");
         for (byte b : getArgs()) {
-            sb.append(b & Byte.MAX_VALUE).append(" ");
+            sb.append(Byte.toUnsignedInt(b)).append(" ");
         }
         return sb.toString();
     }

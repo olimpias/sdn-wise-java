@@ -615,7 +615,7 @@ public abstract class AbstractCore {
             byte[] value = packet.getParams();
 
             if (packet.isWrite()) {
-                int idValue = value[0] & Byte.MAX_VALUE;
+                int idValue = Byte.toUnsignedInt(value[0]);
                 switch (id) {
                     case MY_ADDRESS:
                         myAddress = new NodeAddress(value);
@@ -661,8 +661,7 @@ public abstract class AbstractCore {
                         }
 
                         byte[] functionPayload = Arrays.copyOfRange(value, 3, value.length);
-                        int totalParts = value[2] & Byte.MAX_VALUE;
-
+                        int totalParts = Byte.toUnsignedInt(value[2]);
                         functionBuffer.get(idValue).add(functionPayload);
                         if (functionBuffer.get(idValue).size() == totalParts) {
                             int total = 0;
@@ -694,7 +693,7 @@ public abstract class AbstractCore {
                         packet.setParams(myAddress.getArray(), id.size);
                         break;
                     case MY_NET:
-                        packet.setParams(new byte[]{(byte) (myNet & Byte.MAX_VALUE)}, id.size);
+                        packet.setParams(new byte[]{(byte) myNet}, id.size);
                         break;
                     case BEACON_PERIOD:
                         packet.setParams(splitInteger(cnt_beacon_max), id.size);
@@ -703,16 +702,16 @@ public abstract class AbstractCore {
                         packet.setParams(splitInteger(cnt_report_max), id.size);
                         break;
                     case RULE_TTL:
-                        packet.setParams(new byte[]{(byte) (cnt_updtable_max & Byte.MAX_VALUE)}, id.size);
+                        packet.setParams(new byte[]{(byte) cnt_updtable_max }, id.size);
                         break;
                     case PACKET_TTL:
-                        packet.setParams(new byte[]{(byte) (rule_ttl & Byte.MAX_VALUE)}, id.size);
+                        packet.setParams(new byte[]{(byte) rule_ttl}, id.size);
                         break;
                     case RSSI_MIN:
-                        packet.setParams(new byte[]{(byte) (rssi_min & Byte.MAX_VALUE)}, id.size);
+                        packet.setParams(new byte[]{(byte) rssi_min}, id.size);
                         break;
                     case GET_ALIAS:
-                        int aIndex = value[0] & Byte.MAX_VALUE;
+                        int aIndex = Byte.toUnsignedInt(value[0]);
                         if (aIndex < acceptedId.size()) {
                             byte[] tmp = acceptedId.get(aIndex).getArray();
                             packet.setParams(ByteBuffer.allocate(tmp.length + 1).put((byte) aIndex).put(tmp).array(), -1);
@@ -721,7 +720,7 @@ public abstract class AbstractCore {
                         }
                         break;
                     case GET_RULE:
-                        int i = value[0] & Byte.MAX_VALUE;
+                        int i = Byte.toUnsignedInt(value[0]);
                         if (i < flowTable.size()) {
                             FlowTableEntry fte = flowTable.get(i);
                             byte[] tmp = fte.toByteArray();

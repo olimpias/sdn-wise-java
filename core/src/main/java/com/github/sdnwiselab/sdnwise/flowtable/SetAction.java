@@ -219,8 +219,8 @@ public final class SetAction extends AbstractAction {
      * @return this Window
      */
     public SetAction setLhs(final int val) {
-        setValue(leftIndexL, (byte) (val & Byte.MAX_VALUE));
-        setValue(leftIndexH, (byte) (val >> 8));
+        setValue(leftIndexL, (byte) val);
+        setValue(leftIndexH, (byte) val >>> Byte.SIZE);
         return this;
     }
 
@@ -249,8 +249,8 @@ public final class SetAction extends AbstractAction {
      * @return this Window
      */
     public SetAction setRes(final int val) {
-        setValue(resIndexL, (byte) (val & Byte.MAX_VALUE));
-        setValue(resIndexH, (byte) (val >> 8));
+        setValue(resIndexL, (byte) val);
+        setValue(resIndexH, (byte) val >>> Byte.SIZE);
         return this;
     }
 
@@ -261,8 +261,8 @@ public final class SetAction extends AbstractAction {
      * @return this Window
      */
     public SetAction setRhs(final int val) {
-        setValue(rightIndexL, (byte) (val & Byte.MAX_VALUE));
-        setValue(rightIndexH, (byte) (val >> 8));
+        setValue(rightIndexL, (byte) val);
+        setValue(rightIndexH, (byte) val >>> Byte.SIZE);
         return this;
     }
 

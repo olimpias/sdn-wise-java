@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 public final class Utils {
 
     private static final String DIGITS = "0123456789abcdef";
+    private static final int MASK = 0xFF;
 
     /**
      * Return the passed in byte array as a hex string.
@@ -34,7 +35,7 @@ public final class Utils {
      * @param data the bytes to be converted.
      * @return a hex representation of data.
      */
-    public static final String toHex(final byte[] data) {
+    public static String toHex(final byte[] data) {
         StringBuilder buf = new StringBuilder();
 
         for (int i = 0; i < data.length; i++) {
@@ -47,8 +48,7 @@ public final class Utils {
     }
 
     public static int mergeBytes(final int high, final int low) {
-        return (((byte) high & Byte.MAX_VALUE) << 8)
-                | ((byte) low & Byte.MAX_VALUE);
+        return (((byte) high) << Byte.SIZE) | ((byte) low);
     }
 
     public static byte[] splitInteger(final int value) {
@@ -58,8 +58,8 @@ public final class Utils {
     }
 
     public static int getBitRange(final int b, final int s, final int n) {
-        return (((b & Byte.MAX_VALUE) >> (s & Byte.MAX_VALUE))
-                & ((1 << (n & Byte.MAX_VALUE)) - 1)) & Byte.MAX_VALUE;
+        return (((b & MASK) >> (s & MASK))
+                & ((1 << (n & MASK)) - 1)) & MASK;
     }
 
     public static int setBitRange(final int val,

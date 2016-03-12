@@ -151,7 +151,7 @@ public class RegProxyPacket extends NetworkPacket {
     private RegProxyPacket setInetSocketAddress(final byte[] ip, final int p) {
         this.setPayload(ip, 0, IP_INDEX, IP_LEN);
         this.setPayloadAt((byte) (p), TCP_INDEX + 1);
-        this.setPayloadAt((byte) (p >> 8), TCP_INDEX);
+        this.setPayloadAt((byte) (p >> Byte.SIZE), TCP_INDEX);
         return this;
     }
 

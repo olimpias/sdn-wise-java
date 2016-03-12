@@ -432,12 +432,13 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return networkGraph;
     }
 
-    private int getNodeValue(byte net, NodeAddress dst, ConfigProperty cfp) {
+    private int getNodeValue(final byte net, final NodeAddress dst,
+            final ConfigProperty cfp) {
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, cfp);
         try {
-            byte res[] = sendQuery(cp).getParams();
+            byte[] res = sendQuery(cp).getParams();
             if (cfp.size == 1) {
-                return res[0] & Byte.MAX_VALUE;
+                return Byte.toUnsignedInt(res[0]);
             } else {
                 return mergeBytes(res[0], res[1]);
             }

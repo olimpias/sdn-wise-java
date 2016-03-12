@@ -214,8 +214,8 @@ public final class Window implements FlowTableInterface {
      * @return this Window
      */
     public Window setLhs(final int val) {
-        this.window[leftHighIndex] = (byte) ((val >> 8) & Byte.MAX_VALUE);
-        this.window[leftLowIndex] = (byte) (val & Byte.MAX_VALUE);
+        this.window[leftHighIndex] = (byte) (val >>> Byte.SIZE);
+        this.window[leftLowIndex] = (byte) val;
         return this;
     }
 
@@ -234,9 +234,9 @@ public final class Window implements FlowTableInterface {
      * @param val value to set
      * @return this Window
      */
-    public Window setRhs(int val) {
-        this.window[rightHighIndex] = (byte) ((val >> 8) & Byte.MAX_VALUE);
-        this.window[rightLowIndex] = (byte) (val & Byte.MAX_VALUE);
+    public Window setRhs(final int val) {
+        this.window[rightHighIndex] = (byte) (val >>> Byte.SIZE);
+        this.window[rightLowIndex] = (byte) val;
         return this;
     }
 

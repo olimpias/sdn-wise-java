@@ -39,8 +39,8 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      * @param a int value to set a Node Address.
      */
     public NodeAddress(final int a) {
-        this.addr[0] = (byte) (a >> 8);
-        this.addr[1] = (byte) (a & Byte.MAX_VALUE);
+        this.addr[0] = (byte) (a >>> Byte.SIZE);
+        this.addr[1] = (byte) a;
     }
 
     /**
@@ -68,8 +68,8 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
             this.addr[1] = (byte) Integer.parseInt(add[1]);
         } else {
             int adr = Integer.parseInt(a);
-            this.addr[0] = (byte) (adr >> 8);
-            this.addr[1] = (byte) (adr & Byte.MAX_VALUE);
+            this.addr[0] = (byte) (adr >>> Byte.SIZE);
+            this.addr[1] = (byte) adr;
         }
     }
 
@@ -131,7 +131,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
 
     @Override
     public String toString() {
-        return ((addr[0] & Byte.MAX_VALUE) + "." + (addr[1] & Byte.MAX_VALUE));
+        return Byte.toUnsignedInt(addr[0]) + "." + Byte.toUnsignedInt(addr[1]);
     }
 
     @Override
