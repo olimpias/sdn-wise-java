@@ -16,7 +16,8 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.FORWARD_U;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType
+        .FORWARD_U;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**

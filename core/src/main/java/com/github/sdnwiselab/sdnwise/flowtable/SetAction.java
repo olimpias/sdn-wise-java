@@ -16,7 +16,8 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.SET;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType
+        .SET;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.util.Utils.getBitRange;
 import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
@@ -42,24 +43,21 @@ public final class SetAction extends AbstractAction {
             SDN_WISE_OR = 6,
             SDN_WISE_XOR = 7;
 
-    private static final byte operatorBit = 3;
-    private static final byte operatorLen = 3;
-    private static final byte leftBit = 1;
-    private static final byte leftLen = 2;
-    private static final byte rightBit = 6;
-    private static final byte rightLen = leftLen;
-    private static final byte resBit = 0;
-    private static final byte resLen = 1;
-
-    private static final byte operationIndex = 0;
-    private static final byte resIndexH = 1;
-    private static final byte resIndexL = 2;
-
-    private static final byte leftIndexH = 3;
-    private static final byte leftIndexL = 4;
-
-    private static final byte rightIndexH = 5;
-    private static final byte rightIndexL = 6;
+    private static final byte operatorBit = 3,
+            operatorLen = 3,
+            leftBit = 1,
+            leftLen = 2,
+            rightBit = 6,
+            rightLen = leftLen,
+            resBit = 0,
+            resLen = 1,
+            operationIndex = 0,
+            resIndexH = 1,
+            resIndexL = 2,
+            leftIndexH = 3,
+            leftIndexL = 4,
+            rightIndexH = 5,
+            rightIndexL = 6;
 
     private static final byte SIZE = 7;
 
@@ -283,9 +281,9 @@ public final class SetAction extends AbstractAction {
     }
 
     /**
-     * Getter method to obtain Operator in String.
+     * Gets the operator as a String.
      *
-     * @return a string of operator.
+     * @return a string representation of the operator.
      */
     public String getOperatorToString() {
         switch (getOperator()) {
@@ -310,6 +308,12 @@ public final class SetAction extends AbstractAction {
         }
     }
 
+    /**
+     * Gets the operator id from a String.
+     *
+     * @param val the char representing the operator
+     * @return the operator id starting from a string.
+     */
     public int getOperatorFromString(final String val) {
         switch (val.trim()) {
             case ("+"):
@@ -403,6 +407,7 @@ public final class SetAction extends AbstractAction {
                 break;
             default:
                 tmp[0] = SDN_WISE_CONST;
+                break;
         }
 
         if (tmp[0] == SDN_WISE_PACKET) {

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,34 +36,33 @@ public final class Window implements FlowTableInterface {
      * Window Sizes.
      */
     public static final byte W_SIZE_1 = 0,
-        W_SIZE_2 = 1;
+            W_SIZE_2 = 1;
 
     /**
      * Window Operators.
      */
     public static final byte EQUAL = 0,
-        NOT_EQUAL = 1,
-        GREATER = 2,
-        LESS = 3,
-        GREATER_OR_EQUAL = 4,
-        LESS_OR_EQUAL = 5;
+            NOT_EQUAL = 1,
+            GREATER = 2,
+            LESS = 3,
+            GREATER_OR_EQUAL = 4,
+            LESS_OR_EQUAL = 5;
 
-    private static final byte operatorBit = 5;
-    private static final byte operatorLen = 3;
-    private static final byte leftBit = 3;
-    private static final byte leftLen = 2;
-    private static final byte rightBit = 1;
-    private static final byte rightLen = leftLen;
-    private static final byte sizeBit = 0;
-    private static final byte sizeLen = 1;
+    private static final byte operatorBit = 5,
+            operatorLen = 3,
+            leftBit = 3,
+            leftLen = 2,
+            rightBit = 1,
+            rightLen = leftLen,
+            sizeBit = 0,
+            sizeLen = 1,
+            operationIndex = 0,
+            leftHighIndex = 1,
+            leftLowIndex = 2,
+            rightHighIndex = 3,
+            rightLowIndex = 4;
 
-    private static final byte operationIndex = 0;
-    private static final byte leftHighIndex = 1;
-    private static final byte leftLowIndex = 2;
-    private static final byte rightHighIndex = 3;
-    private static final byte rightLowIndex = 4;
-
-    public static Window fromString(String val) {
+    public static Window fromString(final String val) {
         Window w = new Window();
         String[] operands = val.split(" ");
         if (operands.length == 3) {
@@ -276,7 +275,7 @@ public final class Window implements FlowTableInterface {
         }
     }
 
-    public int getOperatorFromString(String val) {
+    public int getOperatorFromString(final String val) {
         switch (val) {
             case ("=="):
                 return EQUAL;
@@ -374,7 +373,7 @@ public final class Window implements FlowTableInterface {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

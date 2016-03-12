@@ -106,7 +106,7 @@ public final class Stats implements FlowTableInterface {
     }
 
     @Override
-    public final String toString() {
+    public String toString() {
         return "TTL: " + (getTtl() == ENTRY_TTL_PERMANENT
                 ? "PERM" : getTtl()) + ", U: " + getCounter();
     }
@@ -126,13 +126,12 @@ public final class Stats implements FlowTableInterface {
         return this;
     }
 
-    public Stats decrementTtl(int value) {
-
+    public Stats decrementTtl(final int value) {
         this.setTtl(getTtl() - value);
         return this;
     }
 
-    private Stats setTtl(int ttl) {
+    private Stats setTtl(final int ttl) {
         this.stats[TTL_INDEX] = (byte) ttl;
         return this;
     }

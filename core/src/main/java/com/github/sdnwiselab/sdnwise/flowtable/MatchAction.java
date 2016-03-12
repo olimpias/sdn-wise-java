@@ -16,7 +16,8 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.MATCH;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType
+        .MATCH;
 
 /**
  * @author Sebastiano Milardo

@@ -16,7 +16,8 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType.ASK;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType
+        .ASK;
 
 /**
  * @author Sebastiano Milardo
