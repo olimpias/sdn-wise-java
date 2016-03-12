@@ -28,7 +28,7 @@ public final class FunctionAction extends AbstractAction {
      * Function id is at index 0, the arguments starts at 1.
      */
     private static final byte ID_INDEX = 0,
-        ARGS_INDEX = 1;
+            ARGS_INDEX = 1;
 
     public FunctionAction(final byte[] value) {
         super(value);
@@ -44,11 +44,16 @@ public final class FunctionAction extends AbstractAction {
     }
 
     public byte[] getArgs() {
-        return Arrays.copyOfRange(action, ARGS_INDEX, action.length);
+        byte[] value = getValue();
+        return Arrays.copyOfRange(value, ARGS_INDEX, value.length);
     }
 
     public FunctionAction setArgs(final byte[] args) {
-        System.arraycopy(args, 0, action, ARGS_INDEX, args.length);
+        int i = 0;
+        for (byte b : args) {
+            this.setValue(ARGS_INDEX + i, b);
+            i++;
+        }
         return this;
     }
 
@@ -56,8 +61,8 @@ public final class FunctionAction extends AbstractAction {
     public String toString() {
         StringBuilder sb = new StringBuilder(FUNCTION.name());
         sb.append(" ").append(getId()).append(" ");
-        for (int i = 2; i < action.length; i++) {
-            sb.append(action[i]).append(" ");
+        for (byte b : getArgs()) {
+            sb.append(b & Byte.MAX_VALUE).append(" ");
         }
         return sb.toString();
     }
@@ -65,15 +70,12 @@ public final class FunctionAction extends AbstractAction {
     public FunctionAction(final String str) {
         super(FUNCTION, 0);
         String[] tmp = str.split(" ");
-
         if (tmp[0].equals(FUNCTION.name())) {
-            action = new byte[tmp.length];
-            setType(FUNCTION);
-            setId(Integer.parseInt(tmp[1]));
-
-            for (int i = 2; i < action.length; i++) {
-                action[i] = (byte) (Integer.parseInt(tmp[i]));
+            byte[] args = new byte[tmp.length - 1];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = (byte) (Integer.parseInt(tmp[i + 1]));
             }
+            this.setValue(args);
         } else {
             throw new IllegalArgumentException();
         }

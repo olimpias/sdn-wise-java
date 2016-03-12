@@ -206,7 +206,7 @@ public final class FlowTableEntry implements FlowTableInterface {
     public byte[] toByteArray() {
         int size = (1 + windows.size() * Window.SIZE) + Stats.SIZE;
         for (AbstractAction a : actions) {
-            size = size + a.action.length + 1;
+            size = size + a.getActionLength() + 1;
         }
 
         ByteBuffer target = ByteBuffer.allocate(size);
@@ -217,7 +217,7 @@ public final class FlowTableEntry implements FlowTableInterface {
         });
 
         actions.stream().map((a) -> {
-            target.put((byte) a.action.length);
+            target.put((byte) a.getActionLength());
             return a;
         }).forEach((a) -> {
             target.put(a.toByteArray());

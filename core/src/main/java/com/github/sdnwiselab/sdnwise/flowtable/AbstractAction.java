@@ -16,6 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -52,7 +53,8 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     protected static final int TYPE_INDEX = 0;
-    protected byte[] action;
+    protected static final int VALUE_INDEX = 1;
+    private byte[] action;
 
     /**
      * Constructor for the FlowTableAction object.
@@ -134,6 +136,18 @@ public abstract class AbstractAction implements FlowTableInterface {
         return this;
     }
 
+    final AbstractAction setValue(final byte[] value) {
+        ActionType type = this.getType();
+        action = ByteBuffer.allocate(value.length + 1)
+                .put(type.value)
+                .put(value).array();
+        return this;
+    }
+
+    final byte[] getValue() {
+        return Arrays.copyOfRange(action, VALUE_INDEX, action.length);
+    }
+
     final int getValue(final int index) {
         if (index < 0 || index >= action.length) {
             throw new ArrayIndexOutOfBoundsException("Index out of bound");
@@ -146,4 +160,13 @@ public abstract class AbstractAction implements FlowTableInterface {
     public String toString() {
         return getType().name();
     }
+
+    final int getActionLength() {
+        return action.length;
+    }
+
+    final int getValueLength() {
+        return action.length - 1;
+    }
+
 }
