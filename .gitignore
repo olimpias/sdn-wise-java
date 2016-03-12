@@ -20,3 +20,4 @@ hs_err_pid*
 /ctrl/logs/
 /data/logs/
 /target/
+/core/nbproject/

@@ -48,7 +48,9 @@ public final class Utils {
     }
 
     public static int mergeBytes(final int high, final int low) {
-        return (((byte) high) << Byte.SIZE) | ((byte) low);
+        int h = Byte.toUnsignedInt((byte)high);
+        int l = Byte.toUnsignedInt((byte)low);
+        return (h << Byte.SIZE) | l;
     }
 
     public static byte[] splitInteger(final int value) {

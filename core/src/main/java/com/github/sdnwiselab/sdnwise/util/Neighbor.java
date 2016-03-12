@@ -25,11 +25,11 @@ package com.github.sdnwiselab.sdnwise.util;
 public final class Neighbor {
 
     private final NodeAddress addr;
-    private final int rssi;
-    private final int batt;
+    private final int rssi, batt;
+    private static final int MAX_BYTE = 0xFF;
 
     /**
-     * Constructor method for this class by following attributes.
+     * Constructs a Neighbor given its attributes.
      *
      * @param a NodeAddress Object.
      * @param r r of the NodeAddress.
@@ -42,13 +42,12 @@ public final class Neighbor {
     }
 
     /**
-     * Simple Constructor method for this class.
-     *
+     * Constructs a Neighbor object.
      */
     public Neighbor() {
-        this.addr = new NodeAddress(255, 255);
-        this.rssi = 255;
-        this.batt = 255;
+        this.addr = NodeAddress.BROADCAST_ADDR;
+        this.rssi = MAX_BYTE;
+        this.batt = MAX_BYTE;
     }
 
     /**
