@@ -25,7 +25,7 @@ public abstract class AbstractForwardAction extends AbstractAction {
 
     private static final byte NXH_INDEX = 0;
 
-    public AbstractForwardAction(final ActionType actionType) {
+    public AbstractForwardAction(final Action actionType) {
         super(actionType, 2);
     }
 

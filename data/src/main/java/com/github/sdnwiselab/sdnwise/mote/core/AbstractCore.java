@@ -702,7 +702,7 @@ public abstract class AbstractCore {
                         packet.setParams(splitInteger(cnt_report_max), id.size);
                         break;
                     case RULE_TTL:
-                        packet.setParams(new byte[]{(byte) cnt_updtable_max }, id.size);
+                        packet.setParams(new byte[]{(byte) cnt_updtable_max}, id.size);
                         break;
                     case PACKET_TTL:
                         packet.setParams(new byte[]{(byte) rule_ttl}, id.size);

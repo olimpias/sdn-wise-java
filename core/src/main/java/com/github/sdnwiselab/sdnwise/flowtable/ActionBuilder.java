@@ -16,7 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType;
+import com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action;
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.TYPE_INDEX;
 
 /**
@@ -28,7 +28,7 @@ public final class ActionBuilder {
     }
 
     public static AbstractAction build(final String val) {
-        switch (ActionType.valueOf(val.split(" ")[0])) {
+        switch (Action.valueOf(val.split(" ")[0])) {
             case FORWARD_U:
                 return new ForwardUnicastAction(val);
 
@@ -56,7 +56,7 @@ public final class ActionBuilder {
     }
 
     public static AbstractAction build(final byte[] array) {
-        switch (ActionType.fromByte(array[TYPE_INDEX])) {
+        switch (Action.fromByte(array[TYPE_INDEX])) {
             case FORWARD_U:
                 return new ForwardUnicastAction(array);
             case FORWARD_B:

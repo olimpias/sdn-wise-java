@@ -16,8 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType
-        .SET;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.SET;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.util.Utils.getBitRange;
 import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
@@ -43,21 +42,21 @@ public final class SetAction extends AbstractAction {
             SDN_WISE_OR = 6,
             SDN_WISE_XOR = 7;
 
-    private static final byte operatorBit = 3,
-            operatorLen = 3,
-            leftBit = 1,
-            leftLen = 2,
-            rightBit = 6,
-            rightLen = leftLen,
-            resBit = 0,
-            resLen = 1,
-            operationIndex = 0,
-            resIndexH = 1,
-            resIndexL = 2,
-            leftIndexH = 3,
-            leftIndexL = 4,
-            rightIndexH = 5,
-            rightIndexL = 6;
+    private static final byte OP_BIT = 3,
+            OP_LEN = 3,
+            LEFT_BIT = 1,
+            LEFT_LEN = 2,
+            RIGHT_BIT = 6,
+            RIGHT_LEN = LEFT_LEN,
+            RES_BIT = 0,
+            RES_LEN = 1,
+            OP_INDEX = 0,
+            RES_INDEX_H = 1,
+            RES_INDEX_L = 2,
+            LEFT_INDEX_H = 3,
+            LEFT_INDEX_L = 4,
+            RIGHT_INDEX_H = 5,
+            RIGHT_INDEX_L = 6;
 
     private static final byte SIZE = 7;
 
@@ -123,7 +122,7 @@ public final class SetAction extends AbstractAction {
      * @return an int value of SIZE.
      */
     public int getResLocation() {
-        return getBitRange(getValue(operationIndex), resBit, resLen) + 2;
+        return getBitRange(getValue(OP_INDEX), RES_BIT, RES_LEN) + 2;
     }
 
     /**
@@ -132,7 +131,7 @@ public final class SetAction extends AbstractAction {
      * @return an int value of operator.
      */
     public int getOperator() {
-        return getBitRange(getValue(operationIndex), operatorBit, operatorLen);
+        return getBitRange(getValue(OP_INDEX), OP_BIT, OP_LEN);
     }
 
     /**
@@ -141,7 +140,7 @@ public final class SetAction extends AbstractAction {
      * @return an int value of location.
      */
     public int getLhsLocation() {
-        return getBitRange(getValue(operationIndex), leftBit, leftLen);
+        return getBitRange(getValue(OP_INDEX), LEFT_BIT, LEFT_LEN);
     }
 
     /**
@@ -150,54 +149,54 @@ public final class SetAction extends AbstractAction {
      * @return an int value of location.
      */
     public int getRhsLocation() {
-        return getBitRange(getValue(operationIndex), rightBit, rightLen);
+        return getBitRange(getValue(OP_INDEX), RIGHT_BIT, RIGHT_LEN);
     }
 
     /**
-     * Setter method to set operationIndex of action[].
+     * Setter method to set OP_INDEX of action[].
      *
      * @param value value to set
      * @return this Window
      */
     public SetAction setResLocation(final int value) {
-        setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
-                resBit, resLen, value));
+        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
+                RES_BIT, RES_LEN, value));
         return this;
     }
 
     /**
-     * Setter method to set operationIndex of action[].
+     * Setter method to set OP_INDEX of action[].
      *
      * @param value value to set
      * @return this Window
      */
     public SetAction setOperator(final int value) {
-        setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
-                operatorBit, operatorLen, value));
+        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
+                OP_BIT, OP_LEN, value));
         return this;
     }
 
     /**
-     * Setter method to set operationIndex of action[].
+     * Setter method to set OP_INDEX of action[].
      *
      * @param value value to set
      * @return this Window
      */
     public SetAction setRhsLocation(final int value) {
-        setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
-                rightBit, rightLen, value));
+        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
+                RIGHT_BIT, RIGHT_LEN, value));
         return this;
     }
 
     /**
-     * Setter method to set operationIndex of action[].
+     * Setter method to set OP_INDEX of action[].
      *
      * @param value value to set
      * @return this Window
      */
     public SetAction setLhsLocation(final int value) {
-        setValue(operationIndex, (byte) setBitRange(getValue(operationIndex),
-                leftBit, leftLen, value));
+        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
+                LEFT_BIT, LEFT_LEN, value));
         return this;
     }
 
@@ -207,7 +206,7 @@ public final class SetAction extends AbstractAction {
      * @return an int value of pos.
      */
     public int getLhs() {
-        return mergeBytes(getValue(leftIndexH), getValue(leftIndexL));
+        return mergeBytes(getValue(LEFT_INDEX_H), getValue(LEFT_INDEX_L));
     }
 
     /**
@@ -217,8 +216,8 @@ public final class SetAction extends AbstractAction {
      * @return this Window
      */
     public SetAction setLhs(final int val) {
-        setValue(leftIndexL, (byte) val);
-        setValue(leftIndexH, (byte) val >>> Byte.SIZE);
+        setValue(LEFT_INDEX_L, (byte) val);
+        setValue(LEFT_INDEX_H, (byte) val >>> Byte.SIZE);
         return this;
     }
 
@@ -228,7 +227,7 @@ public final class SetAction extends AbstractAction {
      * @return an int value of high value.
      */
     public int getRes() {
-        return mergeBytes(getValue(resIndexH), getValue(resIndexL));
+        return mergeBytes(getValue(RES_INDEX_H), getValue(RES_INDEX_L));
     }
 
     /**
@@ -237,7 +236,7 @@ public final class SetAction extends AbstractAction {
      * @return an int value of high value.
      */
     public int getRhs() {
-        return mergeBytes(getValue(rightIndexH), getValue(rightIndexL));
+        return mergeBytes(getValue(RIGHT_INDEX_H), getValue(RIGHT_INDEX_L));
     }
 
     /**
@@ -247,8 +246,8 @@ public final class SetAction extends AbstractAction {
      * @return this Window
      */
     public SetAction setRes(final int val) {
-        setValue(resIndexL, (byte) val);
-        setValue(resIndexH, (byte) val >>> Byte.SIZE);
+        setValue(RES_INDEX_L, (byte) val);
+        setValue(RES_INDEX_H, (byte) val >>> Byte.SIZE);
         return this;
     }
 
@@ -259,8 +258,8 @@ public final class SetAction extends AbstractAction {
      * @return this Window
      */
     public SetAction setRhs(final int val) {
-        setValue(rightIndexL, (byte) val);
-        setValue(rightIndexH, (byte) val >>> Byte.SIZE);
+        setValue(RIGHT_INDEX_L, (byte) val);
+        setValue(RIGHT_INDEX_H, (byte) val >>> Byte.SIZE);
         return this;
     }
 

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -65,18 +65,18 @@ public class RegProxyPacket extends NetworkPacket {
      * set to REG_PROXY and the destination isa is src beacuse this message is
      * only sent by sinks.
      *
-     * @param net
-     * @param src
-     * @param dPid
-     * @param mac
-     * @param port
-     * @param isa
+     * @param net Network ID of the packet
+     * @param src sorce address
+     * @param dPid dpid
+     * @param mac mac address
+     * @param port physical port
+     * @param isa InetSocketAddress of the node
      */
-    public RegProxyPacket(int net, NodeAddress src,
-            String dPid,
-            String mac,
-            long port,
-            InetSocketAddress isa) {
+    public RegProxyPacket(final int net, final NodeAddress src,
+            final String dPid,
+            final String mac,
+            final long port,
+            final InetSocketAddress isa) {
         super(net, src, src);
         setTyp(REG_PROXY);
         setMac(mac);

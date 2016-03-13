@@ -27,9 +27,9 @@ public interface FlowTableInterface {
      * Location constants.
      */
     byte SDN_WISE_NULL = 0,
-        SDN_WISE_CONST = 1,
-        SDN_WISE_PACKET = 2,
-        SDN_WISE_STATUS = 3;
+            SDN_WISE_CONST = 1,
+            SDN_WISE_PACKET = 2,
+            SDN_WISE_STATUS = 3;
 
     /**
      * Converts a FlowTable entry part in a byte array.

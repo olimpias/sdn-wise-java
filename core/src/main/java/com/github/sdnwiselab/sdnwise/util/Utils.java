@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.github.sdnwiselab.sdnwise.util;
 
 import java.nio.ByteBuffer;
@@ -48,8 +47,8 @@ public final class Utils {
     }
 
     public static int mergeBytes(final int high, final int low) {
-        int h = Byte.toUnsignedInt((byte)high);
-        int l = Byte.toUnsignedInt((byte)low);
+        int h = Byte.toUnsignedInt((byte) high);
+        int l = Byte.toUnsignedInt((byte) low);
         return (h << Byte.SIZE) | l;
     }
 

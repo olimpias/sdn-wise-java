@@ -16,8 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.ActionType
-        .FUNCTION;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.FUNCTION;
 import java.util.Arrays;
 
 /**

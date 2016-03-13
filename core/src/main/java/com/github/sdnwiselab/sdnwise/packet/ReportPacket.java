@@ -29,7 +29,8 @@ import java.util.Map;
 public class ReportPacket extends BeaconPacket {
 
     private static final byte MAX_NEIG = 35,
-    NEIGH_INDEX = 2;
+            NEIGH_INDEX = 2,
+            NEIGH_SIZE = 3;
 
     /**
      * This constructor initialize a report packet starting from a byte array.
@@ -97,7 +98,7 @@ public class ReportPacket extends BeaconPacket {
     public final ReportPacket setNeighbors(final int value) {
         if (value <= MAX_NEIG) {
             this.setPayloadAt((byte) value, NEIGH_INDEX);
-            this.setPayloadSize((byte) (3 + value * 3));
+            this.setPayloadSize((byte) (NEIGH_SIZE + value * NEIGH_SIZE));
         } else {
             throw new IllegalArgumentException("Too many neighbors");
         }
@@ -113,8 +114,8 @@ public class ReportPacket extends BeaconPacket {
     public final NodeAddress getNeighborAddress(final int i) {
         if (i <= MAX_NEIG) {
             return new NodeAddress(
-                    this.getPayloadAt(NEIGH_INDEX + 1 + i * 3),
-                    this.getPayloadAt(NEIGH_INDEX + 2 + (i * 3)));
+                    this.getPayloadAt(NEIGH_INDEX + 1 + (i * NEIGH_SIZE)),
+                    this.getPayloadAt(NEIGH_INDEX + 2 + (i * NEIGH_SIZE)));
         } else {
             throw new IllegalArgumentException(
                     "Index exceeds max number of neighbors");
@@ -131,8 +132,8 @@ public class ReportPacket extends BeaconPacket {
     public final ReportPacket setNeighborAddressAt(final NodeAddress addr,
             final int i) {
         if (i <= MAX_NEIG) {
-            setPayloadAt(addr.getHigh(), (byte) (NEIGH_INDEX + 1 + i * 3));
-            setPayloadAt(addr.getLow(), (byte) (NEIGH_INDEX + 2 + (i * 3)));
+            setPayloadAt(addr.getHigh(), (NEIGH_INDEX + 1 + (i * NEIGH_SIZE)));
+            setPayloadAt(addr.getLow(), (NEIGH_INDEX + 2 + (i * NEIGH_SIZE)));
             if (this.getNeigborsSize() < i) {
                 this.setNeighbors(i);
             }
@@ -152,7 +153,7 @@ public class ReportPacket extends BeaconPacket {
      */
     public final int getLinkQuality(final int i) {
         if (i <= MAX_NEIG) {
-            return this.getPayloadAt(5 + (i * 3));
+            return this.getPayloadAt(NEIGH_INDEX + 2 + (i * NEIGH_SIZE));
         } else {
             throw new IllegalArgumentException(
                     "Index exceeds max number of neighbors");
@@ -169,7 +170,7 @@ public class ReportPacket extends BeaconPacket {
      */
     public final ReportPacket setLinkQualityAt(final byte value, final int i) {
         if (i <= MAX_NEIG) {
-            this.setPayloadAt(value, (byte) (5 + i * 3));
+            this.setPayloadAt(value, NEIGH_INDEX + 2 + (i * NEIGH_INDEX));
             if (this.getNeigborsSize() < i) {
                 this.setNeighbors(i);
             }

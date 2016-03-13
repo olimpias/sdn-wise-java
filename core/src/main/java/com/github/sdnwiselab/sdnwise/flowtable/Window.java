@@ -48,19 +48,19 @@ public final class Window implements FlowTableInterface {
             GREATER_OR_EQUAL = 4,
             LESS_OR_EQUAL = 5;
 
-    private static final byte operatorBit = 5,
-            operatorLen = 3,
-            leftBit = 3,
-            leftLen = 2,
-            rightBit = 1,
-            rightLen = leftLen,
-            sizeBit = 0,
-            sizeLen = 1,
-            operationIndex = 0,
-            leftHighIndex = 1,
-            leftLowIndex = 2,
-            rightHighIndex = 3,
-            rightLowIndex = 4;
+    private static final byte OP_BIT = 5,
+            OP_LEN = 3,
+            LEFT_BIT = 3,
+            LEFT_LEN = 2,
+            RIGHT_BIT = 1,
+            RIGHT_LEN = LEFT_LEN,
+            SIZE_BIT = 0,
+            SIZE_LEN = 1,
+            OP_INDEX = 0,
+            LEFT_INDEX_H = 1,
+            LEFT_INDEX_L = 2,
+            RIGHT_INDEX_H = 3,
+            RIGHT_INDEX_L = 4;
 
     public static Window fromString(final String val) {
         Window w = new Window();
@@ -119,7 +119,7 @@ public final class Window implements FlowTableInterface {
      * @return an int value of size.
      */
     public int getSize() {
-        return getBitRange(window[operationIndex], sizeBit, sizeLen);
+        return getBitRange(window[OP_INDEX], SIZE_BIT, SIZE_LEN);
     }
 
     /**
@@ -128,7 +128,7 @@ public final class Window implements FlowTableInterface {
      * @return an int value of operator.
      */
     public int getOperator() {
-        return getBitRange(window[operationIndex], operatorBit, operatorLen);
+        return getBitRange(window[OP_INDEX], OP_BIT, OP_LEN);
     }
 
     /**
@@ -137,7 +137,7 @@ public final class Window implements FlowTableInterface {
      * @return an int value of location.
      */
     public int getLhsLocation() {
-        return getBitRange(window[operationIndex], leftBit, leftLen);
+        return getBitRange(window[OP_INDEX], LEFT_BIT, LEFT_LEN);
     }
 
     /**
@@ -146,54 +146,54 @@ public final class Window implements FlowTableInterface {
      * @return an int value of location.
      */
     public int getRhsLocation() {
-        return getBitRange(window[operationIndex], rightBit, rightLen);
+        return getBitRange(window[OP_INDEX], RIGHT_BIT, RIGHT_LEN);
     }
 
     /**
-     * Setter method to set operationIndex of window[].
+     * Setter method to set OP_INDEX of window[].
      *
      * @param value value to set
      * @return this Window
      */
     public Window setSize(final int value) {
-        window[operationIndex] = (byte) setBitRange(
-                window[operationIndex], sizeBit, sizeLen, value);
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], SIZE_BIT, SIZE_LEN, value);
         return this;
     }
 
     /**
-     * Setter method to set operationIndex of window[].
+     * Setter method to set OP_INDEX of window[].
      *
      * @param value value to set
      * @return this Window
      */
     public Window setOperator(final int value) {
-        window[operationIndex] = (byte) setBitRange(
-                window[operationIndex], operatorBit, operatorLen, value);
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], OP_BIT, OP_LEN, value);
         return this;
     }
 
     /**
-     * Setter method to set operationIndex of window[].
+     * Setter method to set OP_INDEX of window[].
      *
      * @param value value to set
      * @return this Window
      */
     public Window setRhsLocation(final int value) {
-        window[operationIndex] = (byte) setBitRange(
-                window[operationIndex], rightBit, rightLen, value);
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], RIGHT_BIT, RIGHT_LEN, value);
         return this;
     }
 
     /**
-     * Setter method to set operationIndex of window[].
+     * Setter method to set OP_INDEX of window[].
      *
      * @param value value to set
      * @return this Window
      */
     public Window setLhsLocation(final int value) {
-        window[operationIndex] = (byte) setBitRange(
-                window[operationIndex], leftBit, leftLen, value);
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], LEFT_BIT, LEFT_LEN, value);
         return this;
     }
 
@@ -203,7 +203,7 @@ public final class Window implements FlowTableInterface {
      * @return an int value of pos.
      */
     public int getLhs() {
-        return Utils.mergeBytes(window[leftHighIndex], window[leftLowIndex]);
+        return Utils.mergeBytes(window[LEFT_INDEX_H], window[LEFT_INDEX_L]);
     }
 
     /**
@@ -213,8 +213,8 @@ public final class Window implements FlowTableInterface {
      * @return this Window
      */
     public Window setLhs(final int val) {
-        this.window[leftHighIndex] = (byte) (val >>> Byte.SIZE);
-        this.window[leftLowIndex] = (byte) val;
+        this.window[LEFT_INDEX_H] = (byte) (val >>> Byte.SIZE);
+        this.window[LEFT_INDEX_L] = (byte) val;
         return this;
     }
 
@@ -224,7 +224,7 @@ public final class Window implements FlowTableInterface {
      * @return an int value of high value.
      */
     public int getRhs() {
-        return Utils.mergeBytes(window[rightHighIndex], window[rightLowIndex]);
+        return Utils.mergeBytes(window[RIGHT_INDEX_H], window[RIGHT_INDEX_L]);
     }
 
     /**
@@ -234,8 +234,8 @@ public final class Window implements FlowTableInterface {
      * @return this Window
      */
     public Window setRhs(final int val) {
-        this.window[rightHighIndex] = (byte) (val >>> Byte.SIZE);
-        this.window[rightLowIndex] = (byte) val;
+        this.window[RIGHT_INDEX_H] = (byte) (val >>> Byte.SIZE);
+        this.window[RIGHT_INDEX_L] = (byte) val;
         return this;
     }
 

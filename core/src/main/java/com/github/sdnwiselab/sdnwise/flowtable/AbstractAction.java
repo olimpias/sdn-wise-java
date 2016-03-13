@@ -30,7 +30,7 @@ public abstract class AbstractAction implements FlowTableInterface {
     /**
      * Representation of the different types of actions.
      */
-    public enum ActionType {
+    public enum Action {
         NULL(0),
         FORWARD_U(1),
         FORWARD_B(2),
@@ -41,13 +41,13 @@ public abstract class AbstractAction implements FlowTableInterface {
         MATCH(7);
 
         private final byte value;
-        private static final ActionType[] A_VALUES = ActionType.values();
+        private static final Action[] A_VALUES = Action.values();
 
-        public static ActionType fromByte(final byte value) {
+        public static Action fromByte(final byte value) {
             return A_VALUES[value];
         }
 
-        ActionType(final int v) {
+        Action(final int v) {
             this.value = (byte) v;
         }
     }
@@ -62,7 +62,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param actionType the type of action that will be created
      * @param size the size of the action
      */
-    public AbstractAction(final ActionType actionType, final int size) {
+    public AbstractAction(final Action actionType, final int size) {
         action = new byte[size + 1];
         setType(actionType);
     }
@@ -83,8 +83,8 @@ public abstract class AbstractAction implements FlowTableInterface {
      *
      * @return value of the type action.
      */
-    public final ActionType getType() {
-        return ActionType.fromByte(action[TYPE_INDEX]);
+    public final Action getType() {
+        return Action.fromByte(action[TYPE_INDEX]);
     }
 
     @Override
@@ -122,7 +122,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param value will be set.
      * @return this AbstractAction.
      */
-    final AbstractAction setType(final ActionType value) {
+    final AbstractAction setType(final Action value) {
         action[TYPE_INDEX] = value.value;
         return this;
     }
@@ -137,7 +137,7 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     final AbstractAction setValue(final byte[] value) {
-        ActionType type = this.getType();
+        Action type = this.getType();
         action = ByteBuffer.allocate(value.length + 1)
                 .put(type.value)
                 .put(value).array();

@@ -238,11 +238,12 @@ public final class FlowTableEntry implements FlowTableInterface {
     }
 
     /**
-     * Indicates whether the windows of another FlowTableEntry object are
-     * "equal to" the windows of this one.
+     * Indicates whether the windows of another FlowTableEntry object are "equal
+     * to" the windows of this one.
+     *
      * @param other the other FlowTableEntry object
-     * @return {@code true} if this object is the same as the obj
-     * argument; {@code false} otherwise.
+     * @return {@code true} if this object is the same as the obj argument;
+     * {@code false} otherwise.
      */
     public boolean equalWindows(final FlowTableEntry other) {
         return Objects.deepEquals(this.windows, other.windows);
