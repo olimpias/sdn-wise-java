@@ -58,6 +58,9 @@ public final class SetAction extends AbstractAction {
             RIGHT_INDEX_H = 5,
             RIGHT_INDEX_L = 6;
 
+    /**
+     * SetAction size in bytes.
+     */
     private static final byte SIZE = 7;
 
     /**
@@ -409,12 +412,16 @@ public final class SetAction extends AbstractAction {
                 break;
         }
 
-        if (tmp[0] == SDN_WISE_PACKET) {
-            tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
-        } else if (tmp[0] == SDN_WISE_CONST) {
-            tmp[1] = Integer.parseInt(strVal[0]);
-        } else {
-            tmp[1] = Integer.parseInt(strVal[1]);
+        switch (tmp[0]) {
+            case SDN_WISE_PACKET:
+                tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
+                break;
+            case SDN_WISE_CONST:
+                tmp[1] = Integer.parseInt(strVal[0]);
+                break;
+            default:
+                tmp[1] = Integer.parseInt(strVal[1]);
+                break;
         }
         return tmp;
     }
