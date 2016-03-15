@@ -33,7 +33,6 @@ public final class BeaconPacketTest {
      */
     @Test
     public void testGetDistance() {
-        System.out.println("getDistance");
         BeaconPacket instance = new BeaconPacket(1, new NodeAddress("0.2"),
                 new NodeAddress("0.0"), 1, 1);
         int expResult = 1;
@@ -46,7 +45,6 @@ public final class BeaconPacketTest {
      */
     @Test
     public void testGetBattery() {
-        System.out.println("getBattery");
         BeaconPacket instance = new BeaconPacket(1, new NodeAddress("0.2"),
                 new NodeAddress("0.0"), 1, 1);
         int expResult = 1;
@@ -59,7 +57,6 @@ public final class BeaconPacketTest {
      */
     @Test
     public void testGetSinkAddress() {
-        System.out.println("getSinkAddress");
         BeaconPacket instance = new BeaconPacket(1, new NodeAddress("0.2"),
                 new NodeAddress("0.0"), 1, 1);
         NodeAddress expResult = new NodeAddress("0.0");
@@ -72,10 +69,9 @@ public final class BeaconPacketTest {
      */
     @Test
     public void testToByteArray() {
-        System.out.println("toByteArray");
         BeaconPacket instance = new BeaconPacket(1, new NodeAddress("0.2"),
                 new NodeAddress("0.0"), 1, 1);
-        String expResult = "[1, 12, 255, 255, 0, 2, 1, 100, 0, 0, 1, 1]";
+        String expResult = "[1, 12, -1, -1, 0, 2, 1, 100, 0, 0, 1, 1]";
         String result = Arrays.toString(instance.toByteArray());
         assertEquals(expResult, result);
     }
