@@ -28,6 +28,9 @@ import java.util.Map;
  */
 public class ReportPacket extends BeaconPacket {
 
+    /**
+     * The maximum number of neighbors allowed in a single packet is 35.
+     */
     private static final byte MAX_NEIG = 35,
             NEIGH_INDEX = 2,
             NEIGH_SIZE = 3;
@@ -153,7 +156,7 @@ public class ReportPacket extends BeaconPacket {
      */
     public final int getLinkQuality(final int i) {
         if (i <= MAX_NEIG) {
-            return this.getPayloadAt(NEIGH_INDEX + 3 + (i * NEIGH_SIZE));
+            return this.getPayloadAt(NEIGH_INDEX + ((i + 1) * NEIGH_SIZE));
         } else {
             throw new IllegalArgumentException(
                     "Index exceeds max number of neighbors");
@@ -170,7 +173,7 @@ public class ReportPacket extends BeaconPacket {
      */
     public final ReportPacket setLinkQualityAt(final byte value, final int i) {
         if (i <= MAX_NEIG) {
-            this.setPayloadAt(value, NEIGH_INDEX + 3 + (i * NEIGH_SIZE));
+            this.setPayloadAt(value, NEIGH_INDEX + ((i + 1) * NEIGH_SIZE));
             if (this.getNeigborsSize() < i) {
                 this.setNeighbors(i);
             }

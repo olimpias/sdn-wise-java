@@ -31,16 +31,48 @@ public abstract class AbstractAction implements FlowTableInterface {
      * Representation of the different types of actions.
      */
     public enum Action {
+        /**
+         * An empty action.
+         */
         NULL(0),
+        /**
+         * Forward to a destination in unicast.
+         */
         FORWARD_U(1),
+        /**
+         * Forward to a destination in broadcast.
+         */
         FORWARD_B(2),
+        /**
+         * Drops the packet.
+         */
         DROP(3),
+        /**
+         * Creates a new Request packet containing the current packet and sends
+         * it to the controller.
+         */
         ASK(4),
+        /**
+         * Invokes a function.
+         */
         FUNCTION(5),
+        /**
+         * Sets a byte in the status register or in the packet.
+         */
         SET(6),
+        /**
+         * Matches the packet against the FlowTable.
+         */
         MATCH(7);
 
+        /**
+         * A byte representing the action.
+         */
         private final byte value;
+
+        /**
+         * Contains all the possible action values.
+         */
         private static final Action[] A_VALUES = Action.values();
 
         public static Action fromByte(final byte value) {
