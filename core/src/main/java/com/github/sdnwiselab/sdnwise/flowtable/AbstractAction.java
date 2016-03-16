@@ -75,17 +75,38 @@ public abstract class AbstractAction implements FlowTableInterface {
          */
         private static final Action[] A_VALUES = Action.values();
 
+        /**
+         * Returns the corresponting Action given a byte.
+         *
+         * @param value a byte representing the Action
+         * @return the corresponding Action
+         */
         public static Action fromByte(final byte value) {
             return A_VALUES[value];
         }
 
+        /**
+         * Creates a new Action.
+         *
+         * @param v a byte representing the action.
+         */
         Action(final int v) {
             this.value = (byte) v;
         }
     }
 
+    /**
+     * The index of the Action array representation were the type is stored.
+     */
     protected static final int TYPE_INDEX = 0;
+    /**
+     * The index of the Action array representation were the action values are
+     * stored.
+     */
     protected static final int VALUE_INDEX = 1;
+    /**
+     * Stores the action as a byte array.
+     */
     private byte[] action;
 
     /**
@@ -141,17 +162,13 @@ public abstract class AbstractAction implements FlowTableInterface {
 
     @Override
     public final int hashCode() {
-        int hash = 5;
-        hash = 61 * hash + Arrays.hashCode(this.action);
-        return hash;
+        return Arrays.hashCode(action);
     }
 
     /**
-     * Setter method to set the type of AbstractAction. The possible types of
-     * actions are SDN_WISE_FORWARD_U, SDN_WISE_FORWARD_B, SDN_WISE_DROP,
-     * SDN_WISE_MODIFY, SDN_WISE_AGGREGATE, SDN_WISE_FORWARD_UP.
+     * Sets the type of AbstractAction.
      *
-     * @param value will be set.
+     * @param value to be set.
      * @return this AbstractAction.
      */
     final AbstractAction setType(final Action value) {
@@ -159,6 +176,14 @@ public abstract class AbstractAction implements FlowTableInterface {
         return this;
     }
 
+    /**
+     * Sets a value for the action. A value is a parameter that an action
+     * uses to achieve its result.
+     *
+     * @param index the index in the action array where the value is stored
+     * @param value the value to be stored
+     * @return the AbstracAction itself
+     */
     final AbstractAction setValue(final int index, final int value) {
         if (index < 0 || index >= action.length) {
             throw new ArrayIndexOutOfBoundsException("Index out of bound");
@@ -168,6 +193,13 @@ public abstract class AbstractAction implements FlowTableInterface {
         return this;
     }
 
+    /**
+     * Sets a value for the action. A value is a parameter that an action
+     * uses to achieve its result.
+     *
+     * @param value the value to be stored as a byte array
+     * @return the AbstracAction itself
+     */
     final AbstractAction setValue(final byte[] value) {
         Action type = this.getType();
         action = ByteBuffer.allocate(value.length + 1)
@@ -176,10 +208,23 @@ public abstract class AbstractAction implements FlowTableInterface {
         return this;
     }
 
+    /**
+     * Gets a value from the action. A value is a parameter that an action
+     * uses to achieve its result.
+     *
+     * @return a byte array containing all the values
+     */
     final byte[] getValue() {
         return Arrays.copyOfRange(action, VALUE_INDEX, action.length);
     }
 
+    /**
+     * Gets a value from the action. A value is a parameter that an action
+     * uses to achieve its result.
+     *
+     * @param index the index in the action array where the value is stored
+     * @return the value of the action
+     */
     final int getValue(final int index) {
         if (index < 0 || index >= action.length) {
             throw new ArrayIndexOutOfBoundsException("Index out of bound");
@@ -193,10 +238,18 @@ public abstract class AbstractAction implements FlowTableInterface {
         return getType().name();
     }
 
+    /**
+     * Returns the size of the action array.
+     * @return the size of the action array
+     */
     final int getActionLength() {
         return action.length;
     }
 
+    /**
+     * Returns the size of the values stored.
+     * @return the size of the values stored
+     */
     final int getValueLength() {
         return action.length - 1;
     }
