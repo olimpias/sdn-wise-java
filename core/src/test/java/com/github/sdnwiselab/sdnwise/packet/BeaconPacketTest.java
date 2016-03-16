@@ -65,7 +65,7 @@ public final class BeaconPacketTest {
     }
 
     /**
-     * Test of getSinkAddress method, of class BeaconPacket.
+     * Test of toByteArray method, of class BeaconPacket.
      */
     @Test
     public void testToByteArray() {
