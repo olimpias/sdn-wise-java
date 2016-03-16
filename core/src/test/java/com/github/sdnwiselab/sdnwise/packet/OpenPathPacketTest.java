@@ -16,32 +16,37 @@
  */
 package com.github.sdnwiselab.sdnwise.packet;
 
+import com.github.sdnwiselab.sdnwise.flowtable.Window;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedList;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * Tests for the BeaconPacket class.
+ * Tests for the OpenPathPacket class.
  *
  * @author Sebastiano Milardo
  */
-public final class ReportPacketTest {
+public final class OpenPathPacketTest {
 
     /**
-     * Test of toByteArray method, of class ReportPacket.
+     * Test of toByteArray method, of class OpenPathPacket.
      */
     @Test
     public void testToByteArray() {
-        ReportPacket instance = new ReportPacket(1, new NodeAddress("0.2"),
-                new NodeAddress("0.0"), 2, 1);
-        HashMap<NodeAddress, Byte> map = new HashMap<>();
-        map.put(new NodeAddress("0.3"), (byte) 1);
-        map.put(new NodeAddress("0.4"), (byte) 2);
-        instance.setNeighbors(map);
-        String expResult = "[1, 19, 0, 0, 0, 2, 2, 100, 0, 0, 2, 1, 2, 0,"
-                + " 3, 1, 0, 4, 2]";
+        LinkedList<NodeAddress> path = new LinkedList<>();
+        path.add(new NodeAddress("0.1"));
+        path.add(new NodeAddress("0.2"));
+        path.add(new NodeAddress("0.3"));
+        path.add(new NodeAddress("0.4"));
+        OpenPathPacket instance = new OpenPathPacket(1, new NodeAddress("0.2"),
+                new NodeAddress("0.0"), path);
+        LinkedList<Window> wl = new LinkedList<>();
+        wl.add(Window.fromString("P.TYP == 10"));
+        instance.setWindows(wl);
+        String expResult = "[1, 24, 0, 0, 0, 2, 5, 100, 0, 0, 1, 18, 0, 6, 0, "
+                + "10, 0, 1, 0, 2, 0, 3, 0, 4]";
         String result = Arrays.toString(instance.toByteArray());
         assertEquals(expResult, result);
     }
