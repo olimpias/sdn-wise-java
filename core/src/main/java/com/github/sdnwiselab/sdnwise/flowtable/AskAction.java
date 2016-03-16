@@ -19,16 +19,31 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.ASK;
 
 /**
+ * Representation of the Ask action of the FlowTable.
  * @author Sebastiano Milardo
  */
 public final class AskAction extends AbstractAction {
 
+    /**
+     * The size of the action.
+     */
     private static final byte SIZE = 0;
 
+    /**
+     * Creates an AskAction object. An AskAction is used to create a Request
+     * packet containing the packet currently analyzed that will be sent to
+     * the Control plane
+     */
     public AskAction() {
         super(ASK, SIZE);
     }
 
+    /**
+     * Creates an AskAction object. An AskAction is used to create a Request
+     * packet containing the analyzed packet that will be sent to the Control
+     * plane
+     * @param value a byte array representing the AskAction object
+     */
     public AskAction(final byte[] value) {
         super(value);
     }
