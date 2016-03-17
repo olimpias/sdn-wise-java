@@ -72,7 +72,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         int FUNCTION_HEADER_LEN = 4;
         int FUNCTION_PAYLOAD_LEN
                 = NetworkPacket.MAX_PACKET_LENGTH
-                - (SDN_WISE_DFLT_HDR_LEN + FUNCTION_HEADER_LEN);
+                - (DFLT_HDR_LEN + FUNCTION_HEADER_LEN);
 
         int packetNumber = buf.length / FUNCTION_PAYLOAD_LEN;
         int remaining = buf.length % FUNCTION_PAYLOAD_LEN;

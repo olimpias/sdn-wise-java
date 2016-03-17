@@ -29,7 +29,7 @@ public class RequestPacket extends NetworkPacket {
 
     private static final byte REQUEST_HEADER_SIZE = 3,
             REQUEST_PAYLOAD_SIZE = NetworkPacket.MAX_PACKET_LENGTH
-            - (SDN_WISE_DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
+            - (DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
 
     private static final byte ID_INDEX = 0,
             PART_INDEX = 1,

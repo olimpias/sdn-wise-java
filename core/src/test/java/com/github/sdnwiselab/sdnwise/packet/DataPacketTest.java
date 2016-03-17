@@ -35,7 +35,8 @@ public final class DataPacketTest {
     public void testToByteArray() {
         DataPacket instance = new DataPacket(1, new NodeAddress("0.2"),
                 new NodeAddress("0.0"),
-                new byte[NetworkPacket.MAX_PACKET_LENGTH]);
+                new byte[NetworkPacket.MAX_PACKET_LENGTH
+                        - NetworkPacket.DFLT_HDR_LEN]);
         String expResult = "[1, 116, 0, 0, 0, 2, 0, 100, 0, 0, 0, 0, 0, 0, 0,"
                 + " 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,"
                 + " 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,"

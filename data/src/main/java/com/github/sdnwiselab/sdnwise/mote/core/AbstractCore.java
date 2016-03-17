@@ -206,7 +206,7 @@ public abstract class AbstractCore {
 
         if (!packet.isSdnWise()) {
             runFlowMatch(packet);
-        } else if (packet.getLen() > SDN_WISE_DFLT_HDR_LEN
+        } else if (packet.getLen() > DFLT_HDR_LEN
                 && packet.getNet() == myNet
                 && packet.getTtl() != 0) {
 
@@ -531,7 +531,7 @@ public abstract class AbstractCore {
         cnt_report_max = SDN_WISE_DFLT_CNT_REPORT_MAX;
         cnt_updtable_max = SDN_WISE_DFLT_CNT_UPDTABLE_MAX;
         rssi_min = SDN_WISE_DFLT_RSSI_MIN;
-        rule_ttl = SDN_WISE_DFLT_TTL_MAX;
+        rule_ttl = DFLT_TTL_MAX;
         initSdnWiseSpecific();
     }
 

@@ -62,12 +62,12 @@ public class NetworkPacket implements Cloneable {
     /**
      * An SDN-WISE header is always 10 bytes long.
      */
-    public static final byte SDN_WISE_DFLT_HDR_LEN = 10;
+    public static final byte DFLT_HDR_LEN = 10;
 
     /**
      * The maximum number of hops allowed in the network.
      */
-    public static final byte SDN_WISE_DFLT_TTL_MAX = 100;
+    public static final byte DFLT_TTL_MAX = 100;
 
     /**
      * Returns the index of a byte in the header given a string.
@@ -159,8 +159,8 @@ public class NetworkPacket implements Cloneable {
         setNet((byte) net);
         setSrc(src);
         setDst(dst);
-        setTtl(SDN_WISE_DFLT_TTL_MAX);
-        setLen(SDN_WISE_DFLT_HDR_LEN);
+        setTtl(DFLT_TTL_MAX);
+        setLen(DFLT_HDR_LEN);
     }
 
     /**
@@ -205,7 +205,7 @@ public class NetworkPacket implements Cloneable {
     public final void setArray(final byte[] array) {
         if (isSdnWise(array)) {
             if (array.length <= MAX_PACKET_LENGTH && array.length
-                    >= SDN_WISE_DFLT_HDR_LEN) {
+                    >= DFLT_HDR_LEN) {
 
                 this.setLen(array[LEN_INDEX]);
                 this.setNet(array[NET_INDEX]);
@@ -214,7 +214,7 @@ public class NetworkPacket implements Cloneable {
                 this.setTyp(array[TYP_INDEX]);
                 this.setTtl(array[TTL_INDEX]);
                 this.setNxh(array[NXH_INDEX], array[NXH_INDEX + 1]);
-                this.setPayload(Arrays.copyOfRange(array, SDN_WISE_DFLT_HDR_LEN,
+                this.setPayload(Arrays.copyOfRange(array, DFLT_HDR_LEN,
                         this.getLen()));
             } else {
                 throw new IllegalArgumentException("Invalid array size: "
@@ -445,7 +445,7 @@ public class NetworkPacket implements Cloneable {
      * @return the packet payload size.
      */
     public final int getPayloadSize() {
-        return (this.getLen() - SDN_WISE_DFLT_HDR_LEN);
+        return (this.getLen() - DFLT_HDR_LEN);
     }
 
     /**
@@ -527,7 +527,7 @@ public class NetworkPacket implements Cloneable {
      * @return the payload of the packet
      */
     protected final byte[] getPayload() {
-        return Arrays.copyOfRange(data, SDN_WISE_DFLT_HDR_LEN,
+        return Arrays.copyOfRange(data, DFLT_HDR_LEN,
                 this.getLen());
     }
 
@@ -538,9 +538,9 @@ public class NetworkPacket implements Cloneable {
      * @return the p of the packet.
      */
     protected final NetworkPacket setPayload(final byte[] p) {
-        if (p.length + SDN_WISE_DFLT_HDR_LEN <= MAX_PACKET_LENGTH) {
-            System.arraycopy(p, 0, data, SDN_WISE_DFLT_HDR_LEN, p.length);
-            this.setLen((byte) (p.length + SDN_WISE_DFLT_HDR_LEN));
+        if (p.length + DFLT_HDR_LEN <= MAX_PACKET_LENGTH) {
+            System.arraycopy(p, 0, data, DFLT_HDR_LEN, p.length);
+            this.setLen((byte) (p.length + DFLT_HDR_LEN));
         } else {
             throw new IllegalArgumentException("Payload exceeds packet size");
         }
@@ -554,8 +554,8 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself
      */
     protected final NetworkPacket setPayloadSize(final int size) {
-        if (SDN_WISE_DFLT_HDR_LEN + size <= MAX_PACKET_LENGTH) {
-            this.setLen((byte) (SDN_WISE_DFLT_HDR_LEN + size));
+        if (DFLT_HDR_LEN + size <= MAX_PACKET_LENGTH) {
+            this.setLen((byte) (DFLT_HDR_LEN + size));
         } else {
             throw new IllegalArgumentException("Index cannot be greater than "
                     + "the maximum payload size: " + size);
@@ -571,10 +571,10 @@ public class NetworkPacket implements Cloneable {
      * @return the packet itself
      */
     protected final NetworkPacket setPayloadAt(final byte d, final int i) {
-        if (SDN_WISE_DFLT_HDR_LEN + i < MAX_PACKET_LENGTH) {
-            data[SDN_WISE_DFLT_HDR_LEN + i] = d;
-            if ((i + SDN_WISE_DFLT_HDR_LEN) >= this.getLen()) {
-                this.setLen((byte) (SDN_WISE_DFLT_HDR_LEN + i + 1));
+        if (DFLT_HDR_LEN + i < MAX_PACKET_LENGTH) {
+            data[DFLT_HDR_LEN + i] = d;
+            if ((i + DFLT_HDR_LEN) >= this.getLen()) {
+                this.setLen((byte) (DFLT_HDR_LEN + i + 1));
             }
         } else {
             throw new IllegalArgumentException("Index cannot be greater than "
@@ -634,8 +634,8 @@ public class NetworkPacket implements Cloneable {
      * @return the byte of the payload.
      */
     protected final byte getPayloadAt(final int i) {
-        if (i + SDN_WISE_DFLT_HDR_LEN < this.getLen()) {
-            return data[SDN_WISE_DFLT_HDR_LEN + i];
+        if (i + DFLT_HDR_LEN < this.getLen()) {
+            return data[DFLT_HDR_LEN + i];
         } else {
             throw new IllegalArgumentException("Index cannot be greater than "
                     + "the maximum payload size");
@@ -659,12 +659,12 @@ public class NetworkPacket implements Cloneable {
             throw new IllegalArgumentException(
                     "Stop must be greater than 0");
         }
-        if (start + SDN_WISE_DFLT_HDR_LEN > this.getLen()) {
+        if (start + DFLT_HDR_LEN > this.getLen()) {
             throw new IllegalArgumentException(
                     "Start is greater than packet size");
         }
-        int newStop = Math.min(stop + SDN_WISE_DFLT_HDR_LEN, this.getLen());
-        return Arrays.copyOfRange(data, start + SDN_WISE_DFLT_HDR_LEN, newStop);
+        int newStop = Math.min(stop + DFLT_HDR_LEN, this.getLen());
+        return Arrays.copyOfRange(data, start + DFLT_HDR_LEN, newStop);
     }
 
     /**
@@ -676,8 +676,8 @@ public class NetworkPacket implements Cloneable {
      * @return a byte[] part of the payload.
      */
     protected final byte[] copyPayloadOfRange(final int start, final int end) {
-        return Arrays.copyOfRange(data, SDN_WISE_DFLT_HDR_LEN + start,
-                SDN_WISE_DFLT_HDR_LEN + end);
+        return Arrays.copyOfRange(data, DFLT_HDR_LEN + start,
+                DFLT_HDR_LEN + end);
     }
 
 }
