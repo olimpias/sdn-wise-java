@@ -32,6 +32,11 @@ import java.util.logging.Logger;
  * @author Sebastiano Milardo
  */
 public class Configurator {
+
+    private final ConfigAdaptation Adaptation = new ConfigAdaptation();
+    private final ConfigController Controller = new ConfigController();
+    private final ConfigFlowVisor Flowvisor = new ConfigFlowVisor();
+
     /**
      * Parses a file given in input containing a JSON string and returns the
      * corresponding configurator object described in the file.
@@ -41,18 +46,13 @@ public class Configurator {
      */
     public static final Configurator load(final InputStream fileName) {
         try {
-            return (new Gson()).fromJson(new JsonReader(new
-                InputStreamReader(fileName, "UTF-8")), Configurator.class);
+            return (new Gson()).fromJson(new JsonReader(new InputStreamReader(fileName, "UTF-8")), Configurator.class);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Configurator.class.getName())
                     .log(Level.SEVERE, null, ex);
         }
         return null;
     }
-
-    private final ConfigAdaptation Adaptation = new ConfigAdaptation();
-    private final ConfigController Controller = new ConfigController();
-    private final ConfigFlowVisor Flowvisor = new ConfigFlowVisor();
 
     /**
      * Returns a configAdaptation object.

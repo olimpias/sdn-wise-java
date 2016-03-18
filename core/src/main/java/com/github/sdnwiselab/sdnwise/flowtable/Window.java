@@ -45,8 +45,7 @@ public final class Window implements FlowTableInterface {
     /**
      * Window Sizes.
      */
-    public static final byte W_SIZE_1 = 0,
-            W_SIZE_2 = 1;
+    public static final byte W_SIZE_1 = 0, W_SIZE_2 = 1;
 
     private static final byte LEFT_BIT = 3, LEFT_INDEX_H = 1, LEFT_INDEX_L = 2,
             LEFT_LEN = 2, OP_BIT = 5, OP_INDEX = 0, OP_LEN = 3,
@@ -54,6 +53,8 @@ public final class Window implements FlowTableInterface {
             RIGHT_LEN = LEFT_LEN,
             SIZE_BIT = 0,
             SIZE_LEN = 1;
+
+    private final byte[] window = new byte[SIZE];
 
     public static Window fromString(final String val) {
         Window w = new Window();
@@ -81,8 +82,6 @@ public final class Window implements FlowTableInterface {
         }
         return w;
     }
-
-    private final byte[] window = new byte[SIZE];
 
     /**
      * Simple constructor for the FlowTableWindow object.
@@ -298,9 +297,7 @@ public final class Window implements FlowTableInterface {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 37 * hash + Arrays.hashCode(this.window);
-        return hash;
+        return Arrays.hashCode(this.window);
     }
 
     /**

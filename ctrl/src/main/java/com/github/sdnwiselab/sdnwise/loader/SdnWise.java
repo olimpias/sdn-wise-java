@@ -48,6 +48,11 @@ public class SdnWise {
      */
     private static final String CONFIG_FILE = "/config.ini";
 
+    private Adaptation adaptation;
+    private AbstractController controller;
+    private FlowVisor flowVisor;
+    private final boolean isEmulated = true;
+
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
      * object is made of three main components: A Controller, an Adaptation, and
@@ -76,11 +81,6 @@ public class SdnWise {
         }
         sw.startExemplaryControlPlane(Configurator.load(is));
     }
-
-    private Adaptation adaptation;
-    private AbstractController controller;
-    private FlowVisor flowVisor;
-    private final boolean isEmulated = true;
 
     /**
      * Starts the Adaptation layer of the SDN-WISE network. The configurator

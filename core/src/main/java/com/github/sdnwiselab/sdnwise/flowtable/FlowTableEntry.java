@@ -31,8 +31,19 @@ import java.util.Objects;
  */
 public final class FlowTableEntry implements FlowTableInterface {
 
+    /**
+     * Contains the list of windows of the FlowTableEntry. All the windows
+     * must be sadisfied in order to execute the actions.
+     */
     private final List<Window> windows = new LinkedList<>();
+    /**
+     * Contains the list of actions of the FlowTableEntry. The actions are
+     * executed when all the windows are satisfied.
+     */
     private final List<AbstractAction> actions = new LinkedList<>();
+    /**
+     * Statistics on the usages and time to live of the FlowTableEntry.
+     */
     private Stats stats = new Stats();
 
     /**
