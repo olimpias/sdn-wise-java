@@ -19,7 +19,6 @@ mvn clean install
 ### Code Status 
 
 [![Build Status](https://travis-ci.org/sdnwiselab/sdn-wise-java.svg?branch=master)](https://travis-ci.org/sdnwiselab/sdn-wise-java)
-[![Code Climate](https://codeclimate.com/github/sdnwiselab/sdn-wise-java/badges/gpa.svg)](https://codeclimate.com/github/sdnwiselab/sdn-wise-java)
 
 ### Versioning
 
