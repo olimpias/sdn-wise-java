@@ -29,15 +29,16 @@ import java.util.Arrays;
  * @author Sebastiano Milardo
  */
 public final class Window implements FlowTableInterface {
+
     /**
      * Window Operators.
      */
-    public static final byte EQUAL = 0;
-    public static final byte GREATER = 2;
-    public static final byte GREATER_OR_EQUAL = 4;
-    public static final byte LESS = 3;
-    public static final byte LESS_OR_EQUAL = 5;
-    public static final byte NOT_EQUAL = 1;
+    public static final byte EQUAL = 0,
+            GREATER = 2,
+            GREATER_OR_EQUAL = 4,
+            LESS = 3,
+            LESS_OR_EQUAL = 5,
+            NOT_EQUAL = 1;
 
     public static final byte SIZE = 5;
 
@@ -47,9 +48,7 @@ public final class Window implements FlowTableInterface {
     public static final byte W_SIZE_1 = 0,
             W_SIZE_2 = 1;
 
-
-    private static final byte 
-            LEFT_BIT = 3, LEFT_INDEX_H = 1, LEFT_INDEX_L = 2,
+    private static final byte LEFT_BIT = 3, LEFT_INDEX_H = 1, LEFT_INDEX_L = 2,
             LEFT_LEN = 2, OP_BIT = 5, OP_INDEX = 0, OP_LEN = 3,
             RIGHT_BIT = 1, RIGHT_INDEX_H = 3, RIGHT_INDEX_L = 4,
             RIGHT_LEN = LEFT_LEN,
@@ -106,6 +105,7 @@ public final class Window implements FlowTableInterface {
             Arrays.fill(window, (byte) 0);
         }
     }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -120,6 +120,7 @@ public final class Window implements FlowTableInterface {
         Window other = (Window) obj;
         return Arrays.equals(other.window, window);
     }
+
     /**
      * Getter method to obtain Pos.
      *
@@ -137,6 +138,7 @@ public final class Window implements FlowTableInterface {
     public int getLhsLocation() {
         return getBitRange(window[OP_INDEX], LEFT_BIT, LEFT_LEN);
     }
+
     /**
      * Getter method to obtain memory in string.
      *
@@ -154,6 +156,7 @@ public final class Window implements FlowTableInterface {
                 return "";
         }
     }
+
     public int[] getOperandFromString(final String val) {
         int[] tmp = new int[2];
         String[] strVal = val.split("\\.");
@@ -168,7 +171,7 @@ public final class Window implements FlowTableInterface {
                 tmp[0] = SDN_WISE_CONST;
                 break;
         }
-        
+
         switch (tmp[0]) {
             case SDN_WISE_PACKET:
                 tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
@@ -182,6 +185,7 @@ public final class Window implements FlowTableInterface {
         }
         return tmp;
     }
+
     /**
      * Getter method to obtain Operator.
      *
@@ -190,6 +194,7 @@ public final class Window implements FlowTableInterface {
     public int getOperator() {
         return getBitRange(window[OP_INDEX], OP_BIT, OP_LEN);
     }
+
     public int getOperatorFromString(final String val) {
         switch (val) {
             case ("=="):
@@ -208,6 +213,7 @@ public final class Window implements FlowTableInterface {
                 throw new IllegalArgumentException();
         }
     }
+
     /**
      * Getter method to obtain Operator in String.
      *
@@ -232,7 +238,6 @@ public final class Window implements FlowTableInterface {
         }
     }
 
-
     /**
      * Getter method to obtain High Value.
      *
@@ -241,6 +246,7 @@ public final class Window implements FlowTableInterface {
     public int getRhs() {
         return Utils.mergeBytes(window[RIGHT_INDEX_H], window[RIGHT_INDEX_L]);
     }
+
     /**
      * Getter method to obtain rhs Location.
      *
@@ -249,6 +255,7 @@ public final class Window implements FlowTableInterface {
     public int getRhsLocation() {
         return getBitRange(window[OP_INDEX], RIGHT_BIT, RIGHT_LEN);
     }
+
     /**
      * Getter method to obtain memory in string.
      *
@@ -266,6 +273,7 @@ public final class Window implements FlowTableInterface {
                 return "";
         }
     }
+
     /**
      * Getter method to obtain Size.
      *
@@ -274,7 +282,6 @@ public final class Window implements FlowTableInterface {
     public int getSize() {
         return getBitRange(window[OP_INDEX], SIZE_BIT, SIZE_LEN);
     }
-
 
     /**
      * Getter method to obtain Size in string.
@@ -285,11 +292,9 @@ public final class Window implements FlowTableInterface {
         return String.valueOf(getSize() + 1);
     }
 
-
     public int getValueFromString(final String val) {
         return Integer.parseInt(val.split("\\.")[1]);
     }
-
 
     @Override
     public int hashCode() {
@@ -297,6 +302,7 @@ public final class Window implements FlowTableInterface {
         hash = 37 * hash + Arrays.hashCode(this.window);
         return hash;
     }
+
     /**
      * Setter method to set offsetIndex of window[].
      *
@@ -308,6 +314,7 @@ public final class Window implements FlowTableInterface {
         this.window[LEFT_INDEX_L] = (byte) val;
         return this;
     }
+
     /**
      * Setter method to set OP_INDEX of window[].
      *
@@ -319,6 +326,7 @@ public final class Window implements FlowTableInterface {
                 window[OP_INDEX], LEFT_BIT, LEFT_LEN, value);
         return this;
     }
+
     /**
      * Setter method to set OP_INDEX of window[].
      *
@@ -330,6 +338,7 @@ public final class Window implements FlowTableInterface {
                 window[OP_INDEX], OP_BIT, OP_LEN, value);
         return this;
     }
+
     /**
      * Setter method to set highValueIndex of window[].
      *
@@ -341,6 +350,7 @@ public final class Window implements FlowTableInterface {
         this.window[RIGHT_INDEX_L] = (byte) val;
         return this;
     }
+
     /**
      * Setter method to set OP_INDEX of window[].
      *
@@ -352,6 +362,7 @@ public final class Window implements FlowTableInterface {
                 window[OP_INDEX], RIGHT_BIT, RIGHT_LEN, value);
         return this;
     }
+
     /**
      * Setter method to set OP_INDEX of window[].
      *
@@ -363,10 +374,12 @@ public final class Window implements FlowTableInterface {
                 window[OP_INDEX], SIZE_BIT, SIZE_LEN, value);
         return this;
     }
+
     @Override
     public byte[] toByteArray() {
         return Arrays.copyOf(window, SIZE);
     }
+
     @Override
     public String toString() {
         return this.getLhsToString()

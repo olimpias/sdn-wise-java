@@ -23,6 +23,9 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.MATC
  */
 public final class MatchAction extends AbstractAction {
 
+    /**
+     * The size of the action.
+     */
     private static final byte SIZE = 0;
 
     public MatchAction() {

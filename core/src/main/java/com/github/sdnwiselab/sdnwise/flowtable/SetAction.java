@@ -59,7 +59,7 @@ public final class SetAction extends AbstractAction {
             RIGHT_INDEX_L = 6;
 
     /**
-     * SetAction size in bytes.
+     * The size of the action.
      */
     private static final byte SIZE = 7;
 

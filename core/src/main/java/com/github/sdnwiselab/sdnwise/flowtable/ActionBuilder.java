@@ -24,37 +24,39 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.TYPE_INDEX;
  */
 public final class ActionBuilder {
 
-    private ActionBuilder() {
-    }
-
+    /**
+     * Builds a class extending AbstractAction, given a String.
+     *
+     * @param val the String representing the action
+     * @return an object extending AbstractAction
+     */
     public static AbstractAction build(final String val) {
         switch (Action.valueOf(val.split(" ")[0])) {
             case FORWARD_U:
                 return new ForwardUnicastAction(val);
-
             case FORWARD_B:
                 return new ForwardBroadcastAction();
-
             case SET:
                 return new SetAction(val);
-
             case MATCH:
                 return new MatchAction();
-
             case ASK:
                 return new AskAction();
-
             case FUNCTION:
                 return new FunctionAction(val);
-
             case DROP:
                 return new DropAction();
-
             default:
                 throw new IllegalArgumentException();
         }
     }
 
+    /**
+     * Builds a class extending AbstractAction, given a byte array.
+     *
+     * @param array the byte[] representing the action
+     * @return an object extending AbstractAction
+     */
     public static AbstractAction build(final byte[] array) {
         switch (Action.fromByte(array[TYPE_INDEX])) {
             case FORWARD_U:
@@ -74,5 +76,12 @@ public final class ActionBuilder {
             default:
                 throw new IllegalArgumentException();
         }
+    }
+
+    /**
+     * The ActionBuilder class is a utility class. Therefore there is no public
+     * constructor.
+     */
+    private ActionBuilder() {
     }
 }
