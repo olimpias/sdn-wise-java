@@ -31,6 +31,10 @@ import java.util.Objects;
  */
 public final class FlowTableEntry implements FlowTableInterface {
 
+    private final List<Window> windows = new LinkedList<>();
+    private final List<AbstractAction> actions = new LinkedList<>();
+    private Stats stats = new Stats();
+
     /**
      * Creates a FlowTableEntry object from a String.
      *
@@ -56,10 +60,6 @@ public final class FlowTableEntry implements FlowTableInterface {
         }
         return res;
     }
-
-    private final List<Window> windows = new LinkedList<>();
-    private final List<AbstractAction> actions = new LinkedList<>();
-    private Stats stats = new Stats();
 
     /**
      * Simple constructor for the FlowTableEntry object.

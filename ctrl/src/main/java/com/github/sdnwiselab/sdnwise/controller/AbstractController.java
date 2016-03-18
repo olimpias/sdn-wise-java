@@ -24,8 +24,6 @@ import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
-import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.Utils.*;

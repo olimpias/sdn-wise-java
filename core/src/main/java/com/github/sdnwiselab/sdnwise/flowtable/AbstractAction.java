@@ -177,8 +177,8 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     /**
-     * Sets a value for the action. A value is a parameter that an action
-     * uses to achieve its result.
+     * Sets a value for the action. A value is a parameter that an action uses
+     * to achieve its result.
      *
      * @param index the index in the action array where the value is stored
      * @param value the value to be stored
@@ -194,8 +194,8 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     /**
-     * Sets a value for the action. A value is a parameter that an action
-     * uses to achieve its result.
+     * Sets a value for the action. A value is a parameter that an action uses
+     * to achieve its result.
      *
      * @param value the value to be stored as a byte array
      * @return the AbstracAction itself
@@ -209,8 +209,8 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     /**
-     * Gets a value from the action. A value is a parameter that an action
-     * uses to achieve its result.
+     * Gets a value from the action. A value is a parameter that an action uses
+     * to achieve its result.
      *
      * @return a byte array containing all the values
      */
@@ -219,8 +219,8 @@ public abstract class AbstractAction implements FlowTableInterface {
     }
 
     /**
-     * Gets a value from the action. A value is a parameter that an action
-     * uses to achieve its result.
+     * Gets a value from the action. A value is a parameter that an action uses
+     * to achieve its result.
      *
      * @param index the index in the action array where the value is stored
      * @return the value of the action
@@ -240,6 +240,7 @@ public abstract class AbstractAction implements FlowTableInterface {
 
     /**
      * Returns the size of the action array.
+     *
      * @return the size of the action array
      */
     final int getActionLength() {
@@ -248,6 +249,7 @@ public abstract class AbstractAction implements FlowTableInterface {
 
     /**
      * Returns the size of the values stored.
+     *
      * @return the size of the values stored
      */
     final int getValueLength() {

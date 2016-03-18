@@ -20,6 +20,7 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.ASK;
 
 /**
  * Representation of the Ask action of the FlowTable.
+ *
  * @author Sebastiano Milardo
  */
 public final class AskAction extends AbstractAction {
@@ -31,8 +32,8 @@ public final class AskAction extends AbstractAction {
 
     /**
      * Creates an AskAction object. An AskAction is used to create a Request
-     * packet containing the packet currently analyzed that will be sent to
-     * the Control plane
+     * packet containing the packet currently analyzed that will be sent to the
+     * Control plane
      */
     public AskAction() {
         super(ASK, SIZE);
@@ -42,6 +43,7 @@ public final class AskAction extends AbstractAction {
      * Creates an AskAction object. An AskAction is used to create a Request
      * packet containing the analyzed packet that will be sent to the Control
      * plane
+     *
      * @param value a byte array representing the AskAction object
      */
     public AskAction(final byte[] value) {
