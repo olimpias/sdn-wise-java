@@ -348,7 +348,8 @@ public abstract class AbstractCore {
         return isAcceptedIdAddress(packet.getDst());
     }
 
-    private int getOperand(NetworkPacket packet, int size, int location, int value) {
+    private int getOperand(final NetworkPacket packet, final int size,
+            final int location, int value) {
         switch (location) {
             case SDN_WISE_NULL:
                 return 0;
@@ -368,6 +369,7 @@ public abstract class AbstractCore {
                     }
                     return mergeBytes(intPacket[value], intPacket[value + 1]);
                 }
+                return -1;
             case SDN_WISE_STATUS:
                 if (size == W_SIZE_1) {
                     if (value >= statusRegister.size()) {
@@ -379,11 +381,13 @@ public abstract class AbstractCore {
                     if (value + 1 >= statusRegister.size()) {
                         return -1;
                     }
-                    return mergeBytes( statusRegister.get(value),
+                    return mergeBytes(statusRegister.get(value),
                             statusRegister.get(value + 1));
                 }
+                return -1;
+            default:
+                return -1;
         }
-        return -1;
     }
 
     // Check if a windows is true or not

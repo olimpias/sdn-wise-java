@@ -55,6 +55,7 @@ public class Adaptation extends ControlPlaneLayer {
 
     @Override
     public void setupLayer() {
+        // Nothing to do here
     }
 
     /**

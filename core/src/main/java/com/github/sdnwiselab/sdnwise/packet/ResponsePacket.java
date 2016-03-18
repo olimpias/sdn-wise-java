@@ -90,7 +90,7 @@ public class ResponsePacket extends NetworkPacket {
     /**
      * Getter for the rule in the response packet.
      *
-     * @return the rule as a FlowTableEntry..
+     * @return the rule as a FlowTableEntry
      */
     public final FlowTableEntry getRule() {
         FlowTableEntry rule = new FlowTableEntry(this.getPayload());

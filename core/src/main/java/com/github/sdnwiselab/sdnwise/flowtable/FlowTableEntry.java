@@ -230,10 +230,9 @@ public final class FlowTableEntry implements FlowTableInterface {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 59 * hash + Objects.hashCode(this.windows);
-        hash = 59 * hash + Objects.hashCode(this.actions);
-        hash = 59 * hash + Objects.hashCode(this.stats);
+        int hash = Objects.hashCode(this.windows)
+            + Objects.hashCode(this.actions)
+            + Objects.hashCode(this.stats);
         return hash;
     }
 

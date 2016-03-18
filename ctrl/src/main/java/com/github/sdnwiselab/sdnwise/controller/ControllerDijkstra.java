@@ -66,7 +66,7 @@ public final class ControllerDijkstra extends AbstractController {
 
     @Override
     public void graphUpdate() {
-
+        // Nothing to do here
     }
 
     @Override
@@ -118,6 +118,6 @@ public final class ControllerDijkstra extends AbstractController {
 
     @Override
     public void setupNetwork() {
-
+        // Nothing to do here
     }
 }

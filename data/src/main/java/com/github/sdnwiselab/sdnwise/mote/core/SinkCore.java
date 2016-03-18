@@ -109,5 +109,6 @@ public class SinkCore extends AbstractCore {
 
     @Override
     final void reset() {
+        // Nothing to do here
     }
 }
