@@ -43,7 +43,7 @@ public class AdapterTcp extends AbstractAdapter {
     private final String IP;
     private final boolean IS_SERVER;
     private TcpElement tcpElement;
-    private Thread th;
+    
 
     /**
      * Creates an AdapterTCP object. The conf map is used to pass the
@@ -70,8 +70,7 @@ public class AdapterTcp extends AbstractAdapter {
         }
 
         tcpElement.addObserver(this);
-        th = new Thread(tcpElement);
-        th.start();
+        new Thread(tcpElement).start();
         return true;
     }
 
@@ -129,7 +128,7 @@ public class AdapterTcp extends AbstractAdapter {
                     if (isStopped()) {
                         return;
                     }
-                    throw new RuntimeException(
+                    throw new UnsupportedOperationException(
                             "Error accepting client connection", e);
                 }
                 clientSockets.add(clientSocket);
@@ -144,7 +143,8 @@ public class AdapterTcp extends AbstractAdapter {
             try {
                 this.serverSocket.close();
             } catch (IOException e) {
-                throw new RuntimeException("Error closing server", e);
+                throw new UnsupportedOperationException(
+                        "Error closing server", e);
             }
         }
 
@@ -152,7 +152,7 @@ public class AdapterTcp extends AbstractAdapter {
             try {
                 this.serverSocket = new ServerSocket(this.port);
             } catch (IOException e) {
-                throw new RuntimeException("Cannot open port", e);
+                throw new UnsupportedOperationException("Cannot open port", e);
             }
         }
 

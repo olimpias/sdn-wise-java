@@ -35,7 +35,6 @@ public class AdapterUdp extends AbstractAdapter {
     private final String OUT_IP;
 
     private UDPServer udpServer;
-    private Thread th;
     private DatagramSocket sck;
     final int MAX_PAYLOAD;
 
@@ -65,8 +64,7 @@ public class AdapterUdp extends AbstractAdapter {
             sck = new DatagramSocket(IN_PORT);
             udpServer = new UDPServer(sck);
             udpServer.addObserver(this);
-            th = new Thread(udpServer);
-            th.start();
+            new Thread(udpServer).start();
             return true;
         } catch (SocketException ex) {
             log(Level.SEVERE, ex.toString());

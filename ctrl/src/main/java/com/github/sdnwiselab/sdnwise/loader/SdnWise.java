@@ -213,8 +213,6 @@ public class SdnWise {
                 (byte) 1,
                 // its own address
                 new NodeAddress("0.1"),
-                // ip address
-                "localhost",
                 // listener port
                 7771,
                 // controller address

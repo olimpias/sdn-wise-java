@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,8 @@
 package com.github.sdnwiselab.sdnwise.controller;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
+import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
@@ -29,15 +30,23 @@ import org.graphstream.graph.Node;
 /**
  * Representation of a Dijkstra routing algorithm based SDN-WISE controller.
  * When a request from the network is sent, this class sends a OpenPath message
- * with the shortest path. No action is taken if the topology of the network
- * changes.
+ with the shortest p. No action is taken if the topology of the network
+ changes.
  *
  * @author Sebastiano Milardo
  */
-public class ControllerDijkstra extends AbstractController {
-
+public final class ControllerDijkstra extends AbstractController {
+    /**
+     * Used to calculate a path according to Dijkstra's algorithm.
+     */
     private final Dijkstra dijkstra;
+    /**
+     * Last Node address for which there are calculated paths.
+     */
     private String lastSource = "";
+    /**
+     * Last modification time of the networkGraph object.
+     */
     private long lastModification = -1;
 
     /**
@@ -47,59 +56,60 @@ public class ControllerDijkstra extends AbstractController {
      * @param lower Lower Adpater object.
      * @param networkGraph NetworkGraph object.
      */
-    public ControllerDijkstra(InetSocketAddress id, AbstractAdapter lower, NetworkGraph networkGraph) {
+    public ControllerDijkstra(final InetSocketAddress id,
+            final AbstractAdapter lower,
+            final NetworkGraph networkGraph) {
         super(id, lower, networkGraph);
         this.dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
     }
 
     @Override
-    public final void graphUpdate() {
+    public void graphUpdate() {
 
     }
 
     @Override
-    public void manageRoutingRequest(RequestPacket req, NetworkPacket data) {
+    public void manageRoutingRequest(final RequestPacket req,
+            final NetworkPacket data) {
 
         log(Level.INFO, data.toString());
 
-        String destination = data.getNet() + "." + data.getDst();
-        String source = data.getNet() + "." + req.getSrc();
+        String dst = data.getNet() + "." + data.getDst();
+        String src = data.getNet() + "." + req.getSrc();
 
-        if (!source.equals(destination)) {
+        if (!src.equals(dst)) {
 
-            Node sourceNode = networkGraph.getNode(source);
-            Node destinationNode = networkGraph.getNode(destination);
-            LinkedList<NodeAddress> path = null;
+            Node srcNode = networkGraph.getNode(src);
+            Node dstNode = networkGraph.getNode(dst);
+            LinkedList<NodeAddress> p = null;
 
-            if (sourceNode != null && destinationNode != null) {
+            if (srcNode != null && dstNode != null) {
 
-                if (!lastSource.equals(source) || lastModification != networkGraph.getLastModification()) {
+                if (!lastSource.equals(src) || lastModification
+                        != networkGraph.getLastModification()) {
                     results.clear();
                     dijkstra.init(networkGraph.getGraph());
-                    dijkstra.setSource(networkGraph.getNode(source));
+                    dijkstra.setSource(networkGraph.getNode(src));
                     dijkstra.compute();
-                    lastSource = source;
+                    lastSource = src;
                     lastModification = networkGraph.getLastModification();
                 } else {
-                    path = results.get(data.getDst());
+                    p = results.get(data.getDst());
                 }
-                if (path == null) {
-                    path = new LinkedList<>();
-                    for (Node node : dijkstra.getPathNodes(networkGraph.getNode(destination))) {
-                        path.push((NodeAddress) node.getAttribute("nodeAddress"));
+                if (p == null) {
+                    p = new LinkedList<>();
+                    for (Node node : dijkstra.getPathNodes(networkGraph
+                            .getNode(dst))) {
+                        p.push((NodeAddress) node.getAttribute("nodeAddress"));
                     }
-                    log(Level.INFO, "Path: " + path);
-                    results.put(data.getDst(), path);
+                    log(Level.INFO, "Path: " + p);
+                    results.put(data.getDst(), p);
                 }
-                if (path.size() > 1) {
-                    sendPath((byte) data.getNet(), path.getFirst(), path);
+                if (p.size() > 1) {
+                    sendPath((byte) data.getNet(), p.getFirst(), p);
                     data.setSrc(req.getSrc());
                     data.setNxh(getSinkAddress());
                     sendNetworkPacket(data);
-
-                } else {
-                    // TODO send a rule in order to say "wait I dont have a path"
-                    //sendMessage(data.getNet(), data.getDst(),(byte) 4, new byte[10]);
                 }
             }
         }

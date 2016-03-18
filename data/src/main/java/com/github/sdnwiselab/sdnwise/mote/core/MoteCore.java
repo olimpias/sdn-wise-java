@@ -41,7 +41,7 @@ public class MoteCore extends AbstractCore {
     }
 
     @Override
-    public void SDN_WISE_Callback(final DataPacket packet) {
+    public void dataCallback(final DataPacket packet) {
         if (this.functions.get(1) == null) {
             log(Level.INFO, new String(packet.getData(),
                     Charset.forName("UTF-8")));

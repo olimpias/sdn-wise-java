@@ -561,7 +561,7 @@ public abstract class AbstractCore {
 
     protected final void rxData(DataPacket packet) {
         if (isAcceptedIdPacket(packet)) {
-            SDN_WISE_Callback(packet);
+            dataCallback(packet);
         } else if (isAcceptedIdAddress(packet.getNxh())) {
             runFlowMatch(packet);
         }
@@ -604,7 +604,7 @@ public abstract class AbstractCore {
         return new NodeAddress(flowTable.get(0).getWindows().get(0).getRhs());
     }
 
-    protected abstract void SDN_WISE_Callback(DataPacket packet);
+    protected abstract void dataCallback(DataPacket packet);
 
     protected abstract void controllerTX(NetworkPacket pck);
 

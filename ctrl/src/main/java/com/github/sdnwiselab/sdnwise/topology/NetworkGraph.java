@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -42,15 +42,15 @@ public class NetworkGraph extends Observable {
      * in the network and a value representing the RSSI resolution in order to
      * consider a change of the RSSI value a change in the network.
      *
-     * @param timeout the time to live for a node in seconds
-     * @param rssiResolution the RSSI resolution
+     * @param ttl the time to live for a node in seconds
+     * @param rssiRes the RSSI resolution
      */
-    public NetworkGraph(int timeout, int rssiResolution) {
-        this.graph = new MultiGraph("SDN-WISE Network");
-        this.lastModification = Long.MIN_VALUE;
-        this.rssiResolution = rssiResolution;
-        this.timeout = timeout;
-        this.lastCheck = System.currentTimeMillis();
+    public NetworkGraph(final int ttl, final int rssiRes) {
+        graph = new MultiGraph("SDN-WISE Network");
+        lastModification = Long.MIN_VALUE;
+        rssiResolution = rssiRes;
+        timeout = ttl;
+        lastCheck = System.currentTimeMillis();
         graph.setAutoCreate(true);
         graph.setStrict(false);
     }
@@ -66,11 +66,11 @@ public class NetworkGraph extends Observable {
     }
 
     /**
-     * Gets the Graph contained in the NetworkGraph
+     * Gets the Graph contained in the NetworkGraph.
      *
      * @return returns a Graph object
      */
-    public Graph getGraph() {
+    public final Graph getGraph() {
         return graph;
     }
 
@@ -141,7 +141,7 @@ public class NetworkGraph extends Observable {
      *
      * @param packet the NetworkPacket received
      */
-    public final synchronized void updateMap(ReportPacket packet) {
+    public final synchronized void updateMap(final ReportPacket packet) {
 
         long now = System.currentTimeMillis();
         boolean modified = checkConsistency(now);
@@ -226,9 +226,9 @@ public class NetworkGraph extends Observable {
      *
      * @param <T> the type of node in the graph.
      * @param id string id value to get a Node.
-     * @return
+     * @return the node of the graph
      */
-    public <T extends Node> T getNode(String id) {
+    public final <T extends Node> T getNode(final String id) {
         return graph.getNode(id);
     }
 
@@ -237,9 +237,9 @@ public class NetworkGraph extends Observable {
      *
      * @param <T> the type of edge in the graph.
      * @param id string id value to get an Edge.
-     * @return
+     * @return the edge of the graph
      */
-    public <T extends Edge> T getEdge(String id) {
+    public final <T extends Edge> T getEdge(final String id) {
         return graph.getEdge(id);
     }
 
@@ -248,21 +248,21 @@ public class NetworkGraph extends Observable {
         if (now - lastCheck > (timeout * 1000L)) {
             lastCheck = now;
             for (Node n : graph) {
-                if (n.getAttribute("net", Integer.class) < 63) {
-                    if (n.getAttribute("lastSeen", Long.class) != null) {
-                        if (!isAlive(timeout, (long) n.getNumber("lastSeen"), now)) {
-                            removeNode(n);
-                            modified = true;
-                        }
-                    }
+                if (n.getAttribute("net", Integer.class) < 63
+                        && n.getAttribute("lastSeen", Long.class) != null
+                        && !isAlive(timeout, (long) n.getNumber("lastSeen"), 
+                                now)) {
+                    removeNode(n);
+                    modified = true;
                 }
+
             }
         }
         return modified;
     }
 
-    final boolean isAlive(long threashold, long lastSeen, long now) {
-        return ((now - lastSeen) < threashold * 1000);
+    final boolean isAlive(final long thrs, final long last, final long now) {
+        return ((now - last) < thrs * 1000);
     }
 
     void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {

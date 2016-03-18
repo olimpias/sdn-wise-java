@@ -23,12 +23,12 @@ import org.apache.commons.cli.*;
 /**
  * @author Sebastiano Milardo
  */
-public class Loader {
+public final class Loader {
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
         Option net = Option.builder("n")
                 .argName("net")
@@ -51,13 +51,6 @@ public class Loader {
                 .hasArg()
                 .required()
                 .desc("Listening UDP port")
-                .numberOfArgs(1)
-                .build();
-
-        Option ip = Option.builder("i")
-                .argName("ip")
-                .hasArg()
-                .desc("Listening IP address. Optional.")
                 .numberOfArgs(1)
                 .build();
 
@@ -86,7 +79,8 @@ public class Loader {
         Option switchMac = Option.builder("sm")
                 .argName("mac")
                 .hasArg()
-                .desc("MAC address of the switch. Example: <00:00:00:00:00:00>. (SINK ONLY)")
+                .desc("MAC address of the switch. Example: <00:00:00:00:00:00>."
+                        + " (SINK ONLY)")
                 .numberOfArgs(1)
                 .build();
 
@@ -100,7 +94,8 @@ public class Loader {
         Option loglvl = Option.builder("l")
                 .argName("level")
                 .hasArg()
-                .desc("Use given log level. Values: SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST.")
+                .desc("Use given log level. Values: SEVERE, WARNING, INFO, "
+                        + "CONFIG, FINE, FINER, FINEST.")
                 .numberOfArgs(1)
                 .optionalArg(true)
                 .build();
@@ -115,8 +110,6 @@ public class Loader {
         options.addOption(switchPort);
         options.addOption(switchMac);
         options.addOption(switchDPID);
-        options.addOption(ip);
-
         // create the parser
         CommandLineParser parser = new DefaultParser();
         try {
@@ -124,7 +117,8 @@ public class Loader {
             Thread th;
 
             byte cmdNet = (byte) Integer.parseInt(line.getOptionValue("n"));
-            NodeAddress cmdAddress = new NodeAddress(Integer.parseInt(line.getOptionValue("a")));
+            NodeAddress cmdAddress = new NodeAddress(Integer.parseInt(
+                    line.getOptionValue("a")));
             int cmdPort = Integer.parseInt(line.getOptionValue("p"));
             String cmdTopo = line.getOptionValue("t");
 
@@ -134,14 +128,6 @@ public class Loader {
                 cmdLevel = "SEVERE";
             } else {
                 cmdLevel = line.getOptionValue("l");
-            }
-
-            String cmdIp;
-
-            if (!line.hasOption("i")) {
-                cmdIp = InetAddress.getLocalHost().getHostAddress();
-            } else {
-                cmdIp = line.getOptionValue("i");
             }
 
             if (line.hasOption("c")) {
@@ -163,12 +149,7 @@ public class Loader {
                 long cmdSPort = Long.parseLong(line.getOptionValue("sp"));
 
                 String[] ipport = line.getOptionValue("c").split(":");
-                th = new Thread(new Sink(
-                        cmdNet,
-                        cmdAddress,
-                        cmdIp,
-                        cmdPort,
-                        ipport[0],
+                th = new Thread(new Sink(cmdNet, cmdAddress, cmdPort, ipport[0],
                         Integer.parseInt(ipport[1]),
                         cmdTopo,
                         cmdLevel,
@@ -177,20 +158,16 @@ public class Loader {
                         cmdSPort));
 
             } else {
-                th = new Thread(new Mote(
-                        cmdNet,
-                        cmdAddress,
-                        cmdPort,
-                        cmdTopo,
+                th = new Thread(new Mote(cmdNet, cmdAddress, cmdPort, cmdTopo,
                         cmdLevel));
             }
             th.start();
             th.join();
-        } catch (InterruptedException | ParseException | UnknownHostException ex) {
+        } catch (InterruptedException | ParseException ex) {
             System.out.println("Parsing failed.  Reason: " + ex.getMessage());
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("sdn-wise-data -n id -a address -p port [-i ip] "
-                    + "-t filename [-l level] [-sd dpid -sm mac -sp port]",
+            formatter.printHelp("sdn-wise-data -n id -a address -p port [-i ip]"
+                    + " -t filename [-l level] [-sd dpid -sm mac -sp port]",
                     options);
         }
     }

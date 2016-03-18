@@ -36,7 +36,6 @@ public class Sink extends AbstractMote {
     private DataInputStream riceviOBJ;
 
     public Sink(byte net, NodeAddress myAddress,
-            String ipAddress,
             int port,
             String addrController,
             int portController,

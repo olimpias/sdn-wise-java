@@ -68,8 +68,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         LinkedList<ConfigPacket> ll = new LinkedList<>();
 
         int FUNCTION_HEADER_LEN = 4;
-        int FUNCTION_PAYLOAD_LEN
-                = NetworkPacket.MAX_PACKET_LENGTH
+        int FUNCTION_PAYLOAD_LEN = MAX_PACKET_LENGTH
                 - (DFLT_HDR_LEN + FUNCTION_HEADER_LEN);
 
         int packetNumber = buf.length / FUNCTION_PAYLOAD_LEN;

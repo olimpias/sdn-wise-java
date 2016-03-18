@@ -52,7 +52,7 @@ public abstract class AbstractMote implements Runnable {
     Battery battery;
 
     Map<NodeAddress, FakeInfo> neighbourList;
-
+    Level level;
     AbstractCore core;
 
     public AbstractMote(
@@ -64,7 +64,7 @@ public abstract class AbstractMote implements Runnable {
         this.neighborFilePath = neighborFilePath;
         this.neighbourList = new HashMap<>();
         this.port = port;
-
+        this.level = Level.parse(level);
     }
 
     public void logger() {
@@ -85,7 +85,7 @@ public abstract class AbstractMote implements Runnable {
             measureLogger = initLogger(Level.FINEST, "M_" + core.getMyAddress()
                     + ".log", new MoteFormatter());
 
-            logger = initLogger(Level.FINE, core.getMyAddress()
+            logger = initLogger(level, core.getMyAddress()
                     + ".log", new SimplerFormatter(core.getMyAddress().toString()));
 
             Path path = Paths.get(neighborFilePath);

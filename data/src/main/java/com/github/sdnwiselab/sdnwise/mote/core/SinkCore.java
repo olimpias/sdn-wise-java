@@ -71,7 +71,7 @@ public class SinkCore extends AbstractCore {
     }
 
     @Override
-    public void SDN_WISE_Callback(DataPacket packet) {
+    public void dataCallback(DataPacket packet) {
         controllerTX(packet);
     }
 
