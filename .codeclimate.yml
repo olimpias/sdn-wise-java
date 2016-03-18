@@ -1,0 +1,4 @@
+exclude_paths:
+- /ctrl/src/main/resources/*
+- /data/src/main/resources/*
+- /core/src/main/resources/*
