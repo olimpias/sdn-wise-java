@@ -336,7 +336,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
         try {
             ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_ALIAS);
-            cp.setParams(new byte[]{(byte) index}, GET_RULE.size);
+            cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
             ConfigPacket response = sendQuery(cp);
             byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
             return new NodeAddress(rule);
@@ -376,7 +376,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
         try {
             ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
-            cp.setParams(new byte[]{(byte) index}, GET_RULE.size);
+            cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
             ConfigPacket response = sendQuery(cp);
             byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
             if (rule.length > 0) {
@@ -436,7 +436,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, cfp);
         try {
             byte[] res = sendQuery(cp).getParams();
-            if (cfp.size == 1) {
+            if (cfp.getSize() == 1) {
                 return Byte.toUnsignedInt(res[0]);
             } else {
                 return mergeBytes(res[0], res[1]);

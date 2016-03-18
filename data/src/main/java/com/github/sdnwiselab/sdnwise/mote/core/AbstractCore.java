@@ -691,33 +691,35 @@ public abstract class AbstractCore {
                 }
             } else {
                 toBeSent = 1;
+                int size = id.getSize();
                 switch (id) {
                     case MY_ADDRESS:
-                        packet.setParams(myAddress.getArray(), id.size);
+                        packet.setParams(myAddress.getArray(), size);
                         break;
                     case MY_NET:
-                        packet.setParams(new byte[]{(byte) myNet}, id.size);
+                        packet.setParams(new byte[]{(byte) myNet}, size);
                         break;
                     case BEACON_PERIOD:
-                        packet.setParams(splitInteger(cnt_beacon_max), id.size);
+                        packet.setParams(splitInteger(cnt_beacon_max), size);
                         break;
                     case REPORT_PERIOD:
-                        packet.setParams(splitInteger(cnt_report_max), id.size);
+                        packet.setParams(splitInteger(cnt_report_max), size);
                         break;
                     case RULE_TTL:
-                        packet.setParams(new byte[]{(byte) cnt_updtable_max}, id.size);
+                        packet.setParams(new byte[]{(byte) cnt_updtable_max}, size);
                         break;
                     case PACKET_TTL:
-                        packet.setParams(new byte[]{(byte) rule_ttl}, id.size);
+                        packet.setParams(new byte[]{(byte) rule_ttl}, size);
                         break;
                     case RSSI_MIN:
-                        packet.setParams(new byte[]{(byte) rssi_min}, id.size);
+                        packet.setParams(new byte[]{(byte) rssi_min}, size);
                         break;
                     case GET_ALIAS:
                         int aIndex = Byte.toUnsignedInt(value[0]);
                         if (aIndex < acceptedId.size()) {
                             byte[] tmp = acceptedId.get(aIndex).getArray();
-                            packet.setParams(ByteBuffer.allocate(tmp.length + 1).put((byte) aIndex).put(tmp).array(), -1);
+                            packet.setParams(ByteBuffer.allocate(tmp.length + 1)
+                                    .put((byte) aIndex).put(tmp).array(), -1);
                         } else {
                             toBeSent = 0;
                         }
@@ -727,7 +729,8 @@ public abstract class AbstractCore {
                         if (i < flowTable.size()) {
                             FlowTableEntry fte = flowTable.get(i);
                             byte[] tmp = fte.toByteArray();
-                            packet.setParams(ByteBuffer.allocate(tmp.length + 1).put((byte) i).put(tmp).array(), -1);
+                            packet.setParams(ByteBuffer.allocate(tmp.length + 1)
+                                    .put((byte) i).put(tmp).array(), -1);
                         } else {
                             toBeSent = 0;
                         }
@@ -749,7 +752,7 @@ public abstract class AbstractCore {
         try {
             logQueue.put(new Pair<>(level, logMessage));
         } catch (InterruptedException ex) {
-            Logger.getLogger(AbstractCore.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }
 

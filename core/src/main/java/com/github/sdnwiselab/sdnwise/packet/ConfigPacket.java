@@ -175,7 +175,7 @@ public class ConfigPacket extends NetworkPacket {
         GET_FUNCTION(16, 1);
 
         private final byte value;
-        public final int size;
+        private final int size;
 
         private static final ConfigProperty[] VALUES = ConfigProperty.values();
 
@@ -183,7 +183,11 @@ public class ConfigPacket extends NetworkPacket {
             return VALUES[value];
         }
 
-        private ConfigProperty(final int v, final int s) {
+        public int getSize() {
+            return size;
+        }
+
+        ConfigProperty(final int v, final int s) {
             this.value = (byte) v;
             this.size = s;
         }

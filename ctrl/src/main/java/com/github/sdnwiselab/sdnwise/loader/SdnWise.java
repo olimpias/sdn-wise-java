@@ -77,10 +77,26 @@ public class SdnWise {
         sw.startExemplaryControlPlane(Configurator.load(is));
     }
 
-    private FlowVisor flowVisor;
     private Adaptation adaptation;
     private AbstractController controller;
+    private FlowVisor flowVisor;
     private final boolean isEmulated = true;
+
+    /**
+     * Starts the Adaptation layer of the SDN-WISE network. The configurator
+     * contains the parameters of the Adaptation layer. In particular: a "lower"
+     * Adapter, in order to communicate with the Nodes and an "upper" Adapter to
+     * communicate with the FlowVisor
+     *
+     * @param conf contains the configuration parameters for the Adaptation
+     * layer
+     * @return the AbstractController layer of the current SDN-WISE network
+     */
+    public final Adaptation startAdaptation(final Configurator conf) {
+        adaptation = AdaptationFactory.getAdaptation(conf);
+        new Thread(adaptation).start();
+        return adaptation;
+    }
 
     /**
      * Starts the AbstractController layer of the SDN-WISE network. The
@@ -102,37 +118,6 @@ public class SdnWise {
         controller = new ControllerFactory().getController(conf);
         new Thread(controller).start();
         return controller;
-    }
-
-    /**
-     * Starts the FlowVisor layer of the SDN-WISE network. The configurator
-     * class contains the configuration parameters of the FlowVisor layer. In
-     * particular: a "lower" Adapter, in order to communicate with the
-     * Adaptation and an "upper" Adapter to communicate with the Controller.
-     *
-     * @param conf contains the configuration parameters of the layer
-     * @return the AbstractController layer of the current SDN-WISE network
-     */
-    public final FlowVisor startFlowVisor(final Configurator conf) {
-        flowVisor = FlowVisorFactory.getFlowvisor(conf);
-        new Thread(flowVisor).start();
-        return flowVisor;
-    }
-
-    /**
-     * Starts the Adaptation layer of the SDN-WISE network. The configurator
-     * contains the parameters of the Adaptation layer. In particular: a "lower"
-     * Adapter, in order to communicate with the Nodes and an "upper" Adapter to
-     * communicate with the FlowVisor
-     *
-     * @param conf contains the configuration parameters for the Adaptation
-     * layer
-     * @return the AbstractController layer of the current SDN-WISE network
-     */
-    public final Adaptation startAdaptation(final Configurator conf) {
-        adaptation = AdaptationFactory.getAdaptation(conf);
-        new Thread(adaptation).start();
-        return adaptation;
     }
 
     /**
@@ -164,14 +149,14 @@ public class SdnWise {
             try {
                 Thread.sleep(60000);
             } catch (InterruptedException ex) {
-                Logger.getLogger(SdnWise.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getGlobal().log(Level.SEVERE, null, ex);
             }
 
             // Some examples
-            /* 
-         * Send an "Hello, World!" function to nodes 8 and 3 add a rule that tells 
-         * node 3 to execute this function when it receives a packet directed 
-         * to node 8.
+            /**
+             * Send an "Hello, World!" function to nodes 8 and 3 add a rule that
+             * tells node 3 to execute this function when it receives a packet
+             * directed to node 8.
              */
             controller.addNodeFunction(
                     (byte) 1,
@@ -196,6 +181,21 @@ public class SdnWise {
         java.awt.EventQueue.invokeLater(() -> {
             new ControllerGui(controller).setVisible(true);
         });
+    }
+
+    /**
+     * Starts the FlowVisor layer of the SDN-WISE network. The configurator
+     * class contains the configuration parameters of the FlowVisor layer. In
+     * particular: a "lower" Adapter, in order to communicate with the
+     * Adaptation and an "upper" Adapter to communicate with the Controller.
+     *
+     * @param conf contains the configuration parameters of the layer
+     * @return the AbstractController layer of the current SDN-WISE network
+     */
+    public final FlowVisor startFlowVisor(final Configurator conf) {
+        flowVisor = FlowVisorFactory.getFlowvisor(conf);
+        new Thread(flowVisor).start();
+        return flowVisor;
     }
 
     /**
