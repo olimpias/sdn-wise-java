@@ -70,6 +70,16 @@ public class NetworkPacket implements Cloneable {
     public static final byte DFLT_TTL_MAX = 100;
 
     /**
+     * The byte array containing the packet.
+     */
+    private final byte[] data;
+
+    /**
+     * NET values less than 63 are SDN-WISE.
+     */
+    private static final byte THRES = 63;
+
+    /**
      * Returns the index of a byte in the header given a string.
      *
      * @param b the byte name
@@ -97,13 +107,13 @@ public class NetworkPacket implements Cloneable {
     }
 
     /**
-     * Check if a byte array is an SDN-WISE packet.
+     * Checks if a byte array is an SDN-WISE packet.
      *
      * @param data a byte array
      * @return a boolean depending if is an SDN-WISE packet or not
      */
     public static boolean isSdnWise(final byte[] data) {
-        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
+        return (Byte.toUnsignedInt(data[NET_INDEX]) < THRES);
     }
 
     /**
@@ -132,8 +142,6 @@ public class NetworkPacket implements Cloneable {
                 return String.valueOf(b);
         }
     }
-
-    private final byte[] data;
 
     /**
      * Returns a NetworkPacket given a byte array.
@@ -509,8 +517,13 @@ public class NetworkPacket implements Cloneable {
         }
     }
 
+    /**
+     * Checks if this NetworkPacket is an SDN-WISE packet.
+     *
+     * @return a boolean depending if is an SDN-WISE packet or not
+     */
     public final boolean isSdnWise() {
-        return (Byte.toUnsignedInt(data[NET_INDEX]) < 63);
+        return (Byte.toUnsignedInt(data[NET_INDEX]) < THRES);
     }
 
     private byte[] fromIntArrayToByteArray(final int[] array) {

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,14 @@
  */
 package com.github.sdnwiselab.sdnwise.configuration;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
-import java.io.*;
-import java.util.logging.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Holder of the different kind of configuration classes. It provides methods to
@@ -28,7 +32,6 @@ import java.util.logging.*;
  * @author Sebastiano Milardo
  */
 public class Configurator {
-
     /**
      * Parses a file given in input containing a JSON string and returns the
      * corresponding configurator object described in the file.
@@ -39,7 +42,7 @@ public class Configurator {
     public static final Configurator load(final InputStream fileName) {
         try {
             return (new Gson()).fromJson(new JsonReader(new
-        InputStreamReader(fileName, "UTF-8")), Configurator.class);
+                InputStreamReader(fileName, "UTF-8")), Configurator.class);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Configurator.class.getName())
                     .log(Level.SEVERE, null, ex);
