@@ -30,24 +30,25 @@ import org.graphstream.graph.Node;
 /**
  * Representation of a Dijkstra routing algorithm based SDN-WISE controller.
  * When a request from the network is sent, this class sends a OpenPath message
- with the shortest p. No action is taken if the topology of the network
- changes.
+ * with the shortest p. No action is taken if the topology of the network
+ * changes.
  *
  * @author Sebastiano Milardo
  */
 public final class ControllerDijkstra extends AbstractController {
+
     /**
      * Used to calculate a path according to Dijkstra's algorithm.
      */
     private final Dijkstra dijkstra;
     /**
-     * Last Node address for which there are calculated paths.
-     */
-    private String lastSource = "";
-    /**
      * Last modification time of the networkGraph object.
      */
     private long lastModification = -1;
+    /**
+     * Last Node address for which there are calculated paths.
+     */
+    private String lastSource = "";
 
     /**
      * Creates a ControllerDijkstra object.

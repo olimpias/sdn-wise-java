@@ -28,6 +28,7 @@ import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.logging.*;
+import java.util.logging.Formatter;
 import java.util.stream.*;
 
 /**
@@ -186,21 +187,21 @@ public abstract class AbstractMote implements Runnable {
         }
     }
 
-    private Logger initLogger(Level level, String file, java.util.logging.Formatter formatter) {
-        Logger LOGGER = java.util.logging.Logger.getLogger(file);
-        LOGGER.setLevel(level);
+    private Logger initLogger(Level level, String file, Formatter formatter) {
+        Logger log = Logger.getLogger(file);
+        log.setLevel(level);
         try {
             FileHandler fh;
             File dir = new File("logs");
             dir.mkdir();
             fh = new FileHandler("logs/" + file);
             fh.setFormatter(formatter);
-            LOGGER.addHandler(fh);
-            LOGGER.setUseParentHandlers(false);
+            log.addHandler(fh);
+            log.setUseParentHandlers(false);
         } catch (IOException | SecurityException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, null, ex);
         }
-        return LOGGER;
+        return log;
     }
 
     void startThreads() {

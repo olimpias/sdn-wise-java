@@ -53,6 +53,10 @@ public class Adaptation extends ControlPlaneLayer {
         ControlPlaneLogger.setupLogger(layerShortName);
     }
 
+    @Override
+    public void setupLayer() {
+    }
+
     /**
      * Called by each message coming from the adapters. Messages coming from the
      * lower adapter are sent to the upper one and vice versa.
@@ -69,9 +73,5 @@ public class Adaptation extends ControlPlaneLayer {
             log(Level.INFO, "\u2193" + Arrays.toString((byte[]) arg));
             lower.send((byte[]) arg);
         }
-    }
-
-    @Override
-    public void setupLayer() {
     }
 }

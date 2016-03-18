@@ -143,7 +143,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return id;
     }
 
-    public void managePacket(NetworkPacket data) {
+    public void managePacket(final NetworkPacket data) {
 
         switch (data.getTyp()) {
             case REPORT:
@@ -173,6 +173,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
                 break;
             case REG_PROXY:
                 sinkAddress = data.getSrc();
+                break;
+
             default:
                 break;
         }

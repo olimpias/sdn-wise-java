@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,9 @@
  */
 package com.github.sdnwiselab.sdnwise.configuration;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Holder of the three {@code Map<String,String>} containing the configuration
@@ -27,19 +29,18 @@ import java.util.*;
  */
 public class ConfigController {
 
-    private final Map<String, String> lower = new HashMap<>();
     private final Map<String, String> algorithm = new HashMap<>();
+    private final Map<String, String> lower = new HashMap<>();
     private final Map<String, String> map = new HashMap<>();
-
     /**
-     * Returns an unmodifiableMap containing the configurations for the network
-     * map.
+     * Returns an unmodifiableMap containing the configurations for the
+     * algorithm used.
      *
      * @return a {@code Map<String,String>} containing the configurations for
-     * the network map
+     * the algorithm used
      */
-    public final Map<String, String> getMap() {
-        return Collections.unmodifiableMap(map);
+    public final Map<String, String> getAlgorithm() {
+        return Collections.unmodifiableMap(algorithm);
     }
 
     /**
@@ -53,15 +54,14 @@ public class ConfigController {
     public final Map<String, String> getLower() {
         return Collections.unmodifiableMap(lower);
     }
-
     /**
-     * Returns an unmodifiableMap containing the configurations for the
-     * algorithm used
+     * Returns an unmodifiableMap containing the configurations for the network
+     * map.
      *
      * @return a {@code Map<String,String>} containing the configurations for
-     * the algorithm used
+     * the network map
      */
-    public final Map<String, String> getAlgorithm() {
-        return Collections.unmodifiableMap(algorithm);
+    public final Map<String, String> getMap() {
+        return Collections.unmodifiableMap(map);
     }
 }

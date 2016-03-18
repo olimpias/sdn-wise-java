@@ -62,9 +62,20 @@ public class AdapterCom extends AbstractAdapter {
      */
     private final byte startByte, stopByte;
 
-    private InputStream in;
-    private BufferedOutputStream out;
+    /**
+     * Serial Port.
+     */
     private SerialPort comPort;
+
+    /**
+     * InputStream coming from the Serial Port.
+     */
+    private InputStream in;
+
+    /**
+     * OutputStream to the Serial Port.
+     */
+    private BufferedOutputStream out;
 
     /**
      * Creates an AdapterCom object. The conf map is used to pass the
@@ -95,6 +106,18 @@ public class AdapterCom extends AbstractAdapter {
     }
 
     @Override
+    public final boolean close() {
+        try {
+            comPort.close();
+            in.close();
+            return true;
+        } catch (IOException ex) {
+            log(Level.SEVERE, ex.toString());
+            return false;
+        }
+    }
+
+    @Override
     public final boolean open() {
         try {
             CommPortIdentifier portId;
@@ -107,8 +130,7 @@ public class AdapterCom extends AbstractAdapter {
                     log(Level.INFO, "Serial Port Found: " + port);
                     if (port.equals(this.portName)) {
                         log(Level.INFO, "SINK");
-                        comPort = (SerialPort) portId
-                                .open("AdapterCOM", 2000);
+                        comPort = (SerialPort) portId.open("AdapterCOM", 2000);
                         break;
                     }
                 }
@@ -122,7 +144,9 @@ public class AdapterCom extends AbstractAdapter {
             comPort.addEventListener(sl);
             comPort.notifyOnDataAvailable(true);
             return true;
-        } catch (PortInUseException | IOException | UnsupportedCommOperationException | TooManyListenersException ex) {
+        } catch (PortInUseException | IOException
+                | UnsupportedCommOperationException
+                | TooManyListenersException ex) {
             log(Level.SEVERE, "Unable to open Serial Port" + ex.toString());
             return false;
         }
@@ -143,38 +167,26 @@ public class AdapterCom extends AbstractAdapter {
         }
     }
 
-    @Override
-    public final boolean close() {
-        try {
-            comPort.close();
-            in.close();
-            return true;
-        } catch (IOException ex) {
-            log(Level.SEVERE, ex.toString());
-            return false;
-        }
-    }
-
     private class InternalSerialListener extends Observable implements
             SerialPortEventListener {
 
-        boolean startFlag;
-        boolean idFlag;
-        int expected;
-        int b;
-        byte a;
-        final LinkedList<Byte> receivedBytes;
-        final LinkedList<Byte> packet;
-        InputStream in;
+        private boolean startFlag;
+        private boolean idFlag;
+        private int expected;
+        private int b;
+        private byte a;
+        private final LinkedList<Byte> receivedBytes;
+        private final LinkedList<Byte> packet;
+        private final InputStream in;
 
-        InternalSerialListener(InputStream in) {
-            this.packet = new LinkedList<>();
-            this.receivedBytes = new LinkedList<>();
-            this.in = in;
+        InternalSerialListener(final InputStream is) {
+            packet = new LinkedList<>();
+            receivedBytes = new LinkedList<>();
+            in = is;
         }
 
         @Override
-        public void serialEvent(SerialPortEvent event) {
+        public void serialEvent(final SerialPortEvent event) {
             if (event.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
                 try {
                     for (int i = 0; i < in.available(); i++) {
@@ -195,9 +207,11 @@ public class AdapterCom extends AbstractAdapter {
                         } else if (startFlag && idFlag && expected == 0) {
                             expected = Byte.toUnsignedInt(a);
                             packet.add(a);
-                        } else if (startFlag && idFlag && expected > 0 && packet.size() < expected + 1) {
+                        } else if (startFlag && idFlag && expected > 0
+                                && packet.size() < expected + 1) {
                             packet.add(a);
-                        } else if (startFlag && idFlag && expected > 0 && packet.size() == expected + 1) {
+                        } else if (startFlag && idFlag && expected > 0
+                                && packet.size() == expected + 1) {
                             packet.add(a);
                             if (a == stopByte) {
                                 packet.removeFirst();

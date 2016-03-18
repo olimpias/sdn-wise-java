@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,13 @@
 package com.github.sdnwiselab.sdnwise.adapter;
 
 import java.io.IOException;
-import java.net.*;
-import java.util.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Observable;
 import java.util.logging.Level;
 
 /**
@@ -31,11 +36,10 @@ import java.util.logging.Level;
 public class AdapterUdp extends AbstractAdapter {
 
     private final int IN_PORT;
-    private final int OUT_PORT;
     private final String OUT_IP;
-
-    private UDPServer udpServer;
+    private final int OUT_PORT;
     private DatagramSocket sck;
+    private UDPServer udpServer;
     final int MAX_PAYLOAD;
 
     /**
@@ -59,6 +63,13 @@ public class AdapterUdp extends AbstractAdapter {
     }
 
     @Override
+    public final boolean close() {
+        udpServer.isStopped = true;
+        sck.close();
+        return true;
+    }
+
+    @Override
     public final boolean open() {
         try {
             sck = new DatagramSocket(IN_PORT);
@@ -70,13 +81,6 @@ public class AdapterUdp extends AbstractAdapter {
             log(Level.SEVERE, ex.toString());
             return false;
         }
-    }
-
-    @Override
-    public final boolean close() {
-        udpServer.isStopped = true;
-        sck.close();
-        return true;
     }
 
     @Override
@@ -108,10 +112,10 @@ public class AdapterUdp extends AbstractAdapter {
         }
     }
 
-    private class UDPServer extends Observable implements Runnable {
+    private final class UDPServer extends Observable implements Runnable {
 
-        boolean isStopped;
-        DatagramSocket sck;
+        private boolean isStopped;
+        private final DatagramSocket sck;
 
         UDPServer(final DatagramSocket socket) {
             this.sck = socket;

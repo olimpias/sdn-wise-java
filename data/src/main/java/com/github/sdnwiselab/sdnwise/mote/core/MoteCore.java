@@ -76,7 +76,7 @@ public class MoteCore extends AbstractCore {
                         .setLhs(DST_INDEX)
                         .setRhsLocation(SDN_WISE_CONST)
                         .setRhs(bp.getSinkAddress().intValue()));
-                toSink.addWindow(Window.fromString("P.TYP == 3"));
+                toSink.addWindow(fromString("P.TYP == 3"));
                 toSink.addAction(new ForwardUnicastAction(bp.getSrc()));
                 flowTable.set(0, toSink);
 

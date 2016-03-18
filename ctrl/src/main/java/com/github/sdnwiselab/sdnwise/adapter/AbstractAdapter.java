@@ -44,18 +44,18 @@ public abstract class AbstractAdapter extends Observable implements Observer {
     }
 
     /**
-     * Opens this adapter.
-     *
-     * @return a boolean indicating the correct ending of the operation
-     */
-    public abstract boolean open();
-
-    /**
      * Closes this adapter.
      *
      * @return a boolean indicating the correct ending of the operation
      */
     public abstract boolean close();
+
+    /**
+     * Opens this adapter.
+     *
+     * @return a boolean indicating the correct ending of the operation
+     */
+    public abstract boolean open();
 
     /**
      * Sends a byte array using this adapter.

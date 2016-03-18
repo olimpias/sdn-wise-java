@@ -39,11 +39,10 @@ import java.util.logging.Level;
  */
 public class AdapterTcp extends AbstractAdapter {
 
-    private final int PORT;
     private final String IP;
     private final boolean IS_SERVER;
+    private final int PORT;
     private TcpElement tcpElement;
-    
 
     /**
      * Creates an AdapterTCP object. The conf map is used to pass the
@@ -62,6 +61,12 @@ public class AdapterTcp extends AbstractAdapter {
     }
 
     @Override
+    public final boolean close() {
+        tcpElement.isStopped = true;
+        return true;
+    }
+
+    @Override
     public final boolean open() {
         if (IS_SERVER) {
             tcpElement = new TcpServer(PORT);
@@ -75,14 +80,56 @@ public class AdapterTcp extends AbstractAdapter {
     }
 
     @Override
-    public final boolean close() {
-        tcpElement.isStopped = true;
-        return true;
-    }
-
-    @Override
     public final void send(final byte[] data) {
         tcpElement.send(data);
+    }
+
+    private class TcpClient extends TcpElement {
+
+        private Socket socket;
+
+        TcpClient(final String ip, final int port) {
+            super(port);
+            try {
+                socket = new Socket(ip, port);
+            } catch (IOException ex) {
+                log(Level.SEVERE, ex.toString());
+            }
+
+        }
+
+        @Override
+        public void send(final byte[] data) {
+            try {
+                OutputStream out = socket.getOutputStream();
+                DataOutputStream dos = new DataOutputStream(out);
+                dos.write(data);
+            } catch (IOException ex) {
+                log(Level.SEVERE, ex.toString());
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                InputStream in = socket.getInputStream();
+                DataInputStream dis = new DataInputStream(in);
+                while (true) {
+                    int net = Byte.toUnsignedInt(dis.readByte());
+                    int len = Byte.toUnsignedInt(dis.readByte());
+                    if (len > 0) {
+                        byte[] data = new byte[len];
+                        data[NET_INDEX] = (byte) net;
+                        data[LEN_INDEX] = (byte) len;
+                        dis.readFully(data, LEN_INDEX + 1, len - 2);
+                        setChanged();
+                        notifyObservers(data);
+                    }
+                }
+            } catch (IOException ex) {
+                log(Level.SEVERE, ex.toString());
+            }
+        }
     }
 
     private abstract class TcpElement extends Observable implements Runnable, Observer {
@@ -203,54 +250,6 @@ public class AdapterTcp extends AbstractAdapter {
                 } catch (IOException ex) {
                     log(Level.SEVERE, ex.toString());
                 }
-            }
-        }
-    }
-
-    private class TcpClient extends TcpElement {
-
-        Socket socket;
-
-        TcpClient(final String ip, final int port) {
-            super(port);
-            try {
-                socket = new Socket(ip, port);
-            } catch (IOException ex) {
-                log(Level.SEVERE, ex.toString());
-            }
-
-        }
-
-        @Override
-        public void send(final byte[] data) {
-            try {
-                OutputStream out = socket.getOutputStream();
-                DataOutputStream dos = new DataOutputStream(out);
-                dos.write(data);
-            } catch (IOException ex) {
-                log(Level.SEVERE, ex.toString());
-            }
-        }
-
-        @Override
-        public void run() {
-            try {
-                InputStream in = socket.getInputStream();
-                DataInputStream dis = new DataInputStream(in);
-                while (true) {
-                    int net = Byte.toUnsignedInt(dis.readByte());
-                    int len = Byte.toUnsignedInt(dis.readByte());
-                    if (len > 0) {
-                        byte[] data = new byte[len];
-                        data[NET_INDEX] = (byte) net;
-                        data[LEN_INDEX] = (byte) len;
-                        dis.readFully(data, LEN_INDEX + 1, len - 2);
-                        setChanged();
-                        notifyObservers(data);
-                    }
-                }
-            } catch (IOException ex) {
-                log(Level.SEVERE, ex.toString());
             }
         }
     }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,8 @@ import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.Observable;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Representation of the sensor network and resolver of all the data packets
@@ -42,10 +43,9 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
 
     // to avoid garbage collection of the logger
     protected static final Logger LOGGER = Logger.getLogger("APP");
-
+    protected final AbstractController controller;
     private final ArrayBlockingQueue<NetworkPacket> bQ;
-    final AbstractController controller;
-
+    
     /**
      * Creates an Application Abstract Class.
      *
@@ -59,27 +59,18 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
         bQ = new ArrayBlockingQueue<>(1000);
     }
 
-    public abstract void receivePacket(DataPacket data);
+    /**
+     * Gets the Network Graph of this AbstractController.
+     *
+     * @return the controller network graph.
+     */
+    public NetworkGraph getNetworkGraph() {
+        return controller.getNetworkGraph();
+    }
 
     public abstract void graphUpdate();
 
-    @Override
-    public final void update(Observable o, Object arg) {
-        if (o.equals(lower)) {
-            try {
-                bQ.put(new NetworkPacket((byte[]) arg));
-            } catch (InterruptedException ex) {
-                log(Level.SEVERE, ex.toString());
-            }
-        }
-    }
-
-    /**
-     * Stops the working thread that manages incoming requests.
-     */
-    public final void stop() {
-        isStopped = true;
-    }
+    public abstract void receivePacket(DataPacket data);
 
     /**
      * Sends a generic message to a node. The message is represented by an array
@@ -111,12 +102,21 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     }
 
     /**
-     * Gets the Network Graph of this AbstractController.
-     *
-     * @return the controller network graph.
+     * Stops the working thread that manages incoming requests.
      */
-    public NetworkGraph getNetworkGraph() {
-        return controller.getNetworkGraph();
+    public final void stop() {
+        isStopped = true;
+    }
+
+    @Override
+    public final void update(Observable o, Object arg) {
+        if (o.equals(lower)) {
+            try {
+                bQ.put(new NetworkPacket((byte[]) arg));
+            } catch (InterruptedException ex) {
+                log(Level.SEVERE, ex.toString());
+            }
+        }
     }
 
     private void managePacket(NetworkPacket data) {

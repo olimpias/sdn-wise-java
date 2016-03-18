@@ -29,6 +29,15 @@ import java.util.Arrays;
  * @author Sebastiano Milardo
  */
 public final class Window implements FlowTableInterface {
+    /**
+     * Window Operators.
+     */
+    public static final byte EQUAL = 0;
+    public static final byte GREATER = 2;
+    public static final byte GREATER_OR_EQUAL = 4;
+    public static final byte LESS = 3;
+    public static final byte LESS_OR_EQUAL = 5;
+    public static final byte NOT_EQUAL = 1;
 
     public static final byte SIZE = 5;
 
@@ -38,29 +47,14 @@ public final class Window implements FlowTableInterface {
     public static final byte W_SIZE_1 = 0,
             W_SIZE_2 = 1;
 
-    /**
-     * Window Operators.
-     */
-    public static final byte EQUAL = 0,
-            NOT_EQUAL = 1,
-            GREATER = 2,
-            LESS = 3,
-            GREATER_OR_EQUAL = 4,
-            LESS_OR_EQUAL = 5;
 
-    private static final byte OP_BIT = 5,
-            OP_LEN = 3,
-            LEFT_BIT = 3,
-            LEFT_LEN = 2,
-            RIGHT_BIT = 1,
+    private static final byte 
+            LEFT_BIT = 3, LEFT_INDEX_H = 1, LEFT_INDEX_L = 2,
+            LEFT_LEN = 2, OP_BIT = 5, OP_INDEX = 0, OP_LEN = 3,
+            RIGHT_BIT = 1, RIGHT_INDEX_H = 3, RIGHT_INDEX_L = 4,
             RIGHT_LEN = LEFT_LEN,
             SIZE_BIT = 0,
-            SIZE_LEN = 1,
-            OP_INDEX = 0,
-            LEFT_INDEX_H = 1,
-            LEFT_INDEX_L = 2,
-            RIGHT_INDEX_H = 3,
-            RIGHT_INDEX_L = 4;
+            SIZE_LEN = 1;
 
     public static Window fromString(final String val) {
         Window w = new Window();
@@ -112,91 +106,20 @@ public final class Window implements FlowTableInterface {
             Arrays.fill(window, (byte) 0);
         }
     }
-
-    /**
-     * Getter method to obtain Size.
-     *
-     * @return an int value of size.
-     */
-    public int getSize() {
-        return getBitRange(window[OP_INDEX], SIZE_BIT, SIZE_LEN);
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Window other = (Window) obj;
+        return Arrays.equals(other.window, window);
     }
-
-    /**
-     * Getter method to obtain Operator.
-     *
-     * @return an int value of operator.
-     */
-    public int getOperator() {
-        return getBitRange(window[OP_INDEX], OP_BIT, OP_LEN);
-    }
-
-    /**
-     * Getter method to obtain lhs Location.
-     *
-     * @return an int value of location.
-     */
-    public int getLhsLocation() {
-        return getBitRange(window[OP_INDEX], LEFT_BIT, LEFT_LEN);
-    }
-
-    /**
-     * Getter method to obtain rhs Location.
-     *
-     * @return an int value of location.
-     */
-    public int getRhsLocation() {
-        return getBitRange(window[OP_INDEX], RIGHT_BIT, RIGHT_LEN);
-    }
-
-    /**
-     * Setter method to set OP_INDEX of window[].
-     *
-     * @param value value to set
-     * @return this Window
-     */
-    public Window setSize(final int value) {
-        window[OP_INDEX] = (byte) setBitRange(
-                window[OP_INDEX], SIZE_BIT, SIZE_LEN, value);
-        return this;
-    }
-
-    /**
-     * Setter method to set OP_INDEX of window[].
-     *
-     * @param value value to set
-     * @return this Window
-     */
-    public Window setOperator(final int value) {
-        window[OP_INDEX] = (byte) setBitRange(
-                window[OP_INDEX], OP_BIT, OP_LEN, value);
-        return this;
-    }
-
-    /**
-     * Setter method to set OP_INDEX of window[].
-     *
-     * @param value value to set
-     * @return this Window
-     */
-    public Window setRhsLocation(final int value) {
-        window[OP_INDEX] = (byte) setBitRange(
-                window[OP_INDEX], RIGHT_BIT, RIGHT_LEN, value);
-        return this;
-    }
-
-    /**
-     * Setter method to set OP_INDEX of window[].
-     *
-     * @param value value to set
-     * @return this Window
-     */
-    public Window setLhsLocation(final int value) {
-        window[OP_INDEX] = (byte) setBitRange(
-                window[OP_INDEX], LEFT_BIT, LEFT_LEN, value);
-        return this;
-    }
-
     /**
      * Getter method to obtain Pos.
      *
@@ -207,50 +130,84 @@ public final class Window implements FlowTableInterface {
     }
 
     /**
-     * Setter method to set offsetIndex of window[].
+     * Getter method to obtain lhs Location.
      *
-     * @param val value to set
-     * @return this Window
+     * @return an int value of location.
      */
-    public Window setLhs(final int val) {
-        this.window[LEFT_INDEX_H] = (byte) (val >>> Byte.SIZE);
-        this.window[LEFT_INDEX_L] = (byte) val;
-        return this;
+    public int getLhsLocation() {
+        return getBitRange(window[OP_INDEX], LEFT_BIT, LEFT_LEN);
     }
-
     /**
-     * Getter method to obtain High Value.
+     * Getter method to obtain memory in string.
      *
-     * @return an int value of high value.
+     * @return a string value of memory.
      */
-    public int getRhs() {
-        return Utils.mergeBytes(window[RIGHT_INDEX_H], window[RIGHT_INDEX_L]);
+    public String getLhsToString() {
+        switch (getLhsLocation()) {
+            case SDN_WISE_CONST:
+                return String.valueOf(this.getLhs());
+            case SDN_WISE_PACKET:
+                return "P." + NetworkPacket.getNetworkPacketByteName(getLhs());
+            case SDN_WISE_STATUS:
+                return "R." + getLhs();
+            default:
+                return "";
+        }
     }
-
+    public int[] getOperandFromString(final String val) {
+        int[] tmp = new int[2];
+        String[] strVal = val.split("\\.");
+        switch (strVal[0]) {
+            case "P":
+                tmp[0] = SDN_WISE_PACKET;
+                break;
+            case "R":
+                tmp[0] = SDN_WISE_STATUS;
+                break;
+            default:
+                tmp[0] = SDN_WISE_CONST;
+                break;
+        }
+        
+        switch (tmp[0]) {
+            case SDN_WISE_PACKET:
+                tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
+                break;
+            case SDN_WISE_CONST:
+                tmp[1] = Integer.parseInt(strVal[0]);
+                break;
+            default:
+                tmp[1] = Integer.parseInt(strVal[1]);
+                break;
+        }
+        return tmp;
+    }
     /**
-     * Setter method to set highValueIndex of window[].
+     * Getter method to obtain Operator.
      *
-     * @param val value to set
-     * @return this Window
+     * @return an int value of operator.
      */
-    public Window setRhs(final int val) {
-        this.window[RIGHT_INDEX_H] = (byte) (val >>> Byte.SIZE);
-        this.window[RIGHT_INDEX_L] = (byte) val;
-        return this;
+    public int getOperator() {
+        return getBitRange(window[OP_INDEX], OP_BIT, OP_LEN);
     }
-
-    @Override
-    public String toString() {
-        return this.getLhsToString()
-                + this.getOperatorToString()
-                + this.getRhsToString();
+    public int getOperatorFromString(final String val) {
+        switch (val) {
+            case ("=="):
+                return EQUAL;
+            case ("!="):
+                return NOT_EQUAL;
+            case (">"):
+                return GREATER;
+            case ("<"):
+                return LESS;
+            case (">="):
+                return GREATER_OR_EQUAL;
+            case ("<="):
+                return LESS_OR_EQUAL;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
-
-    @Override
-    public byte[] toByteArray() {
-        return Arrays.copyOf(window, SIZE);
-    }
-
     /**
      * Getter method to obtain Operator in String.
      *
@@ -275,34 +232,23 @@ public final class Window implements FlowTableInterface {
         }
     }
 
-    public int getOperatorFromString(final String val) {
-        switch (val) {
-            case ("=="):
-                return EQUAL;
-            case ("!="):
-                return NOT_EQUAL;
-            case (">"):
-                return GREATER;
-            case ("<"):
-                return LESS;
-            case (">="):
-                return GREATER_OR_EQUAL;
-            case ("<="):
-                return LESS_OR_EQUAL;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
 
     /**
-     * Getter method to obtain Size in string.
+     * Getter method to obtain High Value.
      *
-     * @return a string in size.
+     * @return an int value of high value.
      */
-    public String getSizeToString() {
-        return String.valueOf(getSize() + 1);
+    public int getRhs() {
+        return Utils.mergeBytes(window[RIGHT_INDEX_H], window[RIGHT_INDEX_L]);
     }
-
+    /**
+     * Getter method to obtain rhs Location.
+     *
+     * @return an int value of location.
+     */
+    public int getRhsLocation() {
+        return getBitRange(window[OP_INDEX], RIGHT_BIT, RIGHT_LEN);
+    }
     /**
      * Getter method to obtain memory in string.
      *
@@ -320,78 +266,112 @@ public final class Window implements FlowTableInterface {
                 return "";
         }
     }
-
-    public int[] getOperandFromString(final String val) {
-        int[] tmp = new int[2];
-        String[] strVal = val.split("\\.");
-        switch (strVal[0]) {
-            case "P":
-                tmp[0] = SDN_WISE_PACKET;
-                break;
-            case "R":
-                tmp[0] = SDN_WISE_STATUS;
-                break;
-            default:
-                tmp[0] = SDN_WISE_CONST;
-                break;
-        }
-
-        switch (tmp[0]) {
-            case SDN_WISE_PACKET:
-                tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
-                break;
-            case SDN_WISE_CONST:
-                tmp[1] = Integer.parseInt(strVal[0]);
-                break;
-            default:
-                tmp[1] = Integer.parseInt(strVal[1]);
-                break;
-        }
-        return tmp;
+    /**
+     * Getter method to obtain Size.
+     *
+     * @return an int value of size.
+     */
+    public int getSize() {
+        return getBitRange(window[OP_INDEX], SIZE_BIT, SIZE_LEN);
     }
+
+
+    /**
+     * Getter method to obtain Size in string.
+     *
+     * @return a string in size.
+     */
+    public String getSizeToString() {
+        return String.valueOf(getSize() + 1);
+    }
+
 
     public int getValueFromString(final String val) {
         return Integer.parseInt(val.split("\\.")[1]);
     }
 
-    /**
-     * Getter method to obtain memory in string.
-     *
-     * @return a string value of memory.
-     */
-    public String getLhsToString() {
-        switch (getLhsLocation()) {
-            case SDN_WISE_CONST:
-                return String.valueOf(this.getLhs());
-            case SDN_WISE_PACKET:
-                return "P." + NetworkPacket.getNetworkPacketByteName(getLhs());
-            case SDN_WISE_STATUS:
-                return "R." + getLhs();
-            default:
-                return "";
-        }
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Window other = (Window) obj;
-        return Arrays.equals(other.window, window);
-    }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 37 * hash + Arrays.hashCode(this.window);
         return hash;
+    }
+    /**
+     * Setter method to set offsetIndex of window[].
+     *
+     * @param val value to set
+     * @return this Window
+     */
+    public Window setLhs(final int val) {
+        this.window[LEFT_INDEX_H] = (byte) (val >>> Byte.SIZE);
+        this.window[LEFT_INDEX_L] = (byte) val;
+        return this;
+    }
+    /**
+     * Setter method to set OP_INDEX of window[].
+     *
+     * @param value value to set
+     * @return this Window
+     */
+    public Window setLhsLocation(final int value) {
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], LEFT_BIT, LEFT_LEN, value);
+        return this;
+    }
+    /**
+     * Setter method to set OP_INDEX of window[].
+     *
+     * @param value value to set
+     * @return this Window
+     */
+    public Window setOperator(final int value) {
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], OP_BIT, OP_LEN, value);
+        return this;
+    }
+    /**
+     * Setter method to set highValueIndex of window[].
+     *
+     * @param val value to set
+     * @return this Window
+     */
+    public Window setRhs(final int val) {
+        this.window[RIGHT_INDEX_H] = (byte) (val >>> Byte.SIZE);
+        this.window[RIGHT_INDEX_L] = (byte) val;
+        return this;
+    }
+    /**
+     * Setter method to set OP_INDEX of window[].
+     *
+     * @param value value to set
+     * @return this Window
+     */
+    public Window setRhsLocation(final int value) {
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], RIGHT_BIT, RIGHT_LEN, value);
+        return this;
+    }
+    /**
+     * Setter method to set OP_INDEX of window[].
+     *
+     * @param value value to set
+     * @return this Window
+     */
+    public Window setSize(final int value) {
+        window[OP_INDEX] = (byte) setBitRange(
+                window[OP_INDEX], SIZE_BIT, SIZE_LEN, value);
+        return this;
+    }
+    @Override
+    public byte[] toByteArray() {
+        return Arrays.copyOf(window, SIZE);
+    }
+    @Override
+    public String toString() {
+        return this.getLhsToString()
+                + this.getOperatorToString()
+                + this.getRhsToString();
     }
 
 }

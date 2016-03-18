@@ -36,11 +36,13 @@ public class Configurator {
      * @param fileName the path to the JSON file
      * @return a configurator object
      */
-    public static final Configurator load(InputStream fileName) {
+    public static final Configurator load(final InputStream fileName) {
         try {
-            return (new Gson()).fromJson(new JsonReader(new InputStreamReader(fileName, "UTF-8")), Configurator.class);
+            return (new Gson()).fromJson(new JsonReader(new
+        InputStreamReader(fileName, "UTF-8")), Configurator.class);
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(Configurator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Configurator.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -50,21 +52,21 @@ public class Configurator {
     private final ConfigFlowVisor Flowvisor = new ConfigFlowVisor();
 
     /**
-     * Returns a ConfigController object.
-     *
-     * @return a configController object
-     */
-    public final ConfigController getController() {
-        return Controller;
-    }
-
-    /**
      * Returns a configAdaptation object.
      *
      * @return a configAdaptation object
      */
     public final ConfigAdaptation getAdaptation() {
         return Adaptation;
+    }
+
+    /**
+     * Returns a ConfigController object.
+     *
+     * @return a configController object
+     */
+    public final ConfigController getController() {
+        return Controller;
     }
 
     /**

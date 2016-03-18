@@ -250,7 +250,7 @@ public class NetworkGraph extends Observable {
             for (Node n : graph) {
                 if (n.getAttribute("net", Integer.class) < 63
                         && n.getAttribute("lastSeen", Long.class) != null
-                        && !isAlive(timeout, (long) n.getNumber("lastSeen"), 
+                        && !isAlive(timeout, (long) n.getNumber("lastSeen"),
                                 now)) {
                     removeNode(n);
                     modified = true;

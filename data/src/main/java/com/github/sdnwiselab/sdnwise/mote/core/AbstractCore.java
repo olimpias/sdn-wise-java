@@ -178,7 +178,7 @@ public abstract class AbstractCore {
                 .setLhs(DST_INDEX)
                 .setRhsLocation(SDN_WISE_CONST)
                 .setRhs(this.myAddress.intValue()));
-        toSink.addWindow(Window.fromString("P.TYP == 3"));
+        toSink.addWindow(fromString("P.TYP == 3"));
         toSink.addAction(new ForwardUnicastAction(myAddress));
         toSink.getStats().setPermanent();
         flowTable.add(toSink);
@@ -366,7 +366,7 @@ public abstract class AbstractCore {
                     if (value + 1 >= intPacket.length) {
                         return -1;
                     }
-                    return Utils.mergeBytes(intPacket[value], intPacket[value + 1]);
+                    return mergeBytes(intPacket[value], intPacket[value + 1]);
                 }
             case SDN_WISE_STATUS:
                 if (size == W_SIZE_1) {
@@ -379,8 +379,7 @@ public abstract class AbstractCore {
                     if (value + 1 >= statusRegister.size()) {
                         return -1;
                     }
-                    return Utils.mergeBytes(
-                            statusRegister.get(value),
+                    return mergeBytes( statusRegister.get(value),
                             statusRegister.get(value + 1));
                 }
         }
