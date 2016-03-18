@@ -27,4 +27,4 @@ mvn clean install
 
 ### Licensing
 
-* See [LICENSE](LICENSE)
+* See [LICENSE](LICENSE).
