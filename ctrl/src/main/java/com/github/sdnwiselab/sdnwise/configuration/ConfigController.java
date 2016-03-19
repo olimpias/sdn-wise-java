@@ -29,9 +29,13 @@ import java.util.Map;
  */
 public class ConfigController {
 
-    private final Map<String, String> algorithm = new HashMap<>();
-    private final Map<String, String> lower = new HashMap<>();
-    private final Map<String, String> map = new HashMap<>();
+    /**
+     * Contain the lower and upper adapter, and the map configurations.
+     */
+    private final Map<String, String> algorithm = new HashMap<>(),
+            lower = new HashMap<>(),
+            map = new HashMap<>();
+
     /**
      * Returns an unmodifiableMap containing the configurations for the
      * algorithm used.
@@ -54,6 +58,7 @@ public class ConfigController {
     public final Map<String, String> getLower() {
         return Collections.unmodifiableMap(lower);
     }
+
     /**
      * Returns an unmodifiableMap containing the configurations for the network
      * map.

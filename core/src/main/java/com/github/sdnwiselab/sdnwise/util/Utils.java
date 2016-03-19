@@ -44,6 +44,13 @@ public final class Utils {
         return ByteBuffer.allocate(a.length + b.length).put(a).put(b).array();
     }
 
+    /**
+     * Gets a set of bits from a byte.
+     * @param b the original byte
+     * @param s the bit of the byte from where we start extracting
+     * @param n the number of bits to extract
+     * @return an int made of the extracted bits
+     */
     public static int getBitRange(final int b, final int s, final int n) {
         return (((b & MASK) >> (s & MASK))
                 & ((1 << (n & MASK)) - 1)) & MASK;

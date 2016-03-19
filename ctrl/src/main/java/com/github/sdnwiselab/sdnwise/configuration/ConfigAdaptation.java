@@ -28,8 +28,11 @@ import java.util.Map;
  */
 public class ConfigAdaptation {
 
-    private final Map<String, String> lower = new HashMap<>();
-    private final Map<String, String> upper = new HashMap<>();
+    /**
+     * Contain the lower and upper adapter configurations.
+     */
+    private final Map<String, String> lower = new HashMap<>(),
+            upper = new HashMap<>();
 
     /**
      * Returns an unmodifiableMap containing the configurations for the lower

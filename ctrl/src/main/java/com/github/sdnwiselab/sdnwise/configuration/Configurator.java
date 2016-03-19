@@ -46,7 +46,8 @@ public class Configurator {
      */
     public static final Configurator load(final InputStream fileName) {
         try {
-            return (new Gson()).fromJson(new JsonReader(new InputStreamReader(fileName, "UTF-8")), Configurator.class);
+            return (new Gson()).fromJson(new JsonReader(new InputStreamReader(
+                    fileName, "UTF-8")), Configurator.class);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Configurator.class.getName())
                     .log(Level.SEVERE, null, ex);
