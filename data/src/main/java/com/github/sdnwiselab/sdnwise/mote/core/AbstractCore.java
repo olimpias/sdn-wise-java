@@ -678,10 +678,8 @@ public abstract class AbstractCore {
                             int pointer = 0;
                             byte[] func = new byte[total];
                             for (byte[] n : functionBuffer.get(idValue)) {
-                                for (int j = 0; j < n.length; j++) {
-                                    func[pointer] = n[j];
-                                    pointer++;
-                                }
+                                System.arraycopy(n, 0, func, pointer, n.length);
+                                pointer += n.length;
                             }
                             functions.put(idValue, createServiceInterface(func));
                             log(Level.INFO, "New Function Added at position: " + idValue);
