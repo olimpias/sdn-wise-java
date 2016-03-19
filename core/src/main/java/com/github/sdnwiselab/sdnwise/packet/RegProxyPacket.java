@@ -32,7 +32,7 @@ import java.nio.charset.Charset;
 public class RegProxyPacket extends NetworkPacket {
 
     /**
-     * Fields indexes and lengths. 
+     * Fields indexes and lengths.
      */
     private static final int DPID_LEN = 8,
             MAC_LEN = 6,
@@ -142,7 +142,8 @@ public class RegProxyPacket extends NetworkPacket {
     }
 
     public final long getPort() {
-        return new BigInteger(this.getPayloadFromTo(PORT_INDEX, PORT_INDEX + PORT_LEN)).longValue();
+        return new BigInteger(this.getPayloadFromTo(PORT_INDEX, PORT_INDEX
+                + PORT_LEN)).longValue();
     }
 
     public final RegProxyPacket setInetSocketAddress(InetSocketAddress isa) {

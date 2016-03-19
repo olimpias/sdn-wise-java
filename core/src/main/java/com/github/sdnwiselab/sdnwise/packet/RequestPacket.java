@@ -28,11 +28,10 @@ import static com.github.sdnwiselab.sdnwise.util.Utils.concatByteArray;
 public class RequestPacket extends NetworkPacket {
 
     /**
-     * Indexes of the fields.
+     * Indexes and lengths of the fields.
      */
-    private static final byte ID_INDEX = 0, PART_INDEX = 1, TOTAL_INDEX = 2;
-
-    private static final byte REQUEST_HEADER_SIZE = 3,
+    private static final byte ID_INDEX = 0, PART_INDEX = 1, TOTAL_INDEX = 2,
+            REQUEST_HEADER_SIZE = 3,
             REQUEST_PAYLOAD_SIZE = NetworkPacket.MAX_PACKET_LENGTH
             - (DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
 

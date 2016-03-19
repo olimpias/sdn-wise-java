@@ -55,12 +55,8 @@ public class SimplerFormatter extends Formatter {
     public final String format(final LogRecord record) {
         StringBuilder sb = new StringBuilder(formatter
                 .format(new Date(record.getMillis())));
-        sb.append(" [")
-                .append(record.getLevel())
-                .append("][")
-                .append(name)
-                .append("] ")
-                .append(formatMessage(record));
+        sb.append(" [").append(record.getLevel()).append("][").append(name)
+                .append("] ").append(formatMessage(record));
 
         if (record.getThrown() != null) {
             StringWriter sw = new StringWriter();

@@ -25,9 +25,21 @@ import java.nio.ByteBuffer;
  */
 public final class Utils {
 
+    /**
+     * Constant used for coverting a byte to hex.
+     */
     private static final String DIGITS = "0123456789abcdef";
+    /**
+     * Constant used for Masks.
+     */
     private static final int MASK = 0xFF;
 
+    /**
+     * Concatenates two byte arrays.
+     * @param a first byte array
+     * @param b second byte array
+     * @return the array resulting from the concatenation
+     */
     public static byte[] concatByteArray(final byte[] a, final byte[] b) {
         return ByteBuffer.allocate(a.length + b.length).put(a).put(b).array();
     }
@@ -73,6 +85,9 @@ public final class Utils {
         return buf.toString();
     }
 
+    /**
+     * Utility class has no public constructor.
+     */
     private Utils() {
     }
 }

@@ -40,6 +40,9 @@ public final class Window implements FlowTableInterface {
             LESS_OR_EQUAL = 5,
             NOT_EQUAL = 1;
 
+    /**
+     * The size of the window as an array of bytes.
+     */
     public static final byte SIZE = 5;
 
     /**
@@ -47,6 +50,9 @@ public final class Window implements FlowTableInterface {
      */
     public static final byte W_SIZE_1 = 0, W_SIZE_2 = 1;
 
+    /**
+     * Operators and operands lenghts and indexes.
+     */
     private static final byte LEFT_BIT = 3, LEFT_INDEX_H = 1, LEFT_INDEX_L = 2,
             LEFT_LEN = 2, OP_BIT = 5, OP_INDEX = 0, OP_LEN = 3,
             RIGHT_BIT = 1, RIGHT_INDEX_H = 3, RIGHT_INDEX_L = 4,
