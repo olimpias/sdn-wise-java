@@ -42,6 +42,9 @@ public final class SetAction extends AbstractAction {
             SDN_WISE_OR = 6,
             SDN_WISE_XOR = 7;
 
+    /**
+     * Field indexes and lengths.
+     */
     private static final byte OP_BIT = 3,
             OP_LEN = 3,
             LEFT_BIT = 1,

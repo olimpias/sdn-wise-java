@@ -29,6 +29,9 @@ import java.util.List;
  */
 public class OpenPathPacket extends NetworkPacket {
 
+    /**
+     * The index where the size of the windows is located.
+     */
     private static final int WINDOWS_SIZE_INDEX = 0;
 
     /**
@@ -118,6 +121,12 @@ public class OpenPathPacket extends NetworkPacket {
         return list;
     }
 
+    /**
+     * Adds a list of windows to filter flows in the path.
+     *
+     * @param conditions optinal windows
+     * @return the packet itself
+     */
     public final OpenPathPacket setWindows(final List<Window> conditions) {
         List<NodeAddress> tmp = getPath();
 
@@ -133,6 +142,11 @@ public class OpenPathPacket extends NetworkPacket {
         return this;
     }
 
+    /**
+     * Gets the list of optional windows.
+     *
+     * @return the list of windows
+     */
     public final List<Window> getWindows() {
         LinkedList<Window> w = new LinkedList<>();
 

@@ -36,7 +36,7 @@ public class RequestPacket extends NetworkPacket {
             TOTAL_INDEX = 2;
 
     /**
-     * This constructor initialize a data packet starting from a byte array.
+     * This constructor initialize a Request packet starting from a byte array.
      *
      * @param data the byte array representing the data packet.
      */
@@ -45,7 +45,8 @@ public class RequestPacket extends NetworkPacket {
     }
 
     /**
-     * This constructor initialize a Data packet starting from a NetworkPacket.
+     * This constructor initialize a Request packet starting from a
+     * NetworkPacket.
      *
      * @param data the NetworkPacket representing the data packet.
      */
@@ -53,6 +54,17 @@ public class RequestPacket extends NetworkPacket {
         super(data.toByteArray());
     }
 
+    /**
+     * Construct a Request packet from its fields. It is used only inside this
+     * class.
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
+     * @param id identify the request
+     * @param part identify the part of the request
+     * @param total the total number of parts
+     * @param data the payload of the request
+     */
     private RequestPacket(final int net,
             final NodeAddress src,
             final NodeAddress dst,

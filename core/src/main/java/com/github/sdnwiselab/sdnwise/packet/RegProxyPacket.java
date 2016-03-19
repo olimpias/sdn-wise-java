@@ -31,6 +31,9 @@ import java.nio.charset.Charset;
  */
 public class RegProxyPacket extends NetworkPacket {
 
+    /**
+     * Fields indexes and lengths. 
+     */
     private static final int DPID_LEN = 8,
             MAC_LEN = 6,
             PORT_LEN = 8,

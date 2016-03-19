@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,12 +26,27 @@ import java.util.Arrays;
  */
 public final class Stats implements FlowTableInterface {
 
+    /**
+     * The size in byte of the Statistical info.
+     */
     public static final byte SIZE = 2;
+    /**
+     * A FlowTableEntry with TTL = 255 can be deleted only by the controller.
+     */
     public static final int ENTRY_TTL_PERMANENT = 255;
+    /**
+     * The maximum TTL of a FlowTableEntry.
+     */
     public static final int SDN_WISE_RL_TTL_MAX = 254;
 
-    private static final byte TTL_INDEX = 0;
-    private static final byte COUNT_INDEX = 1;
+    /**
+     * Stats field indexes.
+     */
+    private static final byte TTL_INDEX = 0, COUNT_INDEX = 1;
+
+    /**
+     * An array of byte containing the Statistical information.
+     */
     private final byte[] stats = new byte[SIZE];
 
     /**
@@ -100,6 +115,10 @@ public final class Stats implements FlowTableInterface {
         return this;
     }
 
+    /**
+     * Increases the usage counter.
+     * @return the object itself
+     */
     public Stats increaseCounter() {
         stats[COUNT_INDEX]++;
         return this;
@@ -107,8 +126,11 @@ public final class Stats implements FlowTableInterface {
 
     @Override
     public String toString() {
-        return "TTL: " + (getTtl() == ENTRY_TTL_PERMANENT
-                ? "PERM" : getTtl()) + ", U: " + getCounter();
+        if (getTtl() == ENTRY_TTL_PERMANENT) {
+            return "TTL: PERM, U: " + getCounter();
+        } else {
+            return "TTL: " + getTtl() + ", U: " + getCounter();
+        }
     }
 
     @Override
@@ -116,21 +138,40 @@ public final class Stats implements FlowTableInterface {
         return Arrays.copyOf(stats, SIZE);
     }
 
+    /**
+     * Turns the FlowTableEntry into a permanent entry. Can be deleted only by
+     * a Controller
+     * @return the object itself
+     */
     public Stats setPermanent() {
         this.setTtl(ENTRY_TTL_PERMANENT);
         return this;
     }
 
+    /**
+     * Restores the TTL of a entry to its maximum.
+     * @return the object itself
+     */
     public Stats restoreTtl() {
         this.setTtl(SDN_WISE_RL_TTL_MAX);
         return this;
     }
 
+    /**
+     * Decrement by a certain value the TTL of an entry.
+     * @param value how much the ttl will be decremented
+     * @return the object itself
+     */
     public Stats decrementTtl(final int value) {
         this.setTtl(getTtl() - value);
         return this;
     }
 
+    /**
+     * Sets the TTL of an entry.
+     * @param ttl the new value of the ttl
+     * @return the object itself
+     */
     private Stats setTtl(final int ttl) {
         this.stats[TTL_INDEX] = (byte) ttl;
         return this;

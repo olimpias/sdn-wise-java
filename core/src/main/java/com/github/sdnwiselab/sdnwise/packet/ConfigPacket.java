@@ -28,6 +28,9 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
  */
 public class ConfigPacket extends NetworkPacket {
 
+    /**
+     * The value indicating if the ConfigProperty is a READ or WRITE.
+     */
     private static final byte CNF_WRITE = 1;
 
     /**
@@ -154,16 +157,43 @@ public class ConfigPacket extends NetworkPacket {
         return this;
     }
 
-    // Configuration Properties
+    /**
+     * Configuration Properties.
+     */
     public enum ConfigProperty {
+        /**
+         * Restarts the node.
+         */
         RESET(0, 0),
+        /**
+         * Network ID. Can be read/written.
+         */
         MY_NET(1, 1),
+        /**
+         * Address of the node. Can be read/written.
+         */
         MY_ADDRESS(2, 2),
+        /**
+         * Default Packet TTL. Can be read/written.
+         */
         PACKET_TTL(3, 1),
+        /**
+         * Filter packets depending on RSSI. Can be read/written.
+         */
         RSSI_MIN(4, 1),
+        /**
+         * Seconds between beacons. Can be read/written.
+         */
         BEACON_PERIOD(5, 2),
+        /**
+         * Seconds between reports. Can be read/written.
+         */
         REPORT_PERIOD(6, 2),
+        /**
+         * TTL of a FlowTableEntry. Can be read/written.
+         */
         RULE_TTL(7, 1),
+
         ADD_ALIAS(8, 2),
         REM_ALIAS(9, 1),
         GET_ALIAS(10, 1),
