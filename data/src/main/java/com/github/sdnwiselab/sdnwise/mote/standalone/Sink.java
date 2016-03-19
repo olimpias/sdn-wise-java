@@ -35,33 +35,22 @@ public class Sink extends AbstractMote {
     private DataOutputStream inviaOBJ;
     private DataInputStream riceviOBJ;
 
-    public Sink(byte net, NodeAddress myAddress,
-            int port,
-            String addrController,
-            int portController,
-            String neighboursPath,
-            String logLevel,
-            String dpid,
-            String mac,
-            long sPort) {
+    public Sink(final byte net, final NodeAddress myAddress, final int port,
+            final String addrCtrl, final int portCtrl,
+            final String neighboursPath, final String logLevel,
+            final String dpid, final String mac, final long sPort) {
 
         super(port, neighboursPath, logLevel);
-        this.addrController = addrController;
-        this.portController = portController;
+        this.addrController = addrCtrl;
+        this.portController = portCtrl;
         battery = new SinkBattery();
 
         try {
-            core = new SinkCore(net,
-                    myAddress,
-                    battery,
-                    dpid,
-                    mac,
-                    sPort,
-                    InetAddress.getByName(addrController),
-                    portController);
+            core = new SinkCore(net, myAddress, battery, dpid, mac, sPort,
+                    InetAddress.getByName(addrController), portController);
             core.start();
         } catch (UnknownHostException ex) {
-            Logger.getLogger(Sink.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }
 
@@ -76,12 +65,12 @@ public class Sink extends AbstractMote {
                     core.rxRadioPacket(np, 255);
                 }
             } catch (IOException ex) {
-                Logger.getLogger(Sink.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getGlobal().log(Level.SEVERE, null, ex);
             }
         }
     }
 
-    private class TcpSender implements Runnable {
+    private final class TcpSender implements Runnable {
 
         @Override
         public void run() {
@@ -92,20 +81,20 @@ public class Sink extends AbstractMote {
                     inviaOBJ.write(np.toByteArray());
                 }
             } catch (IOException | InterruptedException ex) {
-                Logger.getLogger(Sink.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getGlobal().log(Level.SEVERE, null, ex);
             }
         }
     }
 
     @Override
-    void startThreads() {
+    final void startThreads() {
         super.startThreads();
         try {
             tcpSocket = new Socket(addrController, portController);
             new Thread(new TcpListener()).start();
             new Thread(new TcpSender()).start();
         } catch (IOException ex) {
-            Logger.getLogger(Sink.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
 
     }

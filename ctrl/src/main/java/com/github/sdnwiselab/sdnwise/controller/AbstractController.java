@@ -52,12 +52,26 @@ import net.jodah.expiringmap.ExpiringMap;
  */
 public abstract class AbstractController extends ControlPlaneLayer implements ControllerInterface {
 
+    protected static final int CACHE_EXP_TIME = 5;
     // to avoid garbage collection of the logger
     protected static final Logger LOGGER = Logger.getLogger("CTRL");
+    /**
+     * Timeout for a node request. Increase when using COOJA.
+     */
+    protected static final int RESPONSE_TIMEOUT = 300;
 
-    final static int FLOW_TABLE_SIZE = 16;
-    final static int RESPONSE_TIMEOUT = 300; // Increase when using COOJA
-    final static int CACHE_EXP_TIME = 5;
+    private final ArrayBlockingQueue<NetworkPacket> bQ = new ArrayBlockingQueue<>(1000);
+    private final Map<String, ConfigPacket> configCache = ExpiringMap.builder()
+            .expiration(CACHE_EXP_TIME, TimeUnit.SECONDS)
+            .build();
+    private final InetSocketAddress id;
+    private final Map<String, RequestPacket> requestCache = ExpiringMap.builder()
+            .expiration(CACHE_EXP_TIME, TimeUnit.SECONDS)
+            .build();
+    private NodeAddress sinkAddress;
+    
+    protected final NetworkGraph networkGraph;
+    protected final HashMap<NodeAddress, LinkedList<NodeAddress>> results = new HashMap<>();
 
     public static List<ConfigPacket> createPackets(
             byte net,
@@ -104,20 +118,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return ll;
     }
 
-    private final ArrayBlockingQueue<NetworkPacket> bQ = new ArrayBlockingQueue<>(1000);
-    private NodeAddress sinkAddress;
-    private final InetSocketAddress id;
-
-    final HashMap<NodeAddress, LinkedList<NodeAddress>> results = new HashMap<>();
-    final Map<String, ConfigPacket> configCache = ExpiringMap.builder()
-            .expiration(CACHE_EXP_TIME, TimeUnit.SECONDS)
-            .build();
-    final Map<String, RequestPacket> requestCache = ExpiringMap.builder()
-            .expiration(CACHE_EXP_TIME, TimeUnit.SECONDS)
-            .build();
-
-    final NetworkGraph networkGraph;
-
     /**
      * Constructor Method for the Controller Class.
      *
@@ -134,13 +134,154 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     }
 
     @Override
-    public NodeAddress getSinkAddress() {
-        return sinkAddress;
+    public final void addNodeAlias(byte net, NodeAddress dst,
+            NodeAddress newAddr) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, ADD_ALIAS, newAddr.getArray());
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public void addNodeFunction(byte net, NodeAddress dst, byte id, String className) {
+        try {
+            InputStream is = FunctionInterface.class.getResourceAsStream(className);
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+            int nRead;
+            byte[] data = new byte[16384];
+
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+
+            buffer.flush();
+
+            List<ConfigPacket> ll = createPackets(
+                    net, sinkAddress, dst, id, buffer.toByteArray());
+            Iterator<ConfigPacket> llIterator = ll.iterator();
+            if (llIterator.hasNext()) {
+                sendNetworkPacket(llIterator.next());
+                Thread.sleep(200);
+                while (llIterator.hasNext()) {
+                    sendNetworkPacket(llIterator.next());
+                }
+            }
+        } catch (IOException | InterruptedException ex) {
+            log(Level.SEVERE, ex.toString());
+        }
+
+    }
+
+    @Override
+    public final void addNodeRule(byte net, NodeAddress destination, FlowTableEntry rule) {
+        ResponsePacket rp = new ResponsePacket(net, sinkAddress, destination, rule);
+        sendNetworkPacket(rp);
     }
 
     @Override
     public final InetSocketAddress getId() {
         return id;
+    }
+
+    @Override
+    public NetworkGraph getNetworkGraph() {
+        return networkGraph;
+    }
+
+    @Override
+    public final NodeAddress getNodeAddress(byte net, NodeAddress dst) {
+        return new NodeAddress(getNodeValue(net, dst, MY_ADDRESS));
+    }
+
+    @Override
+    public NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
+        try {
+            ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_ALIAS);
+            cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
+            ConfigPacket response = sendQuery(cp);
+            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
+            return new NodeAddress(rule);
+        } catch (TimeoutException ex) {
+            return null;
+        }
+
+    }
+
+    @Override
+    public final List<NodeAddress> getNodeAliases(final byte net,
+            final NodeAddress dst) {
+        List<NodeAddress> list = new LinkedList<>();
+        NodeAddress na;
+        int i = 0;
+        while ((na = getNodeAlias(net, dst, (byte) i)) != null) {
+            i++;
+            list.add(i, na);
+        }
+        return list;
+    }
+
+    @Override
+    public final int getNodeBeaconPeriod(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, BEACON_PERIOD);
+    }
+
+    @Override
+    public final int getNodeEntryTtl(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, RULE_TTL);
+    }
+
+    @Override
+    public final int getNodeNet(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, MY_NET);
+    }
+
+    @Override
+    public final int getNodePacketTtl(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, PACKET_TTL);
+    }
+
+    @Override
+    public final int getNodeReportPeriod(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, REPORT_PERIOD);
+    }
+
+    @Override
+    public final int getNodeRssiMin(byte net, NodeAddress dst) {
+        return getNodeValue(net, dst, RSSI_MIN);
+    }
+
+    @Override
+    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
+        try {
+            ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
+            cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
+            ConfigPacket response = sendQuery(cp);
+            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
+            if (rule.length > 0) {
+                return new FlowTableEntry(rule);
+            } else {
+                return null;
+            }
+        } catch (TimeoutException ex) {
+            return null;
+        }
+    }
+
+    @Override
+    public final List<FlowTableEntry> getNodeRules(final byte net,
+            final NodeAddress dst) {
+        List<FlowTableEntry> list = new ArrayList<>();
+        FlowTableEntry fte;
+        int i = 0;
+        while ((fte = getNodeRule(net, dst, i)) != null) {
+            i++;
+            list.add(i, fte);
+        }
+        return list;
+    }
+
+    @Override
+    public NodeAddress getSinkAddress() {
+        return sinkAddress;
     }
 
     public void managePacket(final NetworkPacket data) {
@@ -180,6 +321,91 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         }
     }
 
+    @Override
+    public final void removeNodeAlias(byte net, NodeAddress dst, byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_ALIAS, new byte[]{index});
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public void removeNodeFunction(byte net, NodeAddress dst, byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_FUNCTION, new byte[]{index});
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void removeNodeRule(byte net, NodeAddress dst, byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_RULE, new byte[]{index});
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void resetNode(byte net, NodeAddress dst) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RESET);
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void sendPath(byte net, NodeAddress dst, List<NodeAddress> path) {
+        OpenPathPacket op = new OpenPathPacket(net, sinkAddress, dst, path);
+        sendNetworkPacket(op);
+    }
+
+    @Override
+    public final void setNodeAddress(byte net, NodeAddress dst, NodeAddress newAddress) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, MY_ADDRESS, newAddress.getArray());
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void setNodeBeaconPeriod(byte net, NodeAddress dst, short period) {
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, BEACON_PERIOD, splitInteger(period));
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void setNodeEntryTtl(byte net, NodeAddress dst, short period) {
+        //TODO TTL should be in seconds
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, RULE_TTL, splitInteger(period));
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void setNodeNet(byte net, NodeAddress dst, byte newNet) {
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, MY_NET, new byte[]{newNet});
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void setNodePacketTtl(byte net, NodeAddress dst, byte newTtl) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, PACKET_TTL, new byte[]{newTtl});
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void setNodeReportPeriod(byte net, NodeAddress dst, short period) {
+        ConfigPacket cp = new ConfigPacket(
+                net, sinkAddress, dst, REPORT_PERIOD, splitInteger(period));
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public final void setNodeRssiMin(byte net, NodeAddress dst, byte newRssi) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RSSI_MIN, new byte[]{newRssi});
+        sendNetworkPacket(cp);
+    }
+
+    @Override
+    public void setupLayer() {
+        new Thread(new Worker(bQ)).start();
+        networkGraph.addObserver(this);
+        register();
+        setupNetwork();
+    }
+
     /**
      * This methods manages updates coming from the lower adapter or the network
      * representation. When a message is received from the lower adapter it is
@@ -203,234 +429,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         }
     }
 
-    @Override
-    public void setupLayer() {
-        new Thread(new Worker(bQ)).start();
-        networkGraph.addObserver(this);
-        register();
-        setupNetwork();
-    }
-
-    @Override
-    public final void sendPath(byte net, NodeAddress dst, List<NodeAddress> path) {
-        OpenPathPacket op = new OpenPathPacket(net, sinkAddress, dst, path);
-        sendNetworkPacket(op);
-    }
-
-    @Override
-    public final void setNodeAddress(byte net, NodeAddress dst, NodeAddress newAddress) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, MY_ADDRESS, newAddress.getArray());
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final NodeAddress getNodeAddress(byte net, NodeAddress dst) {
-        return new NodeAddress(getNodeValue(net, dst, MY_ADDRESS));
-    }
-
-    @Override
-    public final void resetNode(byte net, NodeAddress dst) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RESET);
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final void setNodeNet(byte net, NodeAddress dst, byte newNet) {
-        ConfigPacket cp = new ConfigPacket(
-                net, sinkAddress, dst, MY_NET, new byte[]{newNet});
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final int getNodeNet(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, MY_NET);
-    }
-
-    @Override
-    public final void setNodeBeaconPeriod(byte net, NodeAddress dst, short period) {
-        ConfigPacket cp = new ConfigPacket(
-                net, sinkAddress, dst, BEACON_PERIOD, splitInteger(period));
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final int getNodeBeaconPeriod(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, BEACON_PERIOD);
-    }
-
-    @Override
-    public final void setNodeReportPeriod(byte net, NodeAddress dst, short period) {
-        ConfigPacket cp = new ConfigPacket(
-                net, sinkAddress, dst, REPORT_PERIOD, splitInteger(period));
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final int getNodeReportPeriod(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, REPORT_PERIOD);
-    }
-
-    @Override
-    public final void setNodeEntryTtl(byte net, NodeAddress dst, short period) {
-        //TODO TTL should be in seconds
-        ConfigPacket cp = new ConfigPacket(
-                net, sinkAddress, dst, RULE_TTL, splitInteger(period));
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final int getNodeEntryTtl(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, RULE_TTL);
-    }
-
-    @Override
-    public final void setNodePacketTtl(byte net, NodeAddress dst, byte newTtl) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, PACKET_TTL, new byte[]{newTtl});
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final int getNodePacketTtl(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, PACKET_TTL);
-    }
-
-    @Override
-    public final void setNodeRssiMin(byte net, NodeAddress dst, byte newRssi) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RSSI_MIN, new byte[]{newRssi});
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final int getNodeRssiMin(byte net, NodeAddress dst) {
-        return getNodeValue(net, dst, RSSI_MIN);
-    }
-
-    @Override
-    public final void addNodeAlias(byte net, NodeAddress dst,
-            NodeAddress newAddr) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, ADD_ALIAS, newAddr.getArray());
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final void removeNodeAlias(byte net, NodeAddress dst, byte index) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_ALIAS, new byte[]{index});
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final List<NodeAddress> getNodeAliases(byte net, NodeAddress dst) {
-        List<NodeAddress> list = new LinkedList<>();
-        for (int i = 0; i < FLOW_TABLE_SIZE; i++) {
-            NodeAddress na = getNodeAlias(net, dst, (byte) i);
-            if (na != null) {
-                list.add(i, na);
-            } else {
-                break;
-            }
-        }
-        return list;
-    }
-
-    @Override
-    public NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
-        try {
-            ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_ALIAS);
-            cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
-            ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
-            return new NodeAddress(rule);
-        } catch (TimeoutException ex) {
-            return null;
-        }
-
-    }
-
-    @Override
-    public final void addNodeRule(byte net, NodeAddress destination, FlowTableEntry rule) {
-        ResponsePacket rp = new ResponsePacket(net, sinkAddress, destination, rule);
-        sendNetworkPacket(rp);
-    }
-
-    @Override
-    public final void removeNodeRule(byte net, NodeAddress dst, byte index) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_RULE, new byte[]{index});
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public final List<FlowTableEntry> getNodeRules(byte net, NodeAddress dst) {
-        List<FlowTableEntry> list = new ArrayList<>(FLOW_TABLE_SIZE);
-        for (int i = 0; i < FLOW_TABLE_SIZE; i++) {
-            FlowTableEntry fte = getNodeRule(net, dst, i);
-            if (fte != null) {
-                list.add(i, fte);
-            } else {
-                break;
-            }
-        }
-        return list;
-    }
-
-    @Override
-    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
-        try {
-            ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
-            cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
-            ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
-            if (rule.length > 0) {
-                return new FlowTableEntry(rule);
-            } else {
-                return null;
-            }
-        } catch (TimeoutException ex) {
-            return null;
-        }
-    }
-
-    @Override
-    public void addNodeFunction(byte net, NodeAddress dst, byte id, String className) {
-        try {
-            InputStream is = FunctionInterface.class.getResourceAsStream(className);
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-            int nRead;
-            byte[] data = new byte[16384];
-
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                buffer.write(data, 0, nRead);
-            }
-
-            buffer.flush();
-
-            List<ConfigPacket> ll = createPackets(
-                    net, sinkAddress, dst, id, buffer.toByteArray());
-            Iterator<ConfigPacket> llIterator = ll.iterator();
-            if (llIterator.hasNext()) {
-                sendNetworkPacket(llIterator.next());
-                Thread.sleep(200);
-                while (llIterator.hasNext()) {
-                    sendNetworkPacket(llIterator.next());
-                }
-            }
-        } catch (IOException | InterruptedException ex) {
-            log(Level.SEVERE, ex.toString());
-        }
-
-    }
-
-    @Override
-    public void removeNodeFunction(byte net, NodeAddress dst, byte index) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_FUNCTION, new byte[]{index});
-        sendNetworkPacket(cp);
-    }
-
-    @Override
-    public NetworkGraph getNetworkGraph() {
-        return networkGraph;
-    }
-
     private int getNodeValue(final byte net, final NodeAddress dst,
             final ConfigProperty cfp) {
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, cfp);
@@ -445,6 +443,26 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
             log(Level.SEVERE, ex.toString());
             return -1;
         }
+    }
+
+    private NetworkPacket putInRequestCache(RequestPacket rp) {
+        if (rp.getTotal() == 1) {
+            return new NetworkPacket(rp.getData());
+        }
+
+        String key = rp.getSrc() + "." + rp.getId();
+
+        if (requestCache.containsKey(key)) {
+            RequestPacket p0 = requestCache.remove(key);
+            return RequestPacket.mergePackets(p0, rp);
+        } else {
+            requestCache.put(key, rp);
+        }
+        return null;
+    }
+
+    private void register() {
+        //TODO we need to implement same sort of security check/auth.
     }
 
     private ConfigPacket sendQuery(ConfigPacket cp) throws TimeoutException {
@@ -474,26 +492,6 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         } else {
             throw new TimeoutException("No answer from the node");
         }
-    }
-
-    private void register() {
-        //TODO we need to implement same sort of security check/auth.
-    }
-
-    private NetworkPacket putInRequestCache(RequestPacket rp) {
-        if (rp.getTotal() == 1) {
-            return new NetworkPacket(rp.getData());
-        }
-
-        String key = rp.getSrc() + "." + rp.getId();
-
-        if (requestCache.containsKey(key)) {
-            RequestPacket p0 = requestCache.remove(key);
-            return RequestPacket.mergePackets(p0, rp);
-        } else {
-            requestCache.put(key, rp);
-        }
-        return null;
     }
 
     /**

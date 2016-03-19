@@ -76,7 +76,8 @@ public class ControllerFactory {
             case "DIJKSTRA":
                 return new ControllerDijkstra(newId, adapt, ng);
             default:
-                throw new UnsupportedOperationException("Error in Configuration file");
+                throw new UnsupportedOperationException(
+                        "Error in Configuration file");
         }
     }
 
@@ -87,7 +88,7 @@ public class ControllerFactory {
      * @param config a Configurator object.
      * @return an AbstractController object.
      */
-    public final AbstractController getController(Configurator config) {
+    public final AbstractController getController(final Configurator config) {
         AbstractAdapter adapt = getLower(config.getController());
         NetworkGraph ng = getNetworkGraph(config.getController());
         return getControllerType(config.getController(), newId, adapt, ng);

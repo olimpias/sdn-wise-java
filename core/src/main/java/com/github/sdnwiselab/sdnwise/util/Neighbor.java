@@ -23,10 +23,20 @@ package com.github.sdnwiselab.sdnwise.util;
  * @author Sebastiano Milardo
  */
 public final class Neighbor {
-
+    /**
+     * The address of the neighbor.
+     */
     private final NodeAddress addr;
+
+    /**
+     * The residual charge and rssi of the neighbor.
+     */
     private final int rssi, batt;
-    private static final int MAX_BYTE = 0xFF;
+
+    /**
+     * The default value for residual charge and rssi.
+     */
+    private static final int DEFAULT = 0xFF;
 
     /**
      * Constructs a Neighbor given its attributes.
@@ -46,8 +56,8 @@ public final class Neighbor {
      */
     public Neighbor() {
         this.addr = NodeAddress.BROADCAST_ADDR;
-        this.rssi = MAX_BYTE;
-        this.batt = MAX_BYTE;
+        this.rssi = DEFAULT;
+        this.batt = DEFAULT;
     }
 
     /**

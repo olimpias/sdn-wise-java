@@ -29,9 +29,20 @@ import java.io.Serializable;
  */
 public final class NodeAddress implements Comparable<NodeAddress>, Serializable {
 
-    private static final long serialVersionUID = 1L;
-    private final byte[] addr = new byte[2];
+    /**
+     * The default broadcast address.
+     */
     public static final NodeAddress BROADCAST_ADDR = new NodeAddress("255.255");
+
+    /**
+     * The serialVersionUID as specified in the Serializable interface.
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * A byte array containing the address. A NodeAddress is two bytes long.
+     */
+    private final byte[] addr = new byte[2];
 
     /**
      * Constructor method to create a Node Address from an int.
@@ -84,13 +95,24 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
         this.addr[1] = (byte) addr1;
     }
 
+    @Override
+    public int compareTo(final NodeAddress other) {
+        return Integer.valueOf(this.intValue()).compareTo(other.intValue());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof NodeAddress
+                && ((NodeAddress) obj).intValue() == this.intValue();
+    }
+
     /**
-     * Returns the NodeAddress as an integer.
+     * Gets the Node Address in Byte.
      *
-     * @return int value of the NodeAddress.
+     * @return a byte array of Node Address.
      */
-    public int intValue() {
-        return mergeBytes(addr[0], addr[1]);
+    public byte[] getArray() {
+        return new byte[]{addr[0], addr[1]};
     }
 
     /**
@@ -111,13 +133,27 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
         return addr[1];
     }
 
+    @Override
+    public int hashCode() {
+        return Integer.valueOf(this.intValue()).hashCode();
+    }
+
     /**
-     * Gets the Node Address in Byte.
+     * Returns the NodeAddress as an integer.
      *
-     * @return a byte array of Node Address.
+     * @return int value of the NodeAddress.
      */
-    public byte[] getArray() {
-        return new byte[]{addr[0], addr[1]};
+    public int intValue() {
+        return mergeBytes(addr[0], addr[1]);
+    }
+
+    /**
+     * Checks if the address is a broadcast address.
+     *
+     * @return true if equal to 255.255 false otherwise
+     */
+    public boolean isBroadcast() {
+        return this.equals(BROADCAST_ADDR);
     }
 
     /**
@@ -132,30 +168,5 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     @Override
     public String toString() {
         return Byte.toUnsignedInt(addr[0]) + "." + Byte.toUnsignedInt(addr[1]);
-    }
-
-    @Override
-    public int compareTo(final NodeAddress other) {
-        return Integer.valueOf(this.intValue()).compareTo(other.intValue());
-    }
-
-    @Override
-    public int hashCode() {
-        return Integer.valueOf(this.intValue()).hashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return obj instanceof NodeAddress
-                && ((NodeAddress) obj).intValue() == this.intValue();
-    }
-
-    /**
-     * Checks if the address is a broadcast address.
-     *
-     * @return true if equal to 255.255 false otherwise
-     */
-    public boolean isBroadcast() {
-        return this.equals(BROADCAST_ADDR);
     }
 }

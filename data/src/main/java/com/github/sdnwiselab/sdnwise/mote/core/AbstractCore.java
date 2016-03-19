@@ -391,7 +391,7 @@ public abstract class AbstractCore {
     }
 
     // Check if a windows is true or not
-    private int matchWindow(Window window, NetworkPacket packet) {
+    private boolean matchWindow(Window window, NetworkPacket packet) {
         int operator = window.getOperator();
         int size = window.getSize();
         int lhs = getOperand(
@@ -402,18 +402,20 @@ public abstract class AbstractCore {
     }
 
     // check if there is a match for the packet
-    private int matchRule(FlowTableEntry rule, NetworkPacket packet) {
+    private boolean matchRule(FlowTableEntry rule, NetworkPacket packet) {
         if (rule.getWindows().isEmpty()) {
-            return 0;
+            return false;
         }
 
         int target = rule.getWindows().size();
         int actual = 0;
 
         for (Window w : rule.getWindows()) {
-            actual = actual + matchWindow(w, packet);
+            if (matchWindow(w, packet)) {
+                actual++;
+            }
         }
-        return (actual == target ? 1 : 0);
+        return (actual == target);
     }
 
     // Run the corresponding action
@@ -507,25 +509,26 @@ public abstract class AbstractCore {
         }
     }
 
-    private int compare(int operatore, int item1, int item2) {
+    private boolean compare(final int operatore, final int item1,
+            final int item2) {
         if (item1 == -1 || item2 == -1) {
-            return 0;
+            return false;
         }
         switch (operatore) {
             case EQUAL:
-                return item1 == item2 ? 1 : 0;
+                return item1 == item2;
             case NOT_EQUAL:
-                return item1 != item2 ? 1 : 0;
+                return item1 != item2;
             case GREATER:
-                return item1 > item2 ? 1 : 0;
+                return item1 > item2;
             case LESS:
-                return item1 < item2 ? 1 : 0;
+                return item1 < item2;
             case GREATER_OR_EQUAL:
-                return item1 >= item2 ? 1 : 0;
+                return item1 >= item2;
             case LESS_OR_EQUAL:
-                return item1 <= item2 ? 1 : 0;
+                return item1 <= item2;
             default:
-                return 0;
+                return false;
         }
     }
 
@@ -580,7 +583,7 @@ public abstract class AbstractCore {
         boolean matched = false;
         for (FlowTableEntry fte : flowTable) {
             i++;
-            if (matchRule(fte, packet) == 1) {
+            if (matchRule(fte, packet)) {
                 log(Level.FINE, "Matched Rule #" + i + " " + fte.toString());
                 matched = true;
                 fte.getActions().stream().forEach((a) -> {
@@ -593,7 +596,9 @@ public abstract class AbstractCore {
 
         if (!matched) {
             // send a rule request
-            RequestPacket[] rps = RequestPacket.createPackets((byte) myNet, myAddress, getActualSinkAddress(), requestId++, packet.toByteArray());
+            RequestPacket[] rps = RequestPacket.createPackets((byte) myNet,
+                    myAddress, getActualSinkAddress(), requestId++,
+                    packet.toByteArray());
 
             for (RequestPacket rp : rps) {
                 controllerTX(rp);

@@ -31,8 +31,14 @@ import java.util.logging.LogRecord;
  */
 public class SimplerFormatter extends Formatter {
 
-    private final String name;
+    /**
+     * The format of the date in the log messages.
+     */
     private final SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+    /**
+     * The name of the layer writing the log.
+     */
+    private final String name;
 
     /**
      * Creates a SimplerFormatter given a n. The n is used in the log to

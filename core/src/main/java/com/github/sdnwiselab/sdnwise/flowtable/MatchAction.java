@@ -28,10 +28,19 @@ public final class MatchAction extends AbstractAction {
      */
     private static final byte SIZE = 0;
 
+    /**
+     * Creates a MatchAction object. A MatchAction is used to match the current
+     * packet against all the FlowTableEntry of the FlowTable.
+     */
     public MatchAction() {
         super(MATCH, SIZE);
     }
 
+    /**
+     * Creates a MatchAction object. A MatchAction is used to match the current
+     * packet against all the FlowTableEntry of the FlowTable.
+     * @param array the array representing the MatchAction object
+     */
     public MatchAction(final byte[] array) {
         super(array);
     }

@@ -72,7 +72,7 @@ public interface ControllerInterface {
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.
-     * @param index
+     * @param index position of the entry in the table.
      * @return returns the list of accepted Addresses.
      */
     NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index);
