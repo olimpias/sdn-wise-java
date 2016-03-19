@@ -57,16 +57,16 @@ public abstract class AbstractCore {
     protected boolean isActive;
 
     // Contains the NetworkPacket and the RSSI coming from the radio/controller
-    final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue = new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue = new ArrayBlockingQueue<>(100);
 
     // Contains the NetworkPacket that will be processed by the WISE Flow Table
-    final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
 
     // Contains the NetworkPacket that will be sent over the radio
-    final ArrayBlockingQueue<NetworkPacket> txQueue = new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<NetworkPacket> txQueue = new ArrayBlockingQueue<>(100);
 
     // Contains the Log messages
-    final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
 
     // Configuration parameters
     protected int myNet,

@@ -134,8 +134,8 @@ public class AdapterTcp extends AbstractAdapter {
 
     private abstract class TcpElement extends Observable implements Runnable, Observer {
 
-        boolean isStopped;
-        final int port;
+        protected boolean isStopped;
+        protected final int port;
 
         TcpElement(final int port) {
             this.port = port;
@@ -143,7 +143,7 @@ public class AdapterTcp extends AbstractAdapter {
 
         public abstract void send(final byte[] data);
 
-        synchronized boolean isStopped() {
+        public synchronized boolean isStopped() {
             return this.isStopped;
         }
 

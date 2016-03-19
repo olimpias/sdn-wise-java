@@ -38,9 +38,9 @@ public class AdapterUdp extends AbstractAdapter {
     private final int IN_PORT;
     private final String OUT_IP;
     private final int OUT_PORT;
+    private final int MAX_PAYLOAD;
     private DatagramSocket sck;
     private UDPServer udpServer;
-    final int MAX_PAYLOAD;
 
     /**
      * Creates an AdapterUDP object. The conf map is used to pass the

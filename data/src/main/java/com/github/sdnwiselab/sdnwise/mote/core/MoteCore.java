@@ -16,15 +16,15 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.core;
 
-import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
 import com.github.sdnwiselab.sdnwise.flowtable.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
+import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
 import com.github.sdnwiselab.sdnwise.packet.*;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
 
 /**
  * @author Sebastiano Milardo
@@ -36,8 +36,9 @@ public class MoteCore extends AbstractCore {
     }
 
     @Override
-    final void initSdnWiseSpecific() {
-        reset();
+    public final void controllerTX(NetworkPacket pck) {
+        pck.setNxh(getNextHopVsSink());
+        radioTX(pck);
     }
 
     @Override
@@ -93,12 +94,6 @@ public class MoteCore extends AbstractCore {
     }
 
     @Override
-    public final void controllerTX(NetworkPacket pck) {
-        pck.setNxh(getNextHopVsSink());
-        radioTX(pck);
-    }
-
-    @Override
     public void rxConfig(ConfigPacket packet) {
         NodeAddress dest = packet.getDst();
         if (!dest.equals(myAddress)) {
@@ -112,7 +107,12 @@ public class MoteCore extends AbstractCore {
     }
 
     @Override
-    final void reset() {
+    protected final void initSdnWiseSpecific() {
+        reset();
+    }
+
+    @Override
+    protected final void reset() {
         setSinkDistance(rule_ttl + 1);
         setSinkRssi(0);
         setActive(false);

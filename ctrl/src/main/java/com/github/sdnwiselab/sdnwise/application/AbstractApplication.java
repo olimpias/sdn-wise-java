@@ -133,7 +133,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     private class Worker implements Runnable {
 
         private final ArrayBlockingQueue<NetworkPacket> bQ;
-        boolean isStopped;
+        private boolean isStopped;
 
         Worker(ArrayBlockingQueue<NetworkPacket> bQ) {
             this.bQ = bQ;
