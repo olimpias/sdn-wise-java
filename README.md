@@ -1,5 +1,5 @@
 # sdn-wise-java
-[![Build Status](https://travis-ci.org/sdnwiselab/sdn-wise-java.svg?branch=master)](https://travis-ci.org/sdnwiselab/sdn-wise-java)[![Codacy Badge](https://api.codacy.com/project/badge/grade/0ff5041b31c44911b81060d17b3e6eba)](https://www.codacy.com/app/sdnwiselab/sdn-wise-java)
+[![Build Status](https://travis-ci.org/sdnwiselab/sdn-wise-java.svg?branch=master)](https://travis-ci.org/sdnwiselab/sdn-wise-java) [![Codacy Badge](https://api.codacy.com/project/badge/grade/0ff5041b31c44911b81060d17b3e6eba)](https://www.codacy.com/app/sdnwiselab/sdn-wise-java)
 
 The stateful Software Defined Networking solution for the Internet of Things.
 
