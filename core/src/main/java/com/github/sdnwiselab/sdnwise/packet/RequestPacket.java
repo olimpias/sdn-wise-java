@@ -27,68 +27,14 @@ import static com.github.sdnwiselab.sdnwise.util.Utils.concatByteArray;
  */
 public class RequestPacket extends NetworkPacket {
 
+    /**
+     * Indexes of the fields.
+     */
+    private static final byte ID_INDEX = 0, PART_INDEX = 1, TOTAL_INDEX = 2;
+
     private static final byte REQUEST_HEADER_SIZE = 3,
             REQUEST_PAYLOAD_SIZE = NetworkPacket.MAX_PACKET_LENGTH
             - (DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
-
-    private static final byte ID_INDEX = 0,
-            PART_INDEX = 1,
-            TOTAL_INDEX = 2;
-
-    /**
-     * This constructor initialize a Request packet starting from a byte array.
-     *
-     * @param data the byte array representing the data packet.
-     */
-    public RequestPacket(final byte[] data) {
-        super(data);
-    }
-
-    /**
-     * This constructor initialize a Request packet starting from a
-     * NetworkPacket.
-     *
-     * @param data the NetworkPacket representing the data packet.
-     */
-    public RequestPacket(final NetworkPacket data) {
-        super(data.toByteArray());
-    }
-
-    /**
-     * Construct a Request packet from its fields. It is used only inside this
-     * class.
-     * @param net Network ID of the packet
-     * @param src source address of the packet
-     * @param dst destination address of the packet
-     * @param id identify the request
-     * @param part identify the part of the request
-     * @param total the total number of parts
-     * @param data the payload of the request
-     */
-    private RequestPacket(final int net,
-            final NodeAddress src,
-            final NodeAddress dst,
-            final int id,
-            final int part,
-            final int total,
-            final byte[] data) {
-        super(net, src, dst);
-        this.setTyp(REQUEST);
-        this.setId(id);
-        this.setTotal(total);
-        this.setPart(part);
-        this.setData(data);
-    }
-
-    /**
-     * This constructor initialize a data packet starting from a int array.
-     *
-     * @param data the int array representing the data packet, all int are
-     * casted to byte.
-     */
-    public RequestPacket(final int[] data) {
-        super(data);
-    }
 
     public static RequestPacket[] createPackets(
             final int net,
@@ -128,39 +74,155 @@ public class RequestPacket extends NetworkPacket {
         }
     }
 
-    private void setId(final int id) {
-        this.setPayloadAt((byte) id, ID_INDEX);
+    /**
+     * This constructor initialize a Request packet starting from a byte array.
+     *
+     * @param data the byte array representing the data packet.
+     */
+    public RequestPacket(final byte[] data) {
+        super(data);
     }
 
-    public final int getId() {
-        return this.getPayloadAt(ID_INDEX);
+    /**
+     * This constructor initialize a Request packet starting from a
+     * NetworkPacket.
+     *
+     * @param data the NetworkPacket representing the data packet.
+     */
+    public RequestPacket(final NetworkPacket data) {
+        super(data.toByteArray());
     }
 
-    private void setPart(final int part) {
-        this.setPayloadAt((byte) part, PART_INDEX);
+    /**
+     * This constructor initialize a data packet starting from a int array.
+     *
+     * @param data the int array representing the data packet, all ints are
+     * casted to byte.
+     */
+    public RequestPacket(final int[] data) {
+        super(data);
     }
 
-    public final int getPart() {
-        return this.getPayloadAt(PART_INDEX);
+    /**
+     * Construct a Request packet from its fields. It is used only inside this
+     * class.
+     *
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
+     * @param id identificator of the request
+     * @param part identificator of the part of the request
+     * @param total the total number of parts
+     * @param data the data payload of the request
+     */
+    private RequestPacket(final int net,
+            final NodeAddress src,
+            final NodeAddress dst,
+            final int id,
+            final int part,
+            final int total,
+            final byte[] data) {
+        super(net, src, dst);
+        setTyp(REQUEST);
+        setId(id).setTotal(total).setPart(part).setData(data);
     }
-
-    private void setTotal(final int total) {
-        this.setPayloadAt((byte) total, TOTAL_INDEX);
-    }
-
-    public final int getTotal() {
-        return this.getPayloadAt(TOTAL_INDEX);
-    }
-
-    private void setData(final byte[] data) {
-        this.setPayload(data, 0, TOTAL_INDEX + 1, data.length);
-    }
-
+    /**
+     * Gets the data payload of the request.
+     *
+     * @return a byte array representing the data payload of a single packet
+     */
     public final byte[] getData() {
         return this.getPayloadFromTo(TOTAL_INDEX + 1, getPayloadSize());
     }
 
+    /**
+     * Gets the size of the data payload of the request.
+     *
+     * @return data payload size in bytes
+     */
     public final int getDataSize() {
         return this.getPayloadSize() - (TOTAL_INDEX + 1);
     }
+
+    /**
+     * Gets the ID of the request. The request ID is used to identify requests
+     * coming from the same node.
+     *
+     * @return the id of the request
+     */
+    public final int getId() {
+        return this.getPayloadAt(ID_INDEX);
+    }
+    /**
+     * Gets the part number of the Request packet. A NetworkPacket cannot be
+     * longer than NetworkPacket.MAX_PACKET_LENGTH, so it can be incapsulated in
+     * maximum two packets. Therefore this value is 0 or 1.
+     *
+     * @return the part number
+     */
+    public final int getPart() {
+        return this.getPayloadAt(PART_INDEX);
+    }
+    /**
+     * Gets the Total expected number of parts. A NetworkPacket cannot be longer
+     * than NetworkPacket.MAX_PACKET_LENGTH, so it can be incapsulated in
+     * maximum two packets. Therefore this value is 1 or 2.
+     *
+     * @return the total number of parts
+     */
+    public final int getTotal() {
+        return this.getPayloadAt(TOTAL_INDEX);
+    }
+
+    /**
+     * Sets the data payload of the request.
+     *
+     * @param data the data payload
+     * @return the packet itself
+     */
+    private RequestPacket setData(final byte[] data) {
+        this.setPayload(data, 0, TOTAL_INDEX + 1, data.length);
+        return this;
+    }
+
+    /**
+     * Sets the ID of the request. The request ID is used to identify requests
+     * coming from the same node.
+     *
+     * @param id the id to be set
+     * @return the packet itself
+     */
+    private RequestPacket setId(final int id) {
+        this.setPayloadAt((byte) id, ID_INDEX);
+        return this;
+    }
+
+
+    /**
+     * Sets the part number of the Request packet. A NetworkPacket cannot be
+     * longer than NetworkPacket.MAX_PACKET_LENGTH, so it can be incapsulated in
+     * maximum two packets. Therefore this value is 0 or 1.
+     *
+     * @param part the value of part
+     * @return the packet itself
+     */
+    private RequestPacket setPart(final int part) {
+        this.setPayloadAt((byte) part, PART_INDEX);
+        return this;
+    }
+
+
+    /**
+     * Sets the Total expected number of parts. A NetworkPacket cannot be longer
+     * than NetworkPacket.MAX_PACKET_LENGTH, so it can be incapsulated in
+     * maximum two packets. Therefore this value is 1 or 2.
+     *
+     * @return the total number of parts
+     * @param total the expected number of parts
+     */
+    private RequestPacket setTotal(final int total) {
+        this.setPayloadAt((byte) total, TOTAL_INDEX);
+        return this;
+    }
+
 }
