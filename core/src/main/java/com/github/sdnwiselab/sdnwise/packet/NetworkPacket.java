@@ -77,7 +77,7 @@ public class NetworkPacket implements Cloneable {
     /**
      * NET values less than 63 are SDN-WISE.
      */
-    private static final byte THRES = 63;
+    public static final byte THRES = 63;
 
     /**
      * Returns the index of a byte in the header given a string.

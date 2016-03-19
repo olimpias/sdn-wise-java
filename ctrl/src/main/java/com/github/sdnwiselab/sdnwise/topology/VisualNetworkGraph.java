@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,6 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.topology;
 
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import org.graphstream.graph.*;
 
@@ -36,7 +37,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
      * @param timeout the time to live for a node in seconds
      * @param rssiResolution the RSSI resolution
      */
-    public VisualNetworkGraph(int timeout, int rssiResolution) {
+    public VisualNetworkGraph(final int timeout, final int rssiResolution) {
         super(timeout, rssiResolution);
 
         System.setProperty("org.graphstream.ui.renderer",
@@ -49,10 +50,10 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
+    public void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
         super.setupNode(node, batt, now, net, addr);
         node.addAttribute("ui.label", node.getId());
-        if (net < 63) {
+        if (net < NetworkPacket.THRES) {
             node.changeAttribute("ui.style", "fill-color: rgb(0," + batt + ",0),rgb(0,0,0);");
         } else {
             node.changeAttribute("ui.style", "fill-color: rgb(" + batt + ",0,0),rgb(0,0,0);");
@@ -60,7 +61,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    void updateNode(Node node, int batt, long now) {
+    public void updateNode(Node node, int batt, long now) {
         super.updateNode(node, batt, now);
         if (node.getAttribute("net") != null) {
             int net = node.getAttribute("net");
@@ -74,7 +75,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    void setupEdge(Edge edge, int newLen) {
+    public void setupEdge(Edge edge, int newLen) {
         super.setupEdge(edge, newLen);
         int w = 30 + Math.min((((Math.max(255 - newLen, 180)) - 180) * 3), 255);
         edge.changeAttribute("ui.style", "fill-color: rgba(0,0,0," + w + ");");
@@ -83,7 +84,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    void updateEdge(Edge edge, int newLen) {
+    public void updateEdge(Edge edge, int newLen) {
         super.updateEdge(edge, newLen);
         int w = 30 + Math.min((((Math.max(255 - newLen, 180)) - 180) * 3), 255);
         edge.changeAttribute("ui.style", "fill-color: rgba(0,0,0," + w + ");");

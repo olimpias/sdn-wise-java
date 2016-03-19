@@ -171,7 +171,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param value to be set.
      * @return this AbstractAction.
      */
-    final AbstractAction setType(final Action value) {
+    protected final AbstractAction setType(final Action value) {
         action[TYPE_INDEX] = value.value;
         return this;
     }
@@ -184,7 +184,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param value the value to be stored
      * @return the AbstracAction itself
      */
-    final AbstractAction setValue(final int index, final int value) {
+    protected final AbstractAction setValue(final int index, final int value) {
         if (index < 0 || index >= action.length) {
             throw new ArrayIndexOutOfBoundsException("Index out of bound");
         } else {
@@ -200,7 +200,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param value the value to be stored as a byte array
      * @return the AbstracAction itself
      */
-    final AbstractAction setValue(final byte[] value) {
+    protected final AbstractAction setValue(final byte[] value) {
         Action type = this.getType();
         action = ByteBuffer.allocate(value.length + 1)
                 .put(type.value)
@@ -214,7 +214,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      *
      * @return a byte array containing all the values
      */
-    final byte[] getValue() {
+    protected final byte[] getValue() {
         return Arrays.copyOfRange(action, VALUE_INDEX, action.length);
     }
 
@@ -225,7 +225,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param index the index in the action array where the value is stored
      * @return the value of the action
      */
-    final int getValue(final int index) {
+    protected final int getValue(final int index) {
         if (index < 0 || index >= action.length) {
             throw new ArrayIndexOutOfBoundsException("Index out of bound");
         } else {
@@ -243,7 +243,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      *
      * @return the size of the action array
      */
-    final int getActionLength() {
+    protected final int getActionLength() {
         return action.length;
     }
 
@@ -252,7 +252,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      *
      * @return the size of the values stored
      */
-    final int getValueLength() {
+    protected final int getValueLength() {
         return action.length - 1;
     }
 

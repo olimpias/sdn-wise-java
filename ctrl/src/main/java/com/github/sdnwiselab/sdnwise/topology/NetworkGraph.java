@@ -34,8 +34,8 @@ public class NetworkGraph extends Observable {
     private long lastModification;
     private final int timeout;
     private long lastCheck;
-    final Graph graph;
-    final int rssiResolution;
+    protected final Graph graph;
+    protected final int rssiResolution;
 
     /**
      * Creates the NetworkGraph object. It requires a time to live for each node
@@ -243,7 +243,7 @@ public class NetworkGraph extends Observable {
         return graph.getEdge(id);
     }
 
-    final boolean checkConsistency(long now) {
+    public final boolean checkConsistency(long now) {
         boolean modified = false;
         if (now - lastCheck > (timeout * 1000L)) {
             lastCheck = now;
@@ -261,44 +261,44 @@ public class NetworkGraph extends Observable {
         return modified;
     }
 
-    final boolean isAlive(final long thrs, final long last, final long now) {
+    public final boolean isAlive(final long thrs, final long last, final long now) {
         return ((now - last) < thrs * 1000);
     }
 
-    void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
+    public void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
         node.addAttribute("battery", batt);
         node.addAttribute("lastSeen", now);
         node.addAttribute("net", net);
         node.addAttribute("nodeAddress", addr);
     }
 
-    void updateNode(Node node, int batt, long now) {
+    public void updateNode(Node node, int batt, long now) {
         node.addAttribute("battery", batt);
         node.addAttribute("lastSeen", now);
     }
 
-    void setupEdge(Edge edge, int newLen) {
+    public void setupEdge(Edge edge, int newLen) {
         edge.addAttribute("length", newLen);
     }
 
-    void updateEdge(Edge edge, int newLen) {
+    public void updateEdge(Edge edge, int newLen) {
         edge.addAttribute("length", newLen);
     }
 
-    <T extends Node> T addNode(String id) {
+    public <T extends Node> T addNode(String id) {
         return graph.addNode(id);
     }
 
-    <T extends Edge> T addEdge(String id, String from, String to,
+    public <T extends Edge> T addEdge(String id, String from, String to,
             boolean directed) {
         return graph.addEdge(id, from, to, directed);
     }
 
-    <T extends Edge> T removeEdge(Edge edge) {
+    public <T extends Edge> T removeEdge(Edge edge) {
         return graph.removeEdge(edge);
     }
 
-    <T extends Node> T removeNode(Node node) {
+    public <T extends Node> T removeNode(Node node) {
         return graph.removeNode(node);
     }
 

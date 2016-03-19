@@ -46,15 +46,15 @@ public abstract class AbstractMote implements Runnable {
     private Logger logger;
     private Logger measureLogger;
 
-    int port;
+    private int port;
 
-    DatagramSocket socket;
-    String neighborFilePath;
-    Battery battery;
+    private DatagramSocket socket;
+    private String neighborFilePath;
+    protected Battery battery;
 
-    Map<NodeAddress, FakeInfo> neighbourList;
-    Level level;
-    AbstractCore core;
+    private Map<NodeAddress, FakeInfo> neighbourList;
+    private Level level;
+    protected AbstractCore core;
 
     public AbstractMote(
             int port,

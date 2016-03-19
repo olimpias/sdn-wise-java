@@ -29,25 +29,24 @@ import java.util.logging.*;
  */
 public class SinkCore extends AbstractCore {
 
-    String switchDPid;
-    String switchMac;
-    long switchPort;
-
-    InetAddress addrController;
-    int port;
+    private final String switchDPid;
+    private final String switchMac;
+    private final long switchPort;
+    private final InetAddress addrController;
+    private final int port;
 
     // Contains the NetworkPacket that will be sent over the serial port to the controller
     final ArrayBlockingQueue<NetworkPacket> txControllerQueue = new ArrayBlockingQueue<>(100);
 
     public SinkCore(
-            byte net,
-            NodeAddress address,
-            Battery battery,
-            String switchDPid,
-            String switchMac,
-            long switchPort,
-            InetAddress addrController,
-            int port) {
+            final byte net,
+            final NodeAddress address,
+            final Battery battery,
+            final String switchDPid,
+            final String switchMac,
+            final long switchPort,
+            final InetAddress addrController,
+            final int port) {
         super(net, address, battery);
         this.switchDPid = switchDPid;
         this.switchMac = switchMac;
@@ -95,7 +94,7 @@ public class SinkCore extends AbstractCore {
     }
 
     @Override
-    final void initSdnWiseSpecific() {
+    protected final void initSdnWiseSpecific() {
         setSinkDistance(0);
         setSinkRssi(255);
         setActive(true);
