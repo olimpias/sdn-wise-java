@@ -20,10 +20,10 @@ import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
+import com.github.sdnwiselab.sdnwise.packet.*;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
-import com.github.sdnwiselab.sdnwise.packet.*;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.Utils.*;
@@ -61,24 +61,22 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     protected static final int RESPONSE_TIMEOUT = 300;
 
     private final ArrayBlockingQueue<NetworkPacket> bQ = new ArrayBlockingQueue<>(1000);
-    private final Map<String, ConfigPacket> configCache = ExpiringMap.builder()
-            .expiration(CACHE_EXP_TIME, TimeUnit.SECONDS)
-            .build();
+    private final Map<String, ConfigPacket> configCache = ExpiringMap
+            .builder().expiration(CACHE_EXP_TIME, TimeUnit.SECONDS).build();
     private final InetSocketAddress id;
-    private final Map<String, RequestPacket> requestCache = ExpiringMap.builder()
-            .expiration(CACHE_EXP_TIME, TimeUnit.SECONDS)
-            .build();
+    private final Map<String, RequestPacket> requestCache = ExpiringMap
+            .builder().expiration(CACHE_EXP_TIME, TimeUnit.SECONDS).build();
     private NodeAddress sinkAddress;
-    
+
     protected final NetworkGraph networkGraph;
     protected final HashMap<NodeAddress, LinkedList<NodeAddress>> results = new HashMap<>();
 
     public static List<ConfigPacket> createPackets(
-            byte net,
-            NodeAddress src,
-            NodeAddress dst,
-            byte id,
-            byte[] buf) {
+            final byte net,
+            final NodeAddress src,
+            final NodeAddress dst,
+            final byte id,
+            final byte[] buf) {
         LinkedList<ConfigPacket> ll = new LinkedList<>();
 
         int FUNCTION_HEADER_LEN = 4;
@@ -213,8 +211,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         NodeAddress na;
         int i = 0;
         while ((na = getNodeAlias(net, dst, (byte) i)) != null) {
-            i++;
             list.add(i, na);
+            i++;
         }
         return list;
     }
@@ -273,8 +271,8 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         FlowTableEntry fte;
         int i = 0;
         while ((fte = getNodeRule(net, dst, i)) != null) {
-            i++;
             list.add(i, fte);
+            i++;
         }
         return list;
     }
