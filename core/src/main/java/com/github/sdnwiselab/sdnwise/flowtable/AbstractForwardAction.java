@@ -24,13 +24,14 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 public abstract class AbstractForwardAction extends AbstractAction {
 
     /**
-     * The index in the action arraywhere the address of the next hop is
+     * The index in the action array where the address of the next hop is
      * located.
      */
     private static final byte NXH_INDEX = 0;
 
     /**
      * Creates a new AbstractAction given an ActionType.
+     *
      * @param actionType the action type of the Abstract Action
      */
     public AbstractForwardAction(final Action actionType) {
@@ -39,6 +40,7 @@ public abstract class AbstractForwardAction extends AbstractAction {
 
     /**
      * Creates a new AbstractAction given an array of bytes.
+     *
      * @param value the byte array
      */
     public AbstractForwardAction(final byte[] value) {
@@ -47,6 +49,7 @@ public abstract class AbstractForwardAction extends AbstractAction {
 
     /**
      * Sets the next hop toward which the packet will be sent.
+     *
      * @param addr the NodeAddress of the next hop
      * @return the action itself
      */
@@ -58,6 +61,7 @@ public abstract class AbstractForwardAction extends AbstractAction {
 
     /**
      * Gets the next hop toward which the packet will be sent.
+     *
      * @return the NodeAddress of the next hop
      */
     public final NodeAddress getNextHop() {

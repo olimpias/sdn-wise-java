@@ -19,6 +19,9 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.MATCH;
 
 /**
+ * Representing the Match action. A match action is used to match the current
+ * packet against all the FlowTableEntry of the FlowTable.
+ *
  * @author Sebastiano Milardo
  */
 public final class MatchAction extends AbstractAction {
@@ -39,6 +42,7 @@ public final class MatchAction extends AbstractAction {
     /**
      * Creates a MatchAction object. A MatchAction is used to match the current
      * packet against all the FlowTableEntry of the FlowTable.
+     *
      * @param array the array representing the MatchAction object
      */
     public MatchAction(final byte[] array) {

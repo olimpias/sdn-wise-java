@@ -193,7 +193,6 @@ public class ConfigPacket extends NetworkPacket {
          * TTL of a FlowTableEntry. Can be read/written.
          */
         RULE_TTL(7, 1),
-
         ADD_ALIAS(8, 2),
         REM_ALIAS(9, 1),
         GET_ALIAS(10, 1),

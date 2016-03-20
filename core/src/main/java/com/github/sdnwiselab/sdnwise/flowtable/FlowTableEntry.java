@@ -32,8 +32,8 @@ import java.util.Objects;
 public final class FlowTableEntry implements FlowTableInterface {
 
     /**
-     * Contains the list of windows of the FlowTableEntry. All the windows
-     * must be sadisfied in order to execute the actions.
+     * Contains the list of windows of the FlowTableEntry. All the windows must
+     * be sadisfied in order to execute the actions.
      */
     private final List<Window> windows = new LinkedList<>();
     /**
@@ -242,8 +242,8 @@ public final class FlowTableEntry implements FlowTableInterface {
     @Override
     public int hashCode() {
         int hash = Objects.hashCode(this.windows)
-            + Objects.hashCode(this.actions)
-            + Objects.hashCode(this.stats);
+                + Objects.hashCode(this.actions)
+                + Objects.hashCode(this.stats);
         return hash;
     }
 

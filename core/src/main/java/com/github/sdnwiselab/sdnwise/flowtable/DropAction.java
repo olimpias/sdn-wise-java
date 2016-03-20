@@ -29,16 +29,17 @@ public final class DropAction extends AbstractAction {
     private static final byte SIZE = 0;
 
     /**
-     * Creates a DropAction object. A DropAction is used to drop all the
-     * packets matching the windows in the FlowTableEntry.
+     * Creates a DropAction object. A DropAction is used to drop all the packets
+     * matching the windows in the FlowTableEntry.
      */
     public DropAction() {
         super(DROP, SIZE);
     }
 
     /**
-     * Creates a DropAction object. A DropAction is used to drop all the
-     * packets matching the windows in the FlowTableEntry.
+     * Creates a DropAction object. A DropAction is used to drop all the packets
+     * matching the windows in the FlowTableEntry.
+     *
      * @param value the array representing the DropAction object
      */
     public DropAction(final byte[] value) {

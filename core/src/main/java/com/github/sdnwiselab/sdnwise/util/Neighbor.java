@@ -23,6 +23,7 @@ package com.github.sdnwiselab.sdnwise.util;
  * @author Sebastiano Milardo
  */
 public final class Neighbor {
+
     /**
      * The address of the neighbor.
      */

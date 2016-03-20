@@ -20,10 +20,19 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.FORW
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
+ * Representation of the ForwardUnicast action. A packet which is forwarded in
+ * unicast is received by the node specified.
+ *
  * @author Sebastiano Milardo
  */
 public final class ForwardUnicastAction extends AbstractForwardAction {
 
+    /**
+     * Creates a ForwardUnicast action. The next hop is set by using the String.
+     * An example of a string is "FORWARD_U 0.1" without quotes.
+     *
+     * @param str the string representing the ForwardUnicast action
+     */
     public ForwardUnicastAction(final String str) {
         super(FORWARD_U);
         if (FORWARD_U.name().equals(str.split(" ")[0].trim())) {
@@ -33,11 +42,22 @@ public final class ForwardUnicastAction extends AbstractForwardAction {
         }
     }
 
+    /**
+     * Creates a ForwardUnicast action. The next hop is set by using the a
+     * NodeAddress.
+     *
+     * @param nextHop the next hop address
+     */
     public ForwardUnicastAction(final NodeAddress nextHop) {
         super(FORWARD_U);
         setNextHop(nextHop);
     }
 
+    /**
+     * Creates a ForwardUnicast action.
+     *
+     * @param value a byte array representing the ForwardAction
+     */
     public ForwardUnicastAction(final byte[] value) {
         super(value);
     }

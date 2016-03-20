@@ -125,6 +125,7 @@ public class RequestPacket extends NetworkPacket {
         setTyp(REQUEST);
         setId(id).setTotal(total).setPart(part).setData(data);
     }
+
     /**
      * Gets the data payload of the request.
      *
@@ -152,6 +153,7 @@ public class RequestPacket extends NetworkPacket {
     public final int getId() {
         return this.getPayloadAt(ID_INDEX);
     }
+
     /**
      * Gets the part number of the Request packet. A NetworkPacket cannot be
      * longer than NetworkPacket.MAX_PACKET_LENGTH, so it can be incapsulated in
@@ -162,6 +164,7 @@ public class RequestPacket extends NetworkPacket {
     public final int getPart() {
         return this.getPayloadAt(PART_INDEX);
     }
+
     /**
      * Gets the Total expected number of parts. A NetworkPacket cannot be longer
      * than NetworkPacket.MAX_PACKET_LENGTH, so it can be incapsulated in
@@ -196,7 +199,6 @@ public class RequestPacket extends NetworkPacket {
         return this;
     }
 
-
     /**
      * Sets the part number of the Request packet. A NetworkPacket cannot be
      * longer than NetworkPacket.MAX_PACKET_LENGTH, so it can be incapsulated in
@@ -209,7 +211,6 @@ public class RequestPacket extends NetworkPacket {
         this.setPayloadAt((byte) part, PART_INDEX);
         return this;
     }
-
 
     /**
      * Sets the Total expected number of parts. A NetworkPacket cannot be longer

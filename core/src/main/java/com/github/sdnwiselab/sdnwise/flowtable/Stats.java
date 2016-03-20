@@ -19,8 +19,8 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 import java.util.Arrays;
 
 /**
- * Stats is part of the structure of the Entry of a FlowTable. This Class
- * implements FlowTableInterface.
+ * Stats is part of the structure of the FlowTableEntry. This Class implements
+ * FlowTableInterface.
  *
  * @author Sebastiano Milardo
  */
@@ -117,6 +117,7 @@ public final class Stats implements FlowTableInterface {
 
     /**
      * Increases the usage counter.
+     *
      * @return the object itself
      */
     public Stats increaseCounter() {
@@ -139,8 +140,9 @@ public final class Stats implements FlowTableInterface {
     }
 
     /**
-     * Turns the FlowTableEntry into a permanent entry. Can be deleted only by
-     * a Controller
+     * Turns the FlowTableEntry into a permanent entry. Can be deleted only by a
+     * Controller
+     *
      * @return the object itself
      */
     public Stats setPermanent() {
@@ -150,6 +152,7 @@ public final class Stats implements FlowTableInterface {
 
     /**
      * Restores the TTL of a entry to its maximum.
+     *
      * @return the object itself
      */
     public Stats restoreTtl() {
@@ -159,6 +162,7 @@ public final class Stats implements FlowTableInterface {
 
     /**
      * Decrement by a certain value the TTL of an entry.
+     *
      * @param value how much the ttl will be decremented
      * @return the object itself
      */
@@ -169,6 +173,7 @@ public final class Stats implements FlowTableInterface {
 
     /**
      * Sets the TTL of an entry.
+     *
      * @param ttl the new value of the ttl
      * @return the object itself
      */

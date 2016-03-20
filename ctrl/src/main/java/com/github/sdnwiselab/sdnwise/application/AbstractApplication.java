@@ -45,7 +45,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     protected static final Logger LOGGER = Logger.getLogger("APP");
     protected final AbstractController controller;
     private final ArrayBlockingQueue<NetworkPacket> bQ;
-    
+
     /**
      * Creates an Application Abstract Class.
      *

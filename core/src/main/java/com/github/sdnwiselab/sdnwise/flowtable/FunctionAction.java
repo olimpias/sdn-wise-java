@@ -20,53 +20,35 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.FUNC
 import java.util.Arrays;
 
 /**
+ * Representation of the FunctionAction. This action is used to invoke a
+ * function installed in the node. This implementation works only for the java
+ * emulated nodes.
+ *
  * @author Sebastiano Milardo
  */
 public final class FunctionAction extends AbstractAction {
 
     /**
-     * Function id is at index 0, the arguments starts at 1.
+     * Field indexes.
      */
-    private static final byte ID_INDEX = 0,
-            ARGS_INDEX = 1;
+    private static final byte ARGS_INDEX = 1, ID_INDEX = 0;
 
+    /**
+     * Creates a FunctionAction object.
+     *
+     * @param value an array representing the FunctionAction object
+     */
     public FunctionAction(final byte[] value) {
         super(value);
     }
 
-    public FunctionAction setId(final int id) {
-        setValue(ID_INDEX, id);
-        return this;
-    }
-
-    public int getId() {
-        return getValue(ID_INDEX);
-    }
-
-    public byte[] getArgs() {
-        byte[] value = getValue();
-        return Arrays.copyOfRange(value, ARGS_INDEX, value.length);
-    }
-
-    public FunctionAction setArgs(final byte[] args) {
-        int i = 0;
-        for (byte b : args) {
-            this.setValue(ARGS_INDEX + i, b);
-            i++;
-        }
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(FUNCTION.name());
-        sb.append(" ").append(getId()).append(" ");
-        for (byte b : getArgs()) {
-            sb.append(Byte.toUnsignedInt(b)).append(" ");
-        }
-        return sb.toString();
-    }
-
+    /**
+     * Creates a Function action starting from a String. The string specifies
+     * the name of the action, the id of the function and an array of bytes. An
+     * example is "FUNCTION 1 0 1 2 3 4 5 6" without quotes.
+     *
+     * @param str the String representing the action
+     */
     public FunctionAction(final String str) {
         super(FUNCTION, 0);
         String[] tmp = str.split(" ");
@@ -79,5 +61,62 @@ public final class FunctionAction extends AbstractAction {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
+    /**
+     * Gets the list of arguments that will be provided to the function.
+     *
+     * @return the list of arguments as a byte array
+     */
+    public byte[] getArgs() {
+        byte[] value = getValue();
+        return Arrays.copyOfRange(value, ARGS_INDEX, value.length);
+    }
+
+    /**
+     * Gets the id of the function that will be invoked. When istalled each
+     * function has a id.
+     *
+     * @return the id of the function
+     */
+    public int getId() {
+        return getValue(ID_INDEX);
+    }
+
+    /**
+     * Sets the list of arguments that will be provided to the function.
+     *
+     * @param args the list of arguments as a byte array
+     * @return the FunctionAction itself
+     */
+    public FunctionAction setArgs(final byte[] args) {
+        int i = 0;
+        for (byte b : args) {
+            this.setValue(ARGS_INDEX + i, b);
+            i++;
+        }
+        return this;
+    }
+
+    /**
+     * Sets the id of the function that will be invoked. When istalled each
+     * function has a id.
+     *
+     * @param id identificator of the function
+     * @return the FunctionAction itself
+     */
+    public FunctionAction setId(final int id) {
+        setValue(ID_INDEX, id);
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(FUNCTION.name());
+        sb.append(" ").append(getId()).append(" ");
+        for (byte b : getArgs()) {
+            sb.append(Byte.toUnsignedInt(b)).append(" ");
+        }
+        return sb.toString();
     }
 }

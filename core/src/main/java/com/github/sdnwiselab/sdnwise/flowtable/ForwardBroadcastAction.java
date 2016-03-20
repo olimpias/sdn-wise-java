@@ -20,15 +20,28 @@ import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.FORW
 import static com.github.sdnwiselab.sdnwise.util.NodeAddress.BROADCAST_ADDR;
 
 /**
+ * Representation of the ForwardBroadcast action. A packet which is forwarded in
+ * broadcast is received by all the nodes at one hop distance.
+ *
  * @author Sebastiano Milardo
  */
 public final class ForwardBroadcastAction extends AbstractForwardAction {
 
+    /**
+     * Creates a ForwardBroadcast action. The next hop is set to the Broadcast
+     * action.
+     */
     public ForwardBroadcastAction() {
         super(FORWARD_B);
         setNextHop(BROADCAST_ADDR);
     }
 
+    /**
+     * Creates a ForwardBroadcast action. The next hop is set to the Broadcast
+     * action.
+     *
+     * @param value the array representing the action
+     */
     public ForwardBroadcastAction(final byte[] value) {
         super(value);
     }

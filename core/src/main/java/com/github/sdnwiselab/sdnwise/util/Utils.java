@@ -36,6 +36,7 @@ public final class Utils {
 
     /**
      * Concatenates two byte arrays.
+     *
      * @param a first byte array
      * @param b second byte array
      * @return the array resulting from the concatenation
@@ -46,6 +47,7 @@ public final class Utils {
 
     /**
      * Gets a set of bits from a byte.
+     *
      * @param b the original byte
      * @param s the bit of the byte from where we start extracting
      * @param n the number of bits to extract

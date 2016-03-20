@@ -40,7 +40,6 @@ public final class Loader {
     /**
      * @param args the command line arguments
      */
-
     public static void main(final String[] args) {
 
         Option net = Option.builder("n").argName("net").hasArg().required()
