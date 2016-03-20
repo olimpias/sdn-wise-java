@@ -41,14 +41,15 @@ import static com.github.sdnwiselab.sdnwise.flowtable.Stats.ENTRY_TTL_PERMANENT;
  */
 public abstract class AbstractCore {
 
-    // Routing
-    private int sinkDistance;
-    private int sinkRssi;
+    /**
+     * Routing.
+     */
+    private int sinkDistance, sinkRssi;
 
-    // Timers
-    private int cntBeacon;
-    private int cntReport;
-    private int cntUpdTable;
+    /**
+     * Timers.
+     */
+    private int cntBeacon, cntReport, cntUpdTable;
 
     // Battery
     private final BatteryInterface battery;
@@ -174,9 +175,9 @@ public abstract class AbstractCore {
         toSink.addWindow(new Window()
                 .setOperator(EQUAL)
                 .setSize(W_SIZE_2)
-                .setLhsLocation(SDN_WISE_PACKET)
+                .setLhsLocation(PACKET)
                 .setLhs(DST_INDEX)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(this.myAddress.intValue()));
         toSink.addWindow(fromString("P.TYP == 3"));
         toSink.addAction(new ForwardUnicastAction(myAddress));
@@ -280,9 +281,9 @@ public abstract class AbstractCore {
                 rule.addWindow(new Window()
                         .setOperator(EQUAL)
                         .setSize(W_SIZE_2)
-                        .setLhsLocation(SDN_WISE_PACKET)
+                        .setLhsLocation(PACKET)
                         .setLhs(DST_INDEX)
-                        .setRhsLocation(SDN_WISE_CONST)
+                        .setRhsLocation(CONST)
                         .setRhs(path.get(0).intValue()));
 
                 rule.getWindows().addAll(opp.getWindows());
@@ -295,9 +296,9 @@ public abstract class AbstractCore {
                 rule.addWindow(new Window()
                         .setOperator(EQUAL)
                         .setSize(W_SIZE_2)
-                        .setLhsLocation(SDN_WISE_PACKET)
+                        .setLhsLocation(PACKET)
                         .setLhs(DST_INDEX)
-                        .setRhsLocation(SDN_WISE_CONST)
+                        .setRhsLocation(CONST)
                         .setRhs(path.get(path.size() - 1).intValue()));
 
                 rule.getWindows().addAll(opp.getWindows());
@@ -351,11 +352,11 @@ public abstract class AbstractCore {
     private int getOperand(final NetworkPacket packet, final int size,
             final int location, int value) {
         switch (location) {
-            case SDN_WISE_NULL:
+            case NULL:
                 return 0;
-            case SDN_WISE_CONST:
+            case CONST:
                 return value;
-            case SDN_WISE_PACKET:
+            case PACKET:
                 int[] intPacket = packet.toIntArray();
                 if (size == W_SIZE_1) {
                     if (value >= intPacket.length) {
@@ -370,7 +371,7 @@ public abstract class AbstractCore {
                     return mergeBytes(intPacket[value], intPacket[value + 1]);
                 }
                 return -1;
-            case SDN_WISE_STATUS:
+            case STATUS:
                 if (size == W_SIZE_1) {
                     if (value >= statusRegister.size()) {
                         return -1;
@@ -437,7 +438,7 @@ public abstract class AbstractCore {
                         throw new IllegalArgumentException("Operators out of bound");
                     }
                     int res = doOperation(operator, lhs, rhs);
-                    if (ftam.getResLocation() == SDN_WISE_PACKET) {
+                    if (ftam.getResLocation() == PACKET) {
                         int[] packet = np.toIntArray();
                         if (ftam.getRes() >= packet.length) {
                             throw new IllegalArgumentException("Result out of bound");
@@ -488,21 +489,21 @@ public abstract class AbstractCore {
 
     private int doOperation(int operatore, int item1, int item2) {
         switch (operatore) {
-            case SDN_WISE_ADD:
+            case ADD:
                 return item1 + item2;
-            case SDN_WISE_SUB:
+            case SUB:
                 return item1 - item2;
-            case SDN_WISE_DIV:
+            case DIV:
                 return item1 / item2;
-            case SDN_WISE_MUL:
+            case MUL:
                 return item1 * item2;
-            case SDN_WISE_MOD:
+            case MOD:
                 return item1 % item2;
-            case SDN_WISE_AND:
+            case AND:
                 return item1 & item2;
-            case SDN_WISE_OR:
+            case OR:
                 return item1 | item2;
-            case SDN_WISE_XOR:
+            case XOR:
                 return item1 ^ item2;
             default:
                 return 0;

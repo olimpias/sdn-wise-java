@@ -33,33 +33,42 @@ public final class SetAction extends AbstractAction {
     /**
      * SetAction operators.
      */
-    public static final byte SDN_WISE_ADD = 0,
-            SDN_WISE_SUB = 1,
-            SDN_WISE_MUL = 2,
-            SDN_WISE_DIV = 3,
-            SDN_WISE_MOD = 4,
-            SDN_WISE_AND = 5,
-            SDN_WISE_OR = 6,
-            SDN_WISE_XOR = 7;
+    public static final byte ADD = 0,
+            AND = 5,
+            DIV = 3,
+            MOD = 4,
+            MUL = 2,
+            OR = 6,
+            SUB = 1,
+            XOR = 7;
 
     /**
      * Field indexes and lengths.
      */
-    private static final byte OP_BIT = 3,
-            OP_LEN = 3,
-            LEFT_BIT = 1,
-            LEFT_LEN = 2,
-            RIGHT_BIT = 6,
-            RIGHT_LEN = LEFT_LEN,
-            RES_BIT = 0,
-            RES_LEN = 1,
-            OP_INDEX = 0,
-            RES_INDEX_H = 1,
-            RES_INDEX_L = 2,
+    private static final byte LEFT_BIT = 1,
             LEFT_INDEX_H = 3,
             LEFT_INDEX_L = 4,
+            LEFT_LEN = 2,
+            OP_BIT = 3,
+            OP_INDEX = 0, OP_LEN = 3,
+            RES_BIT = 0,
+            RES_INDEX_H = 1,
+            RES_INDEX_L = 2,
+            RES_LEN = 1,
+            RIGHT_BIT = 6,
             RIGHT_INDEX_H = 5,
-            RIGHT_INDEX_L = 6;
+            RIGHT_INDEX_L = 6,
+            RIGHT_LEN = LEFT_LEN;
+
+    /**
+     * Constans for String parsing.
+     */
+    private static final int FULL_SET = 6,
+            HALF_SET = 4,
+            RES = 1,
+            LHS = 3,
+            RHS = 5,
+            OP = 4;
 
     /**
      * The size of the action.
@@ -75,17 +84,38 @@ public final class SetAction extends AbstractAction {
         super(SET, SIZE);
     }
 
+    /**
+     * Creates a SetAction given array of bytes.
+     *
+     * @param value the array of bytes representing the action
+     */
     public SetAction(final byte[] value) {
         super(value);
     }
 
+    /**
+     * Creates a SetAction given a String. The String must contain: the name of
+     * the Action, a result containing where the result should be stored.
+     * Possible values are: "P." for packet and "R." for status register. A
+     * number indicating the index where to store the result. Therefore a
+     * possbile result location is "P.10" if you want to store the result at the
+     * 10th byte of the packet. Then an equal sign and two operands separated by
+     * the operator choosen. If an operand is a constant simply write it. A
+     * complete example is "SET P.10 = R.11 + 12". This example stores the
+     * result of the sum between the status register at byte 11, and the
+     * constant value 12 in the 10th byte of the packet. Another possible value
+     * is to set a result without making an operation. So an accepted string can
+     * also be "SET R.10 = 11"
+     *
+     * @param val the String representing the action
+     */
     public SetAction(final String val) {
         super(SET, SIZE);
         String[] operands = val.split(" ");
-        if (operands.length == 6) {
-            String res = operands[1];
-            String lhs = operands[3];
-            String rhs = operands[5];
+        if (operands.length == FULL_SET) {
+            String res = operands[RES];
+            String lhs = operands[LHS];
+            String rhs = operands[RHS];
 
             int[] tmpRes = getResFromString(res);
             int[] tmpLhs = getOperandFromString(lhs);
@@ -97,15 +127,15 @@ public final class SetAction extends AbstractAction {
             setLhsLocation(tmpLhs[0]);
             setLhs(tmpLhs[1]);
 
-            setOperator(getOperatorFromString(operands[4]));
+            setOperator(getOperatorFromString(operands[OP]));
 
             setRhsLocation(tmpRhs[0]);
             setRhs(tmpRhs[1]);
 
-        } else if (operands.length == 4) {
+        } else if (operands.length == HALF_SET) {
 
-            String res = operands[1];
-            String lhs = operands[3];
+            String res = operands[RES];
+            String lhs = operands[LHS];
 
             int[] tmpRes = getResFromString(res);
             int[] tmpLhs = getOperandFromString(lhs);
@@ -116,28 +146,19 @@ public final class SetAction extends AbstractAction {
             setLhsLocation(tmpLhs[0]);
             setLhs(tmpLhs[1]);
 
-            setRhsLocation(SDN_WISE_NULL);
+            setRhsLocation(NULL);
             setRhs(0);
         }
 
     }
 
     /**
-     * Getter method to obtain Size.
+     * Getter method to obtain Pos.
      *
-     * @return an int value of SIZE.
+     * @return an int value of pos.
      */
-    public int getResLocation() {
-        return getBitRange(getValue(OP_INDEX), RES_BIT, RES_LEN) + 2;
-    }
-
-    /**
-     * Getter method to obtain Operator.
-     *
-     * @return an int value of operator.
-     */
-    public int getOperator() {
-        return getBitRange(getValue(OP_INDEX), OP_BIT, OP_LEN);
+    public int getLhs() {
+        return mergeBytes(getValue(LEFT_INDEX_H), getValue(LEFT_INDEX_L));
     }
 
     /**
@@ -150,6 +171,202 @@ public final class SetAction extends AbstractAction {
     }
 
     /**
+     * Getter method to obtain memory in string.
+     *
+     * @return a string value of memory.
+     */
+    public String getLhsToString() {
+        switch (getLhsLocation()) {
+            case NULL:
+                return "";
+            case CONST:
+                return String.valueOf(this.getLhs());
+            case PACKET:
+                return "P." + NetworkPacket.getNetworkPacketByteName(getLhs());
+            case STATUS:
+                return "R." + getLhs();
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Gets the operand from a String. See the SetAction(String) constructor
+     * for more information on the format.
+     *
+     * @param val the String representing the operand
+     * @return an array contianing the operand
+     */
+    public int[] getOperandFromString(final String val) {
+        int[] tmp = new int[2];
+        String[] strVal = val.split("\\.");
+        switch (strVal[0]) {
+            case "P":
+                tmp[0] = PACKET;
+                break;
+            case "R":
+                tmp[0] = STATUS;
+                break;
+            default:
+                tmp[0] = CONST;
+                break;
+        }
+
+        switch (tmp[0]) {
+            case PACKET:
+                tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
+                break;
+            case CONST:
+                tmp[1] = Integer.parseInt(strVal[0]);
+                break;
+            default:
+                tmp[1] = Integer.parseInt(strVal[1]);
+                break;
+        }
+        return tmp;
+    }
+
+    /**
+     * Getter method to obtain Operator.
+     *
+     * @return an int value of operator.
+     */
+    public int getOperator() {
+        return getBitRange(getValue(OP_INDEX), OP_BIT, OP_LEN);
+    }
+
+    /**
+     * Gets the operator id from a String.
+     *
+     * @param val the char representing the operator
+     * @return the operator id starting from a string.
+     */
+    public int getOperatorFromString(final String val) {
+        switch (val.trim()) {
+            case ("+"):
+                return ADD;
+            case ("-"):
+                return SUB;
+            case ("*"):
+                return MUL;
+            case ("/"):
+                return DIV;
+            case ("%"):
+                return MOD;
+            case ("&"):
+                return AND;
+            case ("|"):
+                return OR;
+            case ("^"):
+                return XOR;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Gets the operator as a String.
+     *
+     * @return a string representation of the operator.
+     */
+    public String getOperatorToString() {
+        switch (getOperator()) {
+            case (ADD):
+                return " + ";
+            case (SUB):
+                return " - ";
+            case (MUL):
+                return " * ";
+            case (DIV):
+                return " / ";
+            case (MOD):
+                return " % ";
+            case (AND):
+                return " & ";
+            case (OR):
+                return " | ";
+            case (XOR):
+                return " ^ ";
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Getter method to obtain High Value.
+     *
+     * @return an int value of high value.
+     */
+    public int getRes() {
+        return mergeBytes(getValue(RES_INDEX_H), getValue(RES_INDEX_L));
+    }
+
+    /**
+     * Gets the result location from a String. See the SetAction(String)
+     * constructor for more information on the format.
+     *
+     * @param val the String representing the operand
+     * @return an array contianing the result location
+     */
+    public int[] getResFromString(final String val) {
+        int[] tmp = new int[2];
+        String[] strVal = val.split("\\.");
+        switch (strVal[0]) {
+            case "P":
+                tmp[0] = PACKET;
+                break;
+            case "R":
+                tmp[0] = STATUS;
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+
+        if (tmp[0] == PACKET) {
+            tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
+        } else {
+            tmp[1] = Integer.parseInt(strVal[1]);
+        }
+        return tmp;
+    }
+
+    /**
+     * Getter method to obtain Size.
+     *
+     * @return an int value of SIZE.
+     */
+    public int getResLocation() {
+        return getBitRange(getValue(OP_INDEX), RES_BIT, RES_LEN) + 2;
+    }
+
+    /**
+     * Getter method to obtain Size in string.
+     *
+     * @return a string in SIZE.
+     */
+    public String getResToString() {
+        switch (getResLocation()) {
+            case PACKET:
+                return SET.name() + " P."
+                        + NetworkPacket.getNetworkPacketByteName(getRes())
+                        + " = ";
+            case STATUS:
+                return SET.name() + " R." + getRes() + " = ";
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Getter method to obtain High Value.
+     *
+     * @return an int value of high value.
+     */
+    public int getRhs() {
+        return mergeBytes(getValue(RIGHT_INDEX_H), getValue(RIGHT_INDEX_L));
+    }
+
+    /**
      * Getter method to obtain rhs Location.
      *
      * @return an int value of location.
@@ -159,38 +376,34 @@ public final class SetAction extends AbstractAction {
     }
 
     /**
-     * Setter method to set OP_INDEX of action[].
+     * Getter method to obtain memory in string.
      *
-     * @param value value to set
-     * @return this Window
+     * @return a string value of memory.
      */
-    public SetAction setResLocation(final int value) {
-        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
-                RES_BIT, RES_LEN, value));
-        return this;
+    public String getRhsToString() {
+        switch (getRhsLocation()) {
+            case NULL:
+                return "";
+            case CONST:
+                return String.valueOf(this.getRhs());
+            case PACKET:
+                return "P." + NetworkPacket.getNetworkPacketByteName(getRhs());
+            case STATUS:
+                return "R." + getRhs();
+            default:
+                return "";
+        }
     }
 
     /**
-     * Setter method to set OP_INDEX of action[].
+     * Setter method to set offsetIndex of action[].
      *
-     * @param value value to set
+     * @param val value to set
      * @return this Window
      */
-    public SetAction setOperator(final int value) {
-        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
-                OP_BIT, OP_LEN, value));
-        return this;
-    }
-
-    /**
-     * Setter method to set OP_INDEX of action[].
-     *
-     * @param value value to set
-     * @return this Window
-     */
-    public SetAction setRhsLocation(final int value) {
-        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
-                RIGHT_BIT, RIGHT_LEN, value));
+    public SetAction setLhs(final int val) {
+        setValue(LEFT_INDEX_L, (byte) val);
+        setValue(LEFT_INDEX_H, (byte) val >>> Byte.SIZE);
         return this;
     }
 
@@ -207,42 +420,15 @@ public final class SetAction extends AbstractAction {
     }
 
     /**
-     * Getter method to obtain Pos.
+     * Setter method to set OP_INDEX of action[].
      *
-     * @return an int value of pos.
-     */
-    public int getLhs() {
-        return mergeBytes(getValue(LEFT_INDEX_H), getValue(LEFT_INDEX_L));
-    }
-
-    /**
-     * Setter method to set offsetIndex of action[].
-     *
-     * @param val value to set
+     * @param value value to set
      * @return this Window
      */
-    public SetAction setLhs(final int val) {
-        setValue(LEFT_INDEX_L, (byte) val);
-        setValue(LEFT_INDEX_H, (byte) val >>> Byte.SIZE);
+    public SetAction setOperator(final int value) {
+        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
+                OP_BIT, OP_LEN, value));
         return this;
-    }
-
-    /**
-     * Getter method to obtain High Value.
-     *
-     * @return an int value of high value.
-     */
-    public int getRes() {
-        return mergeBytes(getValue(RES_INDEX_H), getValue(RES_INDEX_L));
-    }
-
-    /**
-     * Getter method to obtain High Value.
-     *
-     * @return an int value of high value.
-     */
-    public int getRhs() {
-        return mergeBytes(getValue(RIGHT_INDEX_H), getValue(RIGHT_INDEX_L));
     }
 
     /**
@@ -258,6 +444,18 @@ public final class SetAction extends AbstractAction {
     }
 
     /**
+     * Setter method to set OP_INDEX of action[].
+     *
+     * @param value value to set
+     * @return this Window
+     */
+    public SetAction setResLocation(final int value) {
+        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
+                RES_BIT, RES_LEN, value));
+        return this;
+    }
+
+    /**
      * Setter method to set highValueIndex of action[].
      *
      * @param val value to set
@@ -266,6 +464,18 @@ public final class SetAction extends AbstractAction {
     public SetAction setRhs(final int val) {
         setValue(RIGHT_INDEX_L, (byte) val);
         setValue(RIGHT_INDEX_H, (byte) val >>> Byte.SIZE);
+        return this;
+    }
+
+    /**
+     * Setter method to set OP_INDEX of action[].
+     *
+     * @param value value to set
+     * @return this Window
+     */
+    public SetAction setRhsLocation(final int value) {
+        setValue(OP_INDEX, (byte) setBitRange(getValue(OP_INDEX),
+                RIGHT_BIT, RIGHT_LEN, value));
         return this;
     }
 
@@ -283,172 +493,6 @@ public final class SetAction extends AbstractAction {
         } else {
             return f + r;
         }
-    }
-
-    /**
-     * Gets the operator as a String.
-     *
-     * @return a string representation of the operator.
-     */
-    public String getOperatorToString() {
-        switch (getOperator()) {
-            case (SDN_WISE_ADD):
-                return " + ";
-            case (SDN_WISE_SUB):
-                return " - ";
-            case (SDN_WISE_MUL):
-                return " * ";
-            case (SDN_WISE_DIV):
-                return " / ";
-            case (SDN_WISE_MOD):
-                return " % ";
-            case (SDN_WISE_AND):
-                return " & ";
-            case (SDN_WISE_OR):
-                return " | ";
-            case (SDN_WISE_XOR):
-                return " ^ ";
-            default:
-                return "";
-        }
-    }
-
-    /**
-     * Gets the operator id from a String.
-     *
-     * @param val the char representing the operator
-     * @return the operator id starting from a string.
-     */
-    public int getOperatorFromString(final String val) {
-        switch (val.trim()) {
-            case ("+"):
-                return SDN_WISE_ADD;
-            case ("-"):
-                return SDN_WISE_SUB;
-            case ("*"):
-                return SDN_WISE_MUL;
-            case ("/"):
-                return SDN_WISE_DIV;
-            case ("%"):
-                return SDN_WISE_MOD;
-            case ("&"):
-                return SDN_WISE_AND;
-            case ("|"):
-                return SDN_WISE_OR;
-            case ("^"):
-                return SDN_WISE_XOR;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    /**
-     * Getter method to obtain Size in string.
-     *
-     * @return a string in SIZE.
-     */
-    public String getResToString() {
-        switch (getResLocation()) {
-            case SDN_WISE_PACKET:
-                return SET.name() + " P."
-                        + NetworkPacket.getNetworkPacketByteName(getRes())
-                        + " = ";
-            case SDN_WISE_STATUS:
-                return SET.name() + " R." + getRes() + " = ";
-            default:
-                return "";
-        }
-    }
-
-    /**
-     * Getter method to obtain memory in string.
-     *
-     * @return a string value of memory.
-     */
-    public String getRhsToString() {
-        switch (getRhsLocation()) {
-            case SDN_WISE_NULL:
-                return "";
-            case SDN_WISE_CONST:
-                return String.valueOf(this.getRhs());
-            case SDN_WISE_PACKET:
-                return "P." + NetworkPacket.getNetworkPacketByteName(getRhs());
-            case SDN_WISE_STATUS:
-                return "R." + getRhs();
-            default:
-                return "";
-        }
-    }
-
-    /**
-     * Getter method to obtain memory in string.
-     *
-     * @return a string value of memory.
-     */
-    public String getLhsToString() {
-        switch (getLhsLocation()) {
-            case SDN_WISE_NULL:
-                return "";
-            case SDN_WISE_CONST:
-                return String.valueOf(this.getLhs());
-            case SDN_WISE_PACKET:
-                return "P." + NetworkPacket.getNetworkPacketByteName(getLhs());
-            case SDN_WISE_STATUS:
-                return "R." + getLhs();
-            default:
-                return "";
-        }
-    }
-
-    public int[] getOperandFromString(final String val) {
-        int[] tmp = new int[2];
-        String[] strVal = val.split("\\.");
-        switch (strVal[0]) {
-            case "P":
-                tmp[0] = SDN_WISE_PACKET;
-                break;
-            case "R":
-                tmp[0] = SDN_WISE_STATUS;
-                break;
-            default:
-                tmp[0] = SDN_WISE_CONST;
-                break;
-        }
-
-        switch (tmp[0]) {
-            case SDN_WISE_PACKET:
-                tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
-                break;
-            case SDN_WISE_CONST:
-                tmp[1] = Integer.parseInt(strVal[0]);
-                break;
-            default:
-                tmp[1] = Integer.parseInt(strVal[1]);
-                break;
-        }
-        return tmp;
-    }
-
-    public int[] getResFromString(final String val) {
-        int[] tmp = new int[2];
-        String[] strVal = val.split("\\.");
-        switch (strVal[0]) {
-            case "P":
-                tmp[0] = SDN_WISE_PACKET;
-                break;
-            case "R":
-                tmp[0] = SDN_WISE_STATUS;
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
-
-        if (tmp[0] == SDN_WISE_PACKET) {
-            tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
-        } else {
-            tmp[1] = Integer.parseInt(strVal[1]);
-        }
-        return tmp;
     }
 
 }

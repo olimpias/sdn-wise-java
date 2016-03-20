@@ -24,12 +24,9 @@ package com.github.sdnwiselab.sdnwise.flowtable;
 public interface FlowTableInterface {
 
     /**
-     * Location constants.
+     * Location contants.
      */
-    byte SDN_WISE_NULL = 0,
-            SDN_WISE_CONST = 1,
-            SDN_WISE_PACKET = 2,
-            SDN_WISE_STATUS = 3;
+    byte CONST = 1, NULL = 0, PACKET = 2, STATUS = 3;
 
     /**
      * Converts a FlowTable entry part in a byte array.

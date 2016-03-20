@@ -16,10 +16,6 @@
  */
 package com.github.sdnwiselab.sdnwise.flowtable;
 
-import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.SDN_WISE_CONST;
-import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.SDN_WISE_PACKET;
-import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.SDN_WISE_STATUS;
-import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.SDN_WISE_ADD;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.EQUAL;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.GREATER;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.LESS;
@@ -27,6 +23,10 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.ADD;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.CONST;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.PACKET;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.STATUS;
 
 /**
  * Tests for the FlowTableEntry class.
@@ -55,41 +55,41 @@ public final class FlowTableEntryTest {
                 + "}";
         FlowTableEntry expResult = new FlowTableEntry();
         expResult.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_PACKET)
+                .setLhsLocation(PACKET)
                 .setLhs(6)
                 .setOperator(EQUAL)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(10));
 
         expResult.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_PACKET)
+                .setLhsLocation(PACKET)
                 .setLhs(50)
                 .setOperator(EQUAL)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(1));
 
         expResult.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_STATUS)
+                .setLhsLocation(STATUS)
                 .setLhs(10)
                 .setOperator(GREATER)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(1));
 
         expResult.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_STATUS)
+                .setLhsLocation(STATUS)
                 .setLhs(12)
                 .setOperator(LESS)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(5));
 
         expResult.addAction(new AskAction());
         expResult.addAction(new SetAction()
-                .setLhsLocation(SDN_WISE_CONST)
+                .setLhsLocation(CONST)
                 .setLhs(40)
-                .setOperator(SDN_WISE_ADD)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setOperator(ADD)
+                .setRhsLocation(CONST)
                 .setRhs(1)
-                .setResLocation(SDN_WISE_PACKET)
+                .setResLocation(PACKET)
                 .setRes(10));
 
         expResult.addAction(new FunctionAction(
@@ -104,12 +104,12 @@ public final class FlowTableEntryTest {
         expResult.addAction(new MatchAction());
 
         expResult.addAction(new SetAction()
-                .setLhsLocation(SDN_WISE_PACKET)
+                .setLhsLocation(PACKET)
                 .setLhs(12)
-                .setOperator(SDN_WISE_ADD)
-                .setRhsLocation(SDN_WISE_PACKET)
+                .setOperator(ADD)
+                .setRhsLocation(PACKET)
                 .setRhs(13)
-                .setResLocation(SDN_WISE_PACKET)
+                .setResLocation(PACKET)
                 .setRes(11));
 
         expResult.setStats(new Stats());
@@ -125,41 +125,41 @@ public final class FlowTableEntryTest {
     public void testToString() {
         FlowTableEntry instance = new FlowTableEntry();
         instance.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_PACKET)
+                .setLhsLocation(PACKET)
                 .setLhs(6)
                 .setOperator(EQUAL)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(10));
 
         instance.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_PACKET)
+                .setLhsLocation(PACKET)
                 .setLhs(50)
                 .setOperator(EQUAL)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(1));
 
         instance.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_STATUS)
+                .setLhsLocation(STATUS)
                 .setLhs(10)
                 .setOperator(GREATER)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(1));
 
         instance.addWindow(new Window()
-                .setLhsLocation(SDN_WISE_STATUS)
+                .setLhsLocation(STATUS)
                 .setLhs(12)
                 .setOperator(LESS)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setRhsLocation(CONST)
                 .setRhs(5));
 
         instance.addAction(new AskAction());
         instance.addAction(new SetAction()
-                .setLhsLocation(SDN_WISE_CONST)
+                .setLhsLocation(CONST)
                 .setLhs(40)
-                .setOperator(SDN_WISE_ADD)
-                .setRhsLocation(SDN_WISE_CONST)
+                .setOperator(ADD)
+                .setRhsLocation(CONST)
                 .setRhs(1)
-                .setResLocation(SDN_WISE_PACKET)
+                .setResLocation(PACKET)
                 .setRes(10));
 
         instance.addAction(new FunctionAction(
@@ -174,12 +174,12 @@ public final class FlowTableEntryTest {
         instance.addAction(new MatchAction());
 
         instance.addAction(new SetAction()
-                .setLhsLocation(SDN_WISE_PACKET)
+                .setLhsLocation(PACKET)
                 .setLhs(12)
-                .setOperator(SDN_WISE_ADD)
-                .setRhsLocation(SDN_WISE_PACKET)
+                .setOperator(ADD)
+                .setRhsLocation(PACKET)
                 .setRhs(13)
-                .setResLocation(SDN_WISE_PACKET)
+                .setResLocation(PACKET)
                 .setRes(11));
 
         String expResult = "IF (P.TYP == 10 && "

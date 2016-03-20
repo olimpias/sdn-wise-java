@@ -151,11 +151,11 @@ public final class Window implements FlowTableInterface {
      */
     public String getLhsToString() {
         switch (getLhsLocation()) {
-            case SDN_WISE_CONST:
+            case CONST:
                 return String.valueOf(this.getLhs());
-            case SDN_WISE_PACKET:
+            case PACKET:
                 return "P." + NetworkPacket.getNetworkPacketByteName(getLhs());
-            case SDN_WISE_STATUS:
+            case STATUS:
                 return "R." + getLhs();
             default:
                 return "";
@@ -167,21 +167,21 @@ public final class Window implements FlowTableInterface {
         String[] strVal = val.split("\\.");
         switch (strVal[0]) {
             case "P":
-                tmp[0] = SDN_WISE_PACKET;
+                tmp[0] = PACKET;
                 break;
             case "R":
-                tmp[0] = SDN_WISE_STATUS;
+                tmp[0] = STATUS;
                 break;
             default:
-                tmp[0] = SDN_WISE_CONST;
+                tmp[0] = CONST;
                 break;
         }
 
         switch (tmp[0]) {
-            case SDN_WISE_PACKET:
+            case PACKET:
                 tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
                 break;
-            case SDN_WISE_CONST:
+            case CONST:
                 tmp[1] = Integer.parseInt(strVal[0]);
                 break;
             default:
@@ -268,11 +268,11 @@ public final class Window implements FlowTableInterface {
      */
     public String getRhsToString() {
         switch (getRhsLocation()) {
-            case SDN_WISE_CONST:
+            case CONST:
                 return String.valueOf(this.getRhs());
-            case SDN_WISE_PACKET:
+            case PACKET:
                 return "P." + NetworkPacket.getNetworkPacketByteName(getRhs());
-            case SDN_WISE_STATUS:
+            case STATUS:
                 return "R." + getRhs();
             default:
                 return "";

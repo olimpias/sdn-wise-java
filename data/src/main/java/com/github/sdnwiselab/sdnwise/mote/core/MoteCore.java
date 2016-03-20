@@ -73,9 +73,9 @@ public class MoteCore extends AbstractCore {
                 toSink.addWindow(new Window()
                         .setOperator(EQUAL)
                         .setSize(W_SIZE_2)
-                        .setLhsLocation(SDN_WISE_PACKET)
+                        .setLhsLocation(PACKET)
                         .setLhs(DST_INDEX)
-                        .setRhsLocation(SDN_WISE_CONST)
+                        .setRhsLocation(CONST)
                         .setRhs(bp.getSinkAddress().intValue()));
                 toSink.addWindow(fromString("P.TYP == 3"));
                 toSink.addAction(new ForwardUnicastAction(bp.getSrc()));
