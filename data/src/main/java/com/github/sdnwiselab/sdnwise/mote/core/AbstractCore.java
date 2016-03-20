@@ -26,13 +26,24 @@ import static com.github.sdnwiselab.sdnwise.mote.core.Constants.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
-import com.github.sdnwiselab.sdnwise.util.*;
-import static com.github.sdnwiselab.sdnwise.util.Utils.*;
 import java.nio.ByteBuffer;
-import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.Stats.ENTRY_TTL_PERMANENT;
+import com.github.sdnwiselab.sdnwise.util.Neighbor;
+import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
+import static com.github.sdnwiselab.sdnwise.util.Utils.splitInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -63,57 +74,65 @@ public abstract class AbstractCore {
     /**
      * Timers max values.
      */
-    protected int cnt_beacon_max, cnt_report_max ,cnt_updtable_max;
+    private int cntBeaconMax, cntReportMax, cntUpdtableMax;
     /**
      * WISE Flow Table.
      */
-    protected List<FlowTableEntry> flowTable = new LinkedList<>();
+    protected final List<FlowTableEntry> flowTable = new LinkedList<>();
     /**
      * Contains the NetworkPacket that will be processed by the WISE Flow Table.
      */
-    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new
+        ArrayBlockingQueue<>(100);
     /**
      * Function Buffer.
      */
-    protected final HashMap<Integer, LinkedList<byte[]>> functionBuffer = new HashMap<>();
+    private final HashMap<Integer, LinkedList<byte[]>> functionBuffer = new
+        HashMap<>();
     /**
      * Function Array.
      */
-    protected final HashMap<Integer, FunctionInterface> functions = new HashMap<>();
+    protected final HashMap<Integer, FunctionInterface> functions = new
+        HashMap<>();
     /**
      * A Mote becomes active after it receives a beacon. A Sink is always
      * active.
      */
-    protected boolean isActive;
+    private boolean isActive;
     /**
      * Contains the Log messages.
      */
-    protected final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
+    private final ArrayBlockingQueue<Pair<Level, String>> logQueue = new
+        ArrayBlockingQueue<>(100);
     /**
      * The address of the node.
      */
-    protected NodeAddress myAddress;
+    private NodeAddress myAddress;
     /**
-     * Configuration parameters
+     * Configuration parameters.
      */
-    protected int myNet;
+    private int myNet;
     protected final Set<Neighbor> neighborTable;
-    protected int rssi_min;
-    protected int rule_ttl;
+    protected int rssiMin;
+    protected int ruleTtl;
     /**
      * Contains the NetworkPacket and the RSSI coming from the radio/controller.
      */
-    protected final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue
+    private final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue
             = new ArrayBlockingQueue<>(100);
-    // Sensors
+    /**
+     * Sensors.
+     */
     protected HashMap<String, Object> sensors = new HashMap<>();
-
-    // Status Register
+    /**
+     * Status Register.
+     */
     protected ArrayList<Integer> statusRegister = new ArrayList<>();
     /**
      * Contains the NetworkPacket that will be sent over the radio.
      */
-    protected final ArrayBlockingQueue<NetworkPacket> txQueue = new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<NetworkPacket> txQueue =
+            new ArrayBlockingQueue<>(100);
 
     AbstractCore(byte net, NodeAddress address, Dischargeable battery) {
         this.neighborTable = Collections.synchronizedSet(new HashSet<>(100));
@@ -127,7 +146,7 @@ public abstract class AbstractCore {
      *
      * @return the battery of the node
      */
-    public Dischargeable getBattery() {
+    public final Dischargeable getBattery() {
         return battery;
     }
 
@@ -164,7 +183,7 @@ public abstract class AbstractCore {
         }
     }
 
-    public void start() {
+    public final void start() {
         initFlowTable();
         initStatusRegister();
         initSdnWise();
@@ -172,23 +191,23 @@ public abstract class AbstractCore {
         new Thread(new ftPacketManager()).start();
     }
 
-    public void timer() {
+    public final void timer() {
         if (isActive) {
             cntBeacon++;
             cntReport++;
             cntUpdTable++;
 
-            if ((cntBeacon) >= cnt_beacon_max) {
+            if ((cntBeacon) >= cntBeaconMax) {
                 cntBeacon = 0;
                 radioTX(prepareBeacon());
             }
 
-            if ((cntReport) >= cnt_report_max) {
+            if ((cntReport) >= cntReportMax) {
                 cntReport = 0;
                 controllerTX(prepareReport());
             }
 
-            if ((cntUpdTable) >= cnt_updtable_max) {
+            if ((cntUpdTable) >= cntUpdtableMax) {
                 cntUpdTable = 0;
                 updateTable();
             }
@@ -218,7 +237,7 @@ public abstract class AbstractCore {
         }
     }
 
-    private FunctionInterface createServiceInterface(byte[] classFile) {
+    private FunctionInterface createServiceInterface(final byte[] classFile) {
         CustomClassLoader cl = new CustomClassLoader();
         FunctionInterface srvI = null;
         Class service = cl.defClass(classFile, classFile.length);
@@ -230,8 +249,8 @@ public abstract class AbstractCore {
         return srvI;
     }
 
-    private int doOperation(int operatore, int item1, int item2) {
-        switch (operatore) {
+    private int doOperation(final int op, final int item1, final int item2) {
+        switch (op) {
             case ADD:
                 return item1 + item2;
             case SUB:
@@ -254,7 +273,7 @@ public abstract class AbstractCore {
     }
 
     private int getOperand(final NetworkPacket packet, final int size,
-            final int location, int value) {
+            final int location, final int value) {
         switch (location) {
             case NULL:
                 return 0;
@@ -317,7 +336,8 @@ public abstract class AbstractCore {
     }
 
     // check if there is a match for the packet
-    private boolean matchRule(FlowTableEntry rule, NetworkPacket packet) {
+    private boolean matchRule(final FlowTableEntry rule,
+            final NetworkPacket packet) {
         if (rule.getWindows().isEmpty()) {
             return false;
         }
@@ -334,13 +354,11 @@ public abstract class AbstractCore {
     }
 
     // Check if a windows is true or not
-    private boolean matchWindow(Window window, NetworkPacket packet) {
-        int operator = window.getOperator();
-        int size = window.getSize();
-        int lhs = getOperand(
-                packet, size, window.getLhsLocation(), window.getLhs());
-        int rhs = getOperand(
-                packet, size, window.getRhsLocation(), window.getRhs());
+    private boolean matchWindow(final Window w, final NetworkPacket packet) {
+        int operator = w.getOperator();
+        int size = w.getSize();
+        int lhs = getOperand(packet, size, w.getLhsLocation(), w.getLhs());
+        int rhs = getOperand(packet, size, w.getRhsLocation(), w.getRhs());
         return compare(operator, lhs, rhs);
     }
 
@@ -446,7 +464,7 @@ public abstract class AbstractCore {
         }
     }
 
-    private int searchRule(FlowTableEntry rule) {
+    private int searchRule(final FlowTableEntry rule) {
         int i = 0;
         for (FlowTableEntry fte : flowTable) {
             if (fte.equalWindows(rule)) {
@@ -490,7 +508,8 @@ public abstract class AbstractCore {
     }
 
     protected final NodeAddress getNextHopVsSink() {
-        return ((AbstractForwardAction) (flowTable.get(0).getActions().get(0))).getNextHop();
+        return ((AbstractForwardAction) (flowTable.get(0).getActions().get(0)))
+                .getNextHop();
     }
 
     protected final int getSinkDistance() {
@@ -510,11 +529,11 @@ public abstract class AbstractCore {
     }
 
     protected void initSdnWise() {
-        cnt_beacon_max = SDN_WISE_DFLT_CNT_BEACON_MAX;
-        cnt_report_max = SDN_WISE_DFLT_CNT_REPORT_MAX;
-        cnt_updtable_max = SDN_WISE_DFLT_CNT_UPDTABLE_MAX;
-        rssi_min = SDN_WISE_DFLT_RSSI_MIN;
-        rule_ttl = DFLT_TTL_MAX;
+        cntBeaconMax = SDN_WISE_DFLT_CNT_BEACON_MAX;
+        cntReportMax = SDN_WISE_DFLT_CNT_REPORT_MAX;
+        cntUpdtableMax = SDN_WISE_DFLT_CNT_UPDTABLE_MAX;
+        rssiMin = SDN_WISE_DFLT_RSSI_MIN;
+        ruleTtl = DFLT_TTL_MAX;
         initSdnWiseSpecific();
     }
 
@@ -568,19 +587,19 @@ public abstract class AbstractCore {
                         myNet = idValue;
                         break;
                     case BEACON_PERIOD:
-                        cnt_beacon_max = mergeBytes(value[0], value[1]);
+                        cntBeaconMax = mergeBytes(value[0], value[1]);
                         break;
                     case REPORT_PERIOD:
-                        cnt_report_max = mergeBytes(value[0], value[1]);
+                        cntReportMax = mergeBytes(value[0], value[1]);
                         break;
                     case RULE_TTL:
-                        cnt_updtable_max = idValue;
+                        cntUpdtableMax = idValue;
                         break;
                     case PACKET_TTL:
-                        rule_ttl = idValue;
+                        ruleTtl = idValue;
                         break;
                     case RSSI_MIN:
-                        rssi_min = idValue;
+                        rssiMin = idValue;
                         break;
                     case ADD_ALIAS:
                         acceptedId.add(new NodeAddress(value));
@@ -639,19 +658,19 @@ public abstract class AbstractCore {
                         packet.setParams(new byte[]{(byte) myNet}, size);
                         break;
                     case BEACON_PERIOD:
-                        packet.setParams(splitInteger(cnt_beacon_max), size);
+                        packet.setParams(splitInteger(cntBeaconMax), size);
                         break;
                     case REPORT_PERIOD:
-                        packet.setParams(splitInteger(cnt_report_max), size);
+                        packet.setParams(splitInteger(cntReportMax), size);
                         break;
                     case RULE_TTL:
-                        packet.setParams(new byte[]{(byte) cnt_updtable_max}, size);
+                        packet.setParams(new byte[]{(byte) cntUpdtableMax}, size);
                         break;
                     case PACKET_TTL:
-                        packet.setParams(new byte[]{(byte) rule_ttl}, size);
+                        packet.setParams(new byte[]{(byte) ruleTtl}, size);
                         break;
                     case RSSI_MIN:
-                        packet.setParams(new byte[]{(byte) rssi_min}, size);
+                        packet.setParams(new byte[]{(byte) rssiMin}, size);
                         break;
                     case GET_ALIAS:
                         int aIndex = Byte.toUnsignedInt(value[0]);

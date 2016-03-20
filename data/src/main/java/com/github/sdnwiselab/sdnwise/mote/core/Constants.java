@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,30 +23,44 @@ package com.github.sdnwiselab.sdnwise.mote.core;
  */
 public final class Constants {
 
-    // routing
+    /**
+     * Routing constants.
+     */
     public static final int SDN_WISE_DFLT_RSSI_MIN = 180;
 
-    // tables
+    /**
+     * Table constants.
+     */
     public static final byte ENTRY_TTL_DECR = 10;
 
-    // timers
-    public static final byte SDN_WISE_DFLT_CNT_DATA_MAX = 10;
-    public static final byte SDN_WISE_DFLT_CNT_BEACON_MAX = 10;
-    public static final byte SDN_WISE_DFLT_CNT_REPORT_MAX = 2 *
-            SDN_WISE_DFLT_CNT_BEACON_MAX;
-    public static final byte SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6; // TTL = 150s
+    /**
+     * Timer constants.
+     */
+    public static final byte SDN_WISE_DFLT_CNT_DATA_MAX = 10,
+        SDN_WISE_DFLT_CNT_BEACON_MAX = 10,
+        SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX,
+        SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6; // TTL = 150s
 
-    // status register
+    /**
+     * Status Register constants.
+     */
     public static final int SDN_WISE_STATUS_LEN = 10000;
 
-    // COM ports
-    public static final int SDN_WISE_COM_START_BYTE = 0x7A;
-    public static final int SDN_WISE_COM_STOP_BYTE = 0x7E;
+    /**
+     * Serial port constants.
+     */
+    public static final int SDN_WISE_COM_START_BYTE = 0x7A,
+            SDN_WISE_COM_STOP_BYTE = 0x7E;
 
-    // send
-    public static final boolean SDN_WISE_MAC_SEND_UNICAST = false;
-    public static final boolean SDN_WISE_MAC_SEND_BROADCAST = true;
+    /**
+     * Send constants.
+     */
+    public static final boolean SDN_WISE_MAC_SEND_UNICAST = false,
+            SDN_WISE_MAC_SEND_BROADCAST = true;
 
+    /**
+     * Private constructor.
+     */
     private Constants() {
     }
 

@@ -82,9 +82,9 @@ public class SinkCore extends AbstractCore {
         NodeAddress dest = packet.getDst();
         NodeAddress src = packet.getSrc();
 
-        if (!dest.equals(myAddress)) {
+        if (!dest.equals(getMyAddress())) {
             runFlowMatch(packet);
-        } else if (!src.equals(myAddress)) {
+        } else if (!src.equals(getMyAddress())) {
             controllerTX(packet);
         } else if (marshalPacket(packet) != 0) {
             controllerTX(packet);
@@ -93,7 +93,7 @@ public class SinkCore extends AbstractCore {
 
     @Override
     public NodeAddress getActualSinkAddress() {
-        return myAddress;
+        return getMyAddress();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class SinkCore extends AbstractCore {
 
         InetSocketAddress iAddr;
         iAddr = new InetSocketAddress(addrController, port);
-        RegProxyPacket rpp = new RegProxyPacket(1, myAddress, switchDPid,
+        RegProxyPacket rpp = new RegProxyPacket(1, getMyAddress(), switchDPid,
                 switchMac, switchPort, iAddr);
         controllerTX(rpp);
     }

@@ -46,9 +46,9 @@ public class MoteCore extends AbstractCore {
         if (this.functions.get(1) == null) {
             log(Level.INFO, new String(packet.getData(),
                     Charset.forName("UTF-8")));
-            packet.setSrc(myAddress)
+            packet.setSrc(getMyAddress())
                     .setDst(getActualSinkAddress())
-                    .setTtl((byte) rule_ttl);
+                    .setTtl((byte) ruleTtl);
             runFlowMatch(packet);
         } else {
             this.functions.get(1).function(sensors,
@@ -65,7 +65,7 @@ public class MoteCore extends AbstractCore {
 
     @Override
     public void rxBeacon(BeaconPacket bp, int rssi) {
-        if (rssi > rssi_min) {
+        if (rssi > rssiMin) {
             if (bp.getDistance() < this.getSinkDistance()
                     && (rssi > getSinkRssi())) {
                 setActive(true);
@@ -96,12 +96,12 @@ public class MoteCore extends AbstractCore {
     @Override
     public void rxConfig(ConfigPacket packet) {
         NodeAddress dest = packet.getDst();
-        if (!dest.equals(myAddress)) {
+        if (!dest.equals(getMyAddress())) {
             runFlowMatch(packet);
         } else if (this.marshalPacket(packet) != 0) {
-            packet.setSrc(myAddress);
+            packet.setSrc(getMyAddress());
             packet.setDst(getActualSinkAddress());
-            packet.setTtl((byte) rule_ttl);
+            packet.setTtl((byte) ruleTtl);
             runFlowMatch(packet);
         }
     }
@@ -113,7 +113,7 @@ public class MoteCore extends AbstractCore {
 
     @Override
     protected final void reset() {
-        setSinkDistance(rule_ttl + 1);
+        setSinkDistance(ruleTtl + 1);
         setSinkRssi(0);
         setActive(false);
     }
