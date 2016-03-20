@@ -30,38 +30,67 @@ public class RequestPacket extends NetworkPacket {
     /**
      * Indexes and lengths of the fields.
      */
-    private static final byte ID_INDEX = 0, PART_INDEX = 1, TOTAL_INDEX = 2,
+    private static final byte ID_INDEX = 0, PART_INDEX = 1,
             REQUEST_HEADER_SIZE = 3,
             REQUEST_PAYLOAD_SIZE = NetworkPacket.MAX_PACKET_LENGTH
-            - (DFLT_HDR_LEN + REQUEST_HEADER_SIZE);
+            - (DFLT_HDR_LEN + REQUEST_HEADER_SIZE), TOTAL_INDEX = 2;
 
+    /**
+     * Creates an array of request packets from a byte array.
+     *
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
+     * @param id the identificator of the request
+     * @param buf the original packet
+     * @return an array of Request packets
+     */
     public static RequestPacket[] createPackets(
             final int net,
             final NodeAddress src,
-            final NodeAddress dest,
+            final NodeAddress dst,
             final byte id,
             final byte[] buf) {
 
-        int i = (buf.length > REQUEST_PAYLOAD_SIZE) ? 2 : 1;
+        int i;
+        if (buf.length > REQUEST_PAYLOAD_SIZE) {
+            i = 2;
+        } else {
+            i = 1;
+        }
 
         int remaining = buf.length % REQUEST_PAYLOAD_SIZE;
         RequestPacket[] ll = new RequestPacket[i];
 
-        byte[] payload = new byte[i == 1 ? remaining : REQUEST_PAYLOAD_SIZE];
+        byte[] payload;
+
+        if (i == 1) {
+            payload = new byte[remaining];
+        } else {
+            payload = new byte[REQUEST_PAYLOAD_SIZE];
+        }
+
         System.arraycopy(buf, 0, payload, 0, payload.length);
-        RequestPacket np = new RequestPacket(net, src, dest, id, 0, i, payload);
+        RequestPacket np = new RequestPacket(net, src, dst, id, 0, i, payload);
         ll[0] = np;
 
         if (i > 1) {
             payload = new byte[remaining];
             System.arraycopy(buf, REQUEST_PAYLOAD_SIZE, payload, 0, remaining);
-            np = new RequestPacket(net, src, dest, id, 1, i, payload);
+            np = new RequestPacket(net, src, dst, id, 1, i, payload);
             ll[1] = np;
         }
 
         return ll;
     }
 
+    /**
+     * Merges two Request packet to obtain the original packet.
+     *
+     * @param rp0 the first request packet
+     * @param rp1 the second request packet
+     * @return the NetworkPacket contained in the two Request packets
+     */
     public static NetworkPacket mergePackets(final RequestPacket rp0,
             final RequestPacket rp1) {
         if (rp0.getPart() == 0) {

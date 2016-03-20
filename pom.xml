@@ -4,7 +4,7 @@
     
     <groupId>com.github.sdnwiselab</groupId>
     <artifactId>sdn-wise</artifactId>
-    <version>3.0.12-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <name>SDN-WISE</name>

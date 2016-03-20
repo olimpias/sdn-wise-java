@@ -32,7 +32,7 @@ public final class Utils {
     /**
      * Constant used for Masks.
      */
-    private static final int MASK = 0xFF;
+    private static final int MASK = 0xFF, MASK_1 = 4, MASK_2 = 0xf;
 
     /**
      * Concatenates two byte arrays.
@@ -58,18 +58,41 @@ public final class Utils {
                 & ((1 << (n & MASK)) - 1)) & MASK;
     }
 
+    /**
+     * Merges two bytes into an int.
+     *
+     * @param high high byte
+     * @param low low byte
+     * @return merge of the two bytes
+     */
     public static int mergeBytes(final int high, final int low) {
         int h = Byte.toUnsignedInt((byte) high);
         int l = Byte.toUnsignedInt((byte) low);
         return (h << Byte.SIZE) | l;
     }
 
+    /**
+     * Sets a set of bits in a int.
+     *
+     * @param val the original int
+     * @param start the bit of the int from where we start setting
+     * @param len the number of bits to set
+     * @param newVal the new value to set
+     * @return the original int with the bit replaced
+     */
     public static int setBitRange(final int val,
             final int start, final int len, final int newVal) {
         int mask = ((1 << len) - 1) << start;
         return (val & ~mask) | ((newVal << start) & mask);
     }
 
+    /**
+     * Splits an integer into a byte array. The maximum size of the returned
+     * array is two.
+     *
+     * @param value the value to split
+     * @return a bite array
+     */
     public static byte[] splitInteger(final int value) {
         ByteBuffer b = ByteBuffer.allocate(2);
         b.putShort((short) value);
@@ -87,8 +110,8 @@ public final class Utils {
 
         for (int i = 0; i < data.length; i++) {
             int v = Byte.toUnsignedInt(data[i]);
-            buf.append(DIGITS.charAt(v >> 4));
-            buf.append(DIGITS.charAt(v & 0xf));
+            buf.append(DIGITS.charAt(v >> MASK_1));
+            buf.append(DIGITS.charAt(v & MASK_2));
         }
 
         return buf.toString();

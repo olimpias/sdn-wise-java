@@ -32,17 +32,17 @@ import java.nio.charset.Charset;
 public class RegProxyPacket extends NetworkPacket {
 
     /**
-     * Fields, indexes and lengths.
+     * Fields, indexes and lenghts.
      */
-    private static final int RADIX = 16, DPID_INDEX = 0, DPID_LEN = 8,
+    private static final int DPID_INDEX = 0, DPID_LEN = 8,
             IP_LEN = 4,
             MAC_INDEX = DPID_INDEX + DPID_LEN, MAC_LEN = 6, MAC_STR_LEN = 18,
             PORT_INDEX = MAC_INDEX + MAC_LEN, PORT_LEN = 8,
-            IP_INDEX = PORT_INDEX + PORT_LEN,
+            IP_INDEX = PORT_INDEX + PORT_LEN, RADIX = 16,
             TCP_INDEX = IP_INDEX + IP_LEN;
 
     /**
-     * This constructor initialize a beacon packet starting from a byte array.
+     * This constructor initialize a RegProxy packet starting from a byte array.
      *
      * @param data the byte array representing the beacon packet.
      */
@@ -51,7 +51,7 @@ public class RegProxyPacket extends NetworkPacket {
     }
 
     /**
-     * This constructor initialize a beacon packet starting from a
+     * This constructor initialize a RegProxy packet starting from a
      * NetworkPacket.
      *
      * @param data the NetworkPacket representing the beacon packet.
@@ -61,7 +61,7 @@ public class RegProxyPacket extends NetworkPacket {
     }
 
     /**
-     * This constructor initialize a beacon packet. The type of the packet is
+     * This constructor initialize a RegProxy packet. The type of the packet is
      * set to REG_PROXY and the destination isa is src beacuse this message is
      * only sent by sinks.
      *
@@ -87,19 +87,29 @@ public class RegProxyPacket extends NetworkPacket {
     }
 
     /**
-     * This constructor initialize a beacon packet starting from a int array.
+     * This constructor initialize a RegProxy packet starting from a int array.
      *
-     * @param data the int array representing the beacon packet, all int are
+     * @param data the int array representing the beacon packet, all ints are
      * casted to byte.
      */
     public RegProxyPacket(final int[] data) {
         super(data);
     }
 
+    /**
+     * Gets the Dpid of the node sending the packet.
+     *
+     * @return the dPid of the Sink node
+     */
     public final String getDpid() {
         return new String(this.getPayloadFromTo(DPID_INDEX, MAC_INDEX));
     }
 
+    /**
+     * Gets the InetSocketAddress of the node sending the packet.
+     *
+     * @return the InetSocketAddress of the Sink node
+     */
     public final InetSocketAddress getInetSocketAddress() {
         try {
             byte[] ip = this.getPayloadFromTo(IP_INDEX, IP_INDEX + IP_LEN);
@@ -111,6 +121,11 @@ public class RegProxyPacket extends NetworkPacket {
         }
     }
 
+    /**
+     * Gets the MAC address of the node sending the packet.
+     *
+     * @return the MAC address of the Sink node
+     */
     public final String getMac() {
         StringBuilder sb = new StringBuilder(MAC_STR_LEN);
         byte[] mac = this.getPayloadFromTo(MAC_INDEX, MAC_INDEX + MAC_LEN);
@@ -123,11 +138,22 @@ public class RegProxyPacket extends NetworkPacket {
         return sb.toString();
     }
 
+    /**
+     * Gets the physical port of the node sending the packet.
+     *
+     * @return the physical port of the Sink node
+     */
     public final long getPort() {
         return new BigInteger(this.getPayloadFromTo(PORT_INDEX, PORT_INDEX
                 + PORT_LEN)).longValue();
     }
 
+    /**
+     * Sets the dPid.
+     *
+     * @param dPid the dPid to set
+     * @return the packet itself
+     */
     public final RegProxyPacket setDpid(final String dPid) {
         byte[] dpid = dPid.getBytes(Charset.forName("UTF-8"));
         int len = Math.min(DPID_LEN, dpid.length);
@@ -135,12 +161,25 @@ public class RegProxyPacket extends NetworkPacket {
         return this;
     }
 
-    public final RegProxyPacket setInetSocketAddress(final InetSocketAddress isa) {
+    /**
+     * Sets the InetSocketAddress.
+     *
+     * @param isa the InetSocketAddress to set
+     * @return the packet itself
+     */
+    public final RegProxyPacket setInetSocketAddress(
+            final InetSocketAddress isa) {
         byte[] ip = isa.getAddress().getAddress();
         int port = isa.getPort();
         return setInetSocketAddress(ip, port);
     }
 
+    /**
+     * Sets the MAC address.
+     *
+     * @param mac the MAC address to set
+     * @return the packet itself
+     */
     public final RegProxyPacket setMac(final String mac) {
         String[] elements = mac.split(":");
         if (elements.length != MAC_LEN) {
@@ -153,6 +192,12 @@ public class RegProxyPacket extends NetworkPacket {
         return this;
     }
 
+    /**
+     * Sets the physical port.
+     *
+     * @param port the physical port to set
+     * @return the packet itself
+     */
     public final RegProxyPacket setPort(final long port) {
         byte[] bytes = ByteBuffer
                 .allocate(Long.SIZE / Byte.SIZE).putLong(port).array();
@@ -160,6 +205,13 @@ public class RegProxyPacket extends NetworkPacket {
         return this;
     }
 
+    /**
+     * Sets the InetSocketAddress.
+     *
+     * @param ip the IP Address to set
+     * @param p the port to set
+     * @return the packet itself
+     */
     private RegProxyPacket setInetSocketAddress(final byte[] ip, final int p) {
         setPayload(ip, 0, IP_INDEX, IP_LEN);
         setPayloadAt((byte) (p), TCP_INDEX + 1);
