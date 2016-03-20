@@ -16,8 +16,10 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.logger;
 
-import java.io.*;
-import java.util.logging.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 
 /**
  * @author Sebastiano Milardo
@@ -31,7 +33,7 @@ public class MoteFormatter extends Formatter {
      * @return a formatted log record
      */
     @Override
-    public synchronized String format(LogRecord record) {
+    public final synchronized String format(final LogRecord record) {
 
         StringBuilder sb = new StringBuilder();
         String message = formatMessage(record);

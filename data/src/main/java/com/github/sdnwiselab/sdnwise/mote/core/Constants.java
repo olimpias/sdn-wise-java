@@ -21,7 +21,7 @@ package com.github.sdnwiselab.sdnwise.mote.core;
  *
  * @author Sebastiano Milardo
  */
-public class Constants {
+public final class Constants {
 
     // routing
     public static final int SDN_WISE_DFLT_RSSI_MIN = 180;
@@ -32,8 +32,9 @@ public class Constants {
     // timers
     public static final byte SDN_WISE_DFLT_CNT_DATA_MAX = 10;
     public static final byte SDN_WISE_DFLT_CNT_BEACON_MAX = 10;
-    public static final byte SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX;
-    public static final byte SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6;   // TTL = 150s
+    public static final byte SDN_WISE_DFLT_CNT_REPORT_MAX = 2 *
+            SDN_WISE_DFLT_CNT_BEACON_MAX;
+    public static final byte SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6; // TTL = 150s
 
     // status register
     public static final int SDN_WISE_STATUS_LEN = 10000;

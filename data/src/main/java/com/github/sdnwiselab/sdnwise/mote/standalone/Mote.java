@@ -26,10 +26,10 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
  */
 public class Mote extends AbstractMote {
 
-    public Mote(byte net, NodeAddress myAddress,
-            int port,
-            String neighboursPath,
-            String logLevel) {
+    public Mote(final byte net, NodeAddress myAddress,
+            final int port,
+            final String neighboursPath,
+            final String logLevel) {
         super(port, neighboursPath, logLevel);
         Dischargeable battery = new Battery();
         core = new MoteCore(net, myAddress, battery);

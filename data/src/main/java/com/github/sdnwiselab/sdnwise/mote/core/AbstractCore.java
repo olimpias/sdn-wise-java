@@ -44,7 +44,6 @@ public abstract class AbstractCore {
      * Battery.
      */
     private final Dischargeable battery;
-
     /**
      * Timers.
      */
@@ -69,28 +68,30 @@ public abstract class AbstractCore {
      * WISE Flow Table.
      */
     protected List<FlowTableEntry> flowTable = new LinkedList<>();
-
     /**
      * Contains the NetworkPacket that will be processed by the WISE Flow Table.
      */
     protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
     /**
-     * Functions.
+     * Function Buffer.
      */
     protected final HashMap<Integer, LinkedList<byte[]>> functionBuffer = new HashMap<>();
+    /**
+     * Function Array.
+     */
     protected final HashMap<Integer, FunctionInterface> functions = new HashMap<>();
     /**
      * A Mote becomes active after it receives a beacon. A Sink is always
      * active.
      */
     protected boolean isActive;
-
     /**
      * Contains the Log messages.
      */
     protected final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
-
-    // The address of the node
+    /**
+     * The address of the node.
+     */
     protected NodeAddress myAddress;
     /**
      * Configuration parameters
