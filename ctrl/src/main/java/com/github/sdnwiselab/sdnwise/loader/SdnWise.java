@@ -51,7 +51,7 @@ public class SdnWise {
     private Adaptation adaptation;
     private AbstractController controller;
     private FlowVisor flowVisor;
-    private final boolean isEmulated = true;
+    private static final boolean EMULATED = true;
 
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
@@ -142,7 +142,7 @@ public class SdnWise {
         // Register the Controller
         flowVisor.addController(controller.getId(), nodeSetAll);
 
-        if (isEmulated) {
+        if (EMULATED) {
             startVirtualNetwork();
 
             // Wait for the nodes to be discovered
