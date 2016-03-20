@@ -35,8 +35,11 @@ public class SinkCore extends AbstractCore {
     private final InetAddress addrController;
     private final int port;
 
-    // Contains the NetworkPacket that will be sent over the serial port to the controller
-    final ArrayBlockingQueue<NetworkPacket> txControllerQueue = new ArrayBlockingQueue<>(100);
+    /**
+     * Contains the NetworkPacket that will be sent over the serial port to the
+     * controller.
+     */
+    private final ArrayBlockingQueue<NetworkPacket> txControllerQueue = new ArrayBlockingQueue<>(100);
 
     public SinkCore(
             final byte net,

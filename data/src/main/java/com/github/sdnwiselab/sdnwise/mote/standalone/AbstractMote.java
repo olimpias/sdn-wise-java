@@ -200,15 +200,15 @@ public abstract class AbstractMote implements Runnable {
         return log;
     }
 
-    void startThreads() {
+    protected void startThreads() {
         new Thread(new SenderRunnable()).start();
         new Thread(new LoggerRunnable()).start();
     }
 
     private class FakeInfo {
 
-        InetSocketAddress inetAddress;
-        int rssi;
+        private InetSocketAddress inetAddress;
+        private int rssi;
 
         FakeInfo(InetSocketAddress inetAddress, int rssi) {
             this.inetAddress = inetAddress;

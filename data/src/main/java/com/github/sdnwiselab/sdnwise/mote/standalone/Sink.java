@@ -88,7 +88,7 @@ public class Sink extends AbstractMote {
     }
 
     @Override
-    final void startThreads() {
+    protected final void startThreads() {
         super.startThreads();
         try {
             tcpSocket = new Socket(addrController, portController);
