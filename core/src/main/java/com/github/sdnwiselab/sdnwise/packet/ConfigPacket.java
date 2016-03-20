@@ -218,30 +218,74 @@ public class ConfigPacket extends NetworkPacket {
          */
         REM_ALIAS(9, 1),
         /**
-         * Gets an alias from the list of aliases of the node. write only.
+         * Gets an alias from the list of aliases of the node. read only.
          */
         GET_ALIAS(10, 1),
-        
+        /**
+         * Adds a rule to the FlowTable of the node. write only.
+         */
         ADD_RULE(11, -1),
+        /**
+         * Removes a rule from the FlowTable of the node. write only.
+         */
         REM_RULE(12, 1),
+        /**
+         * Gets a rule from the FlowTable of the node. read only.
+         */
         GET_RULE(13, 1),
+        /**
+         * Adds a function to the node. write only.
+         */
         ADD_FUNCTION(14, -1),
+        /**
+         * Removes a function from the node. write only.
+         */
         REM_FUNCTION(15, 1),
+        /**
+         * Gets a function from the node. read only.
+         */
         GET_FUNCTION(16, 1);
 
+        /**
+         * The id of the configguration parameter.
+         */
         private final byte value;
+
+        /**
+         * The size of the configuration parameter.
+         */
         private final int size;
 
+        /**
+         * A byte array representation of all the possible values.
+         */
         private static final ConfigProperty[] VALUES = ConfigProperty.values();
 
+        /**
+         * Creates a ConfigProperty given a byte array.
+         *
+         * @param value the byte array representing the config property
+         * @return the config property object
+         */
         public static ConfigProperty fromByte(final byte value) {
             return VALUES[value];
         }
 
+        /**
+         * Gets the size of the ConfigProperty.
+         *
+         * @return the size of the ConfigProperty
+         */
         public int getSize() {
             return size;
         }
 
+        /**
+         * Creates a config property given a size and an id.
+         *
+         * @param v id of the ConfigProperty
+         * @param s size of the ConfigProperty
+         */
         ConfigProperty(final int v, final int s) {
             this.value = (byte) v;
             this.size = s;

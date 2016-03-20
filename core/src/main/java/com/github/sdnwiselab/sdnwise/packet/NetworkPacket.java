@@ -206,10 +206,21 @@ public class NetworkPacket implements Cloneable {
         setArray(tmpData);
     }
 
+    /**
+     * Fills the NetworkPacket with the content of an int array. Each element of
+     * the array is casted to byte.
+     *
+     * @param array an array representing the packet
+     */
     public final void setArray(final int[] array) {
         setArray(fromIntArrayToByteArray(array));
     }
 
+    /**
+     * Fills the NetworkPacket with the content of a byte array.
+     *
+     * @param array an array representing the packet
+     */
     public final void setArray(final byte[] array) {
         if (isSdnWise(array)) {
             if (array.length <= MAX_PACKET_LENGTH && array.length
@@ -494,29 +505,6 @@ public class NetworkPacket implements Cloneable {
         return new NetworkPacket(data.clone());
     }
 
-    public String getTypeToString() {
-        switch (getTyp()) {
-            case DATA:
-                return "DATA";
-            case BEACON:
-                return "BEACON";
-            case REPORT:
-                return "REPORT";
-            case REQUEST:
-                return "REQUEST";
-            case RESPONSE:
-                return "RESPONSE";
-            case OPEN_PATH:
-                return "OPEN_PATH";
-            case CONFIG:
-                return "CONFIG";
-            case REG_PROXY:
-                return "REG_PROXY";
-            default:
-                return String.valueOf(getTyp());
-        }
-    }
-
     /**
      * Checks if this NetworkPacket is an SDN-WISE packet.
      *
@@ -526,6 +514,12 @@ public class NetworkPacket implements Cloneable {
         return (Byte.toUnsignedInt(data[NET_INDEX]) < THRES);
     }
 
+    /**
+     * Casts an int array to a byte array.
+     *
+     * @param array an int array
+     * @return a byte array
+     */
     private byte[] fromIntArrayToByteArray(final int[] array) {
         byte[] dataToByte = new byte[array.length];
         for (int i = 0; i < array.length; i++) {

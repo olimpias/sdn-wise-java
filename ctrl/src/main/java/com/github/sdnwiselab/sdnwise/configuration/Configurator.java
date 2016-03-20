@@ -33,9 +33,18 @@ import java.util.logging.Logger;
  */
 public class Configurator {
 
-    private final ConfigAdaptation Adaptation = new ConfigAdaptation();
-    private final ConfigController Controller = new ConfigController();
-    private final ConfigFlowVisor Flowvisor = new ConfigFlowVisor();
+    /**
+     * Configuration parameters for the adaptation layer.
+     */
+    private final ConfigAdaptation adaptation = new ConfigAdaptation();
+    /**
+     * Configuration parameters for the controller layer.
+     */
+    private final ConfigController controller = new ConfigController();
+    /**
+     * Configuration parameters for the FlowVisor layer.
+     */
+    private final ConfigFlowVisor flowvisor = new ConfigFlowVisor();
 
     /**
      * Parses a file given in input containing a JSON string and returns the
@@ -61,7 +70,7 @@ public class Configurator {
      * @return a configAdaptation object
      */
     public final ConfigAdaptation getAdaptation() {
-        return Adaptation;
+        return adaptation;
     }
 
     /**
@@ -70,7 +79,7 @@ public class Configurator {
      * @return a configController object
      */
     public final ConfigController getController() {
-        return Controller;
+        return controller;
     }
 
     /**
@@ -79,7 +88,7 @@ public class Configurator {
      * @return a configFlowvisor object
      */
     public final ConfigFlowVisor getFlowvisor() {
-        return Flowvisor;
+        return flowvisor;
     }
 
     /**
