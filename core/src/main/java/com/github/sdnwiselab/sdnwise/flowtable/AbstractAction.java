@@ -99,11 +99,13 @@ public abstract class AbstractAction implements FlowTableInterface {
      * The index of the Action array representation were the type is stored.
      */
     protected static final int TYPE_INDEX = 0;
+
     /**
      * The index of the Action array representation were the action values are
      * stored.
      */
     protected static final int VALUE_INDEX = 1;
+
     /**
      * Stores the action as a byte array.
      */

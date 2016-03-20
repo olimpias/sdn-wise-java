@@ -34,6 +34,11 @@ public class ConfigPacket extends NetworkPacket {
     private static final byte CNF_WRITE = 1;
 
     /**
+     * Constants for parsing.
+     */
+    private static final int MASK_POS = 7, MASK = 0x7F;
+
+    /**
      * This constructor initialize a config packet starting from a byte array.
      *
      * @param data the byte array representing the config packet
@@ -103,7 +108,7 @@ public class ConfigPacket extends NetworkPacket {
      * @return a boolean indicating if the packet is a write packet
      */
     public final boolean isWrite() {
-        int value = Byte.toUnsignedInt(getPayloadAt((byte) 0)) >> 7;
+        int value = Byte.toUnsignedInt(getPayloadAt((byte) 0)) >> MASK_POS;
         return (value == CNF_WRITE);
     }
 
@@ -113,7 +118,7 @@ public class ConfigPacket extends NetworkPacket {
      * @return the ConfigProperty set in the packet
      */
     public final ConfigProperty getConfigId() {
-        return ConfigProperty.fromByte((byte) (getPayloadAt((byte) 0) & 0x7F));
+        return ConfigProperty.fromByte((byte) (getPayloadAt((byte) 0) & MASK));
     }
 
     /**
@@ -147,11 +152,22 @@ public class ConfigPacket extends NetworkPacket {
         return getPayloadFromTo(1, getPayloadSize());
     }
 
+    /**
+     * Sets the Config packet to be a write ConfigPacket.
+     *
+     * @return the packet itself
+     */
     private ConfigPacket setWrite() {
-        setPayloadAt((byte) ((getPayloadAt(0)) | (CNF_WRITE << 7)), 0);
+        setPayloadAt((byte) ((getPayloadAt(0)) | (CNF_WRITE << MASK_POS)), 0);
         return this;
     }
 
+    /**
+     * Sets the Config ID of the packet.
+     *
+     * @param id the id to be set
+     * @return the packet itself
+     */
     private ConfigPacket setConfigId(final ConfigProperty id) {
         setPayloadAt(id.value, 0);
         return this;
@@ -193,9 +209,19 @@ public class ConfigPacket extends NetworkPacket {
          * TTL of a FlowTableEntry. Can be read/written.
          */
         RULE_TTL(7, 1),
+        /**
+         * Adds an alias to the list of aliases of the node. write only.
+         */
         ADD_ALIAS(8, 2),
+        /**
+         * Removes an alias from the list of aliases of the node. write only.
+         */
         REM_ALIAS(9, 1),
+        /**
+         * Gets an alias from the list of aliases of the node. write only.
+         */
         GET_ALIAS(10, 1),
+        
         ADD_RULE(11, -1),
         REM_RULE(12, 1),
         GET_RULE(13, 1),

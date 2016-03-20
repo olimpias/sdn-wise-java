@@ -58,14 +58,30 @@ public final class Window implements FlowTableInterface {
             RIGHT_BIT = 1, RIGHT_INDEX_H = 3, RIGHT_INDEX_L = 4,
             RIGHT_LEN = LEFT_LEN,
             SIZE_BIT = 0,
-            SIZE_LEN = 1;
+            SIZE_LEN = 1, WIN_LEN = 3;
 
+    /**
+     * Stores the window as a byte array.
+     */
     private final byte[] window = new byte[SIZE];
 
+    /**
+     * Creates a Window given a String. The String must contain: the two values
+     * to compare divided by an operator. Possible values are: Possible values
+     * are: "P." for packet and "R." for status registern then a number
+     * indicating the index where to retrieve the operand. Therefore a possbile
+     * result location is "P.10" if you want to compare the 10th byte of the
+     * packet. Then operator and the second operand. A complete example is "P.10
+     * != R.11". A list of accepted operators can be found in the
+     * getOperatorFromString method.
+     *
+     * @param val the String representing the action
+     * @return the window object
+     */
     public static Window fromString(final String val) {
         Window w = new Window();
         String[] operands = val.split(" ");
-        if (operands.length == 3) {
+        if (operands.length == WIN_LEN) {
             String lhs = operands[0];
             int[] tmpLhs = w.getOperandFromString(lhs);
             w.setLhsLocation(tmpLhs[0]);
@@ -162,7 +178,14 @@ public final class Window implements FlowTableInterface {
         }
     }
 
-    public int[] getOperandFromString(final String val) {
+    /**
+     * Gets an operand given a string. See the fromString method for more
+     * details.
+     *
+     * @param val a String representing the operator
+     * @return an array representing the operator
+     */
+    private int[] getOperandFromString(final String val) {
         int[] tmp = new int[2];
         String[] strVal = val.split("\\.");
         switch (strVal[0]) {
@@ -200,7 +223,14 @@ public final class Window implements FlowTableInterface {
         return getBitRange(window[OP_INDEX], OP_BIT, OP_LEN);
     }
 
-    public int getOperatorFromString(final String val) {
+    /**
+     * Gets the operator given a String. See the fromString method for more
+     * details.
+     *
+     * @param val a String representing the operand
+     * @return an array representing the operand
+     */
+    private int getOperatorFromString(final String val) {
         switch (val) {
             case ("=="):
                 return EQUAL;
@@ -295,10 +325,6 @@ public final class Window implements FlowTableInterface {
      */
     public String getSizeToString() {
         return String.valueOf(getSize() + 1);
-    }
-
-    public int getValueFromString(final String val) {
-        return Integer.parseInt(val.split("\\.")[1]);
     }
 
     @Override
