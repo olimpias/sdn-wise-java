@@ -16,13 +16,12 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.standalone;
 
-import com.github.sdnwiselab.sdnwise.util.SimplerFormatter;
-import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
 import com.github.sdnwiselab.sdnwise.mote.core.*;
 import com.github.sdnwiselab.sdnwise.mote.logger.*;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+import com.github.sdnwiselab.sdnwise.util.SimplerFormatter;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
@@ -36,24 +35,21 @@ import java.util.stream.*;
  */
 public abstract class AbstractMote implements Runnable {
 
-    // Statistics
-    private int sentBytes;
-    private int receivedBytes;
-    private int sentDataBytes;
-    private int receivedDataBytes;
-
     private final byte[] buf;
+    private Level level;
     private Logger logger;
     private Logger measureLogger;
+    private String neighborFilePath;
+    private Map<NodeAddress, FakeInfo> neighbourList;
 
     private int port;
+    /**
+     * Statistics.
+     */
+    private int receivedBytes, receivedDataBytes, sentBytes, sentDataBytes;
 
     private DatagramSocket socket;
-    private String neighborFilePath;
-    protected Battery battery;
-
-    private Map<NodeAddress, FakeInfo> neighbourList;
-    private Level level;
+    
     protected AbstractCore core;
 
     public AbstractMote(
@@ -69,14 +65,55 @@ public abstract class AbstractMote implements Runnable {
     }
 
     public void logger() {
-        measureLogger.log(Level.FINEST, // NODE;BATTERY LVL(mC);BATTERY LVL(%);NO. RULES INSTALLED; B SENT; B RECEIVED;
+        measureLogger.log(Level.FINEST,
                 "{0};{1};{2};{3};{4};{5};{6};{7};",
                 new Object[]{core.getMyAddress(),
-                    String.valueOf(battery.getLevel()),
-                    String.valueOf(battery.getByteLevel() / 2.55),
+                    String.valueOf(core.getBattery().getLevel()),
+                    String.valueOf(core.getBattery().getByteLevel()),
                     core.getFlowTableSize(),
                     sentBytes, receivedBytes,
                     sentDataBytes, receivedDataBytes});
+    }
+
+    public final void radioTX(NetworkPacket np) {
+
+        if (np.isSdnWise()) {
+            sentBytes += np.getLen();
+            if (DATA == np.getTyp()) {
+                sentDataBytes += np.getPayloadSize();
+            }
+        }
+
+        core.getBattery().transmitRadio(np.getLen());
+
+        logger.log(Level.FINE, "RTX {0}", np);
+
+        NodeAddress tmpNxHop = np.getNxh();
+        NodeAddress tmpDst = np.getDst();
+
+        if (tmpDst.isBroadcast() || tmpNxHop.isBroadcast()) {
+
+            neighbourList.entrySet().stream().map((isa) -> new DatagramPacket(np.toByteArray(),
+                    np.getLen(), isa.getValue().inetAddress)).forEach((pck) -> {
+                try {
+                    socket.send(pck);
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
+            });
+        } else {
+            FakeInfo isa = neighbourList.get(tmpNxHop);
+            if (isa != null) {
+                try {
+                    DatagramPacket pck = new DatagramPacket(np.toByteArray(),
+                            np.getLen(), isa.inetAddress);
+                    socket.send(pck);
+
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, null, ex);
+                }
+            }
+        }
     }
 
     @Override
@@ -122,7 +159,7 @@ public abstract class AbstractMote implements Runnable {
             new Timer().schedule(new TaskTimer(), 1000, 1000);
             startThreads();
 
-            while (battery.getByteLevel() > 0) {
+            while (core.getBattery().getByteLevel() > 0) {
                 socket.receive(packet);
                 NetworkPacket np = new NetworkPacket(packet.getData());
                 int rssi = 255;
@@ -143,47 +180,6 @@ public abstract class AbstractMote implements Runnable {
             }
         } catch (IOException | RuntimeException ex) {
             logger.log(Level.SEVERE, ex.toString());
-        }
-    }
-
-    public final void radioTX(NetworkPacket np) {
-
-        if (np.isSdnWise()) {
-            sentBytes += np.getLen();
-            if (DATA == np.getTyp()) {
-                sentDataBytes += np.getPayloadSize();
-            }
-        }
-
-        battery.transmitRadio(np.getLen());
-
-        logger.log(Level.FINE, "RTX {0}", np);
-
-        NodeAddress tmpNxHop = np.getNxh();
-        NodeAddress tmpDst = np.getDst();
-
-        if (tmpDst.isBroadcast() || tmpNxHop.isBroadcast()) {
-
-            neighbourList.entrySet().stream().map((isa) -> new DatagramPacket(np.toByteArray(),
-                    np.getLen(), isa.getValue().inetAddress)).forEach((pck) -> {
-                try {
-                    socket.send(pck);
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                }
-            });
-        } else {
-            FakeInfo isa = neighbourList.get(tmpNxHop);
-            if (isa != null) {
-                try {
-                    DatagramPacket pck = new DatagramPacket(np.toByteArray(),
-                            np.getLen(), isa.inetAddress);
-                    socket.send(pck);
-
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                }
-            }
         }
     }
 
@@ -220,15 +216,18 @@ public abstract class AbstractMote implements Runnable {
         }
     }
 
-    private class TaskTimer extends TimerTask {
+    private class LoggerRunnable implements Runnable {
 
         @Override
         public void run() {
-            if (battery.getByteLevel() > 0) {
-                core.timer();
-                battery.keepAlive(1);
+            try {
+                while (true) {
+                    Pair<Level, String> tmp = core.getLogToBePrinted();
+                    logger.log(tmp.getKey(), tmp.getValue());
+                }
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, ex.toString());
             }
-            logger();
         }
     }
 
@@ -246,18 +245,15 @@ public abstract class AbstractMote implements Runnable {
         }
     }
 
-    private class LoggerRunnable implements Runnable {
+    private class TaskTimer extends TimerTask {
 
         @Override
         public void run() {
-            try {
-                while (true) {
-                    Pair<Level, String> tmp = core.getLogToBePrinted();
-                    logger.log(tmp.getKey(), tmp.getValue());
-                }
-            } catch (Exception ex) {
-                logger.log(Level.SEVERE, ex.toString());
+            if (core.getBattery().getByteLevel() > 0) {
+                core.timer();
+                core.getBattery().keepAlive(1);
             }
+            logger();
         }
     }
 }

@@ -185,7 +185,7 @@ public final class Window implements FlowTableInterface {
      * @param val a String representing the operator
      * @return an array representing the operator
      */
-    private int[] getOperandFromString(final String val) {
+    public static int[] getOperandFromString(final String val) {
         int[] tmp = new int[2];
         String[] strVal = val.split("\\.");
         switch (strVal[0]) {

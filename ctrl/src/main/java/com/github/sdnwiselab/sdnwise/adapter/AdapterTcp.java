@@ -16,7 +16,8 @@
  */
 package com.github.sdnwiselab.sdnwise.adapter;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.LEN_INDEX;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.NET_INDEX;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

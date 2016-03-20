@@ -52,8 +52,13 @@ import net.jodah.expiringmap.ExpiringMap;
  */
 public abstract class AbstractController extends ControlPlaneLayer implements ControllerInterface {
 
+    /**
+     * Timeout for requests in cache.
+     */
     protected static final int CACHE_EXP_TIME = 5;
-    // to avoid garbage collection of the logger
+    /**
+     * To avoid garbage collection of the logger.
+     */
     protected static final Logger LOGGER = Logger.getLogger("CTRL");
     /**
      * Timeout for a node request. Increase when using COOJA.

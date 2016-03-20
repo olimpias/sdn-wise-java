@@ -17,6 +17,7 @@
 package com.github.sdnwiselab.sdnwise.flowtable;
 
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.SET;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.getOperandFromString;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.util.Utils.getBitRange;
 import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
@@ -188,42 +189,6 @@ public final class SetAction extends AbstractAction {
             default:
                 return "";
         }
-    }
-
-    /**
-     * Gets the operand from a String. See the SetAction(String) constructor
-     * for more information on the format.
-     *
-     * @param val the String representing the operand
-     * @return an array contianing the operand
-     */
-    public int[] getOperandFromString(final String val) {
-        int[] tmp = new int[2];
-        String[] strVal = val.split("\\.");
-        switch (strVal[0]) {
-            case "P":
-                tmp[0] = PACKET;
-                break;
-            case "R":
-                tmp[0] = STATUS;
-                break;
-            default:
-                tmp[0] = CONST;
-                break;
-        }
-
-        switch (tmp[0]) {
-            case PACKET:
-                tmp[1] = NetworkPacket.getNetworkPacketByteFromName(strVal[1]);
-                break;
-            case CONST:
-                tmp[1] = Integer.parseInt(strVal[0]);
-                break;
-            default:
-                tmp[1] = Integer.parseInt(strVal[1]);
-                break;
-        }
-        return tmp;
     }
 
     /**

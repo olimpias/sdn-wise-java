@@ -23,7 +23,7 @@ package com.github.sdnwiselab.sdnwise.mote.battery;
  *
  * @author Sebastiano Milardo
  */
-public class Battery implements BatteryInterface {
+public class Battery implements Dischargeable {
 
     private static final double MAX_LEVEL = 5000;    // 9000000 mC = 2 AAA batteries = 15 Days  
     // 5000 mC = 12 min 
@@ -39,22 +39,13 @@ public class Battery implements BatteryInterface {
         this.level = Battery.MAX_LEVEL;
     }
 
-    /**
-     * Getter for the battery level of the Battery.
-     *
-     * @return the battery level of the node as a double. Can't be negative.
-     */
-    public double getLevel() {
+    @Override
+    public final double getLevel() {
         return this.level;
     }
 
-    /**
-     * Setter for the battery level of the Battery.
-     *
-     * @param batteryLevel the battery level. If negative, the battery level is
-     * set to 0.
-     */
-    public void setLevel(double batteryLevel) {
+    @Override
+    public final void setLevel(final double batteryLevel) {
         if (batteryLevel >= 0) {
             this.level = batteryLevel;
         } else {
@@ -62,49 +53,29 @@ public class Battery implements BatteryInterface {
         }
     }
 
-    /**
-     * Simulates the battery consumption for sending nByte bytes.
-     *
-     * @param nBytes the number of bytes sent over the radio
-     * @return the Battery object
-     */
-    public Battery transmitRadio(int nBytes) {
-        double new_val = this.level - Battery.RADIO_TX * nBytes;
-        this.setLevel(new_val);
-        return this;
-    }
-
-    /**
-     * Simulates the battery consumption for receiving nByte bytes.
-     *
-     * @param nBytes the number of bytes received over the radio
-     * @return the Battery object
-     */
-    public Battery receiveRadio(int nBytes) {
-        double new_val = this.level - Battery.RADIO_RX * nBytes;
-        this.setLevel(new_val);
-        return this;
-    }
-
-    /**
-     * Simulates the battery consumption for staying alive for n seconds.
-     *
-     * @param n the number of seconds the node is turned on.
-     * @return the Battery object
-     */
-    public Battery keepAlive(int n) {
-        double new_val = this.level - Battery.KEEP_ALIVE * n;
-        this.setLevel(new_val);
-        return this;
-    }
-
-    /**
-     * Getter for the battery level as a percent of the MAX_LEVEL.
-     *
-     * @return the Battery level in the range [0-255].
-     */
     @Override
-    public int getByteLevel() {
+    public Battery transmitRadio(final int nBytes) {
+        double newVal = this.level - Battery.RADIO_TX * nBytes;
+        this.setLevel(newVal);
+        return this;
+    }
+
+    @Override
+    public Battery receiveRadio(final int nBytes) {
+        double newVal = this.level - Battery.RADIO_RX * nBytes;
+        this.setLevel(newVal);
+        return this;
+    }
+
+    @Override
+    public Battery keepAlive(final int n) {
+        double newVal = this.level - Battery.KEEP_ALIVE * n;
+        this.setLevel(newVal);
+        return this;
+    }
+
+    @Override
+    public final int getByteLevel() {
         if (Battery.MAX_LEVEL != 0) {
             return (int) ((this.level / Battery.MAX_LEVEL) * 255);
         } else {

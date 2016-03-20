@@ -16,8 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.core;
 
-import com.github.sdnwiselab.sdnwise.mote.battery.BatteryInterface;
-import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
+import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.*;
 import com.github.sdnwiselab.sdnwise.flowtable.*;
@@ -42,68 +41,113 @@ import static com.github.sdnwiselab.sdnwise.flowtable.Stats.ENTRY_TTL_PERMANENT;
 public abstract class AbstractCore {
 
     /**
-     * Routing.
+     * Battery.
      */
-    private int sinkDistance, sinkRssi;
+    private final Dischargeable battery;
 
     /**
      * Timers.
      */
     private int cntBeacon, cntReport, cntUpdTable;
+    /**
+     * Requests count.
+     */
+    private byte requestId;
+    /**
+     * Routing.
+     */
+    private int sinkDistance, sinkRssi;
+    /**
+     * Accepted IDs.
+     */
+    protected List<NodeAddress> acceptedId = new LinkedList<>();
+    /**
+     * Timers max values.
+     */
+    protected int cnt_beacon_max, cnt_report_max ,cnt_updtable_max;
+    /**
+     * WISE Flow Table.
+     */
+    protected List<FlowTableEntry> flowTable = new LinkedList<>();
 
-    // Battery
-    private final BatteryInterface battery;
-
-    // A Mote becomes active after it receives a beacon. A Sink is always active
+    /**
+     * Contains the NetworkPacket that will be processed by the WISE Flow Table.
+     */
+    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
+    /**
+     * Functions.
+     */
+    protected final HashMap<Integer, LinkedList<byte[]>> functionBuffer = new HashMap<>();
+    protected final HashMap<Integer, FunctionInterface> functions = new HashMap<>();
+    /**
+     * A Mote becomes active after it receives a beacon. A Sink is always
+     * active.
+     */
     protected boolean isActive;
 
-    // Contains the NetworkPacket and the RSSI coming from the radio/controller
-    protected final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue = new ArrayBlockingQueue<>(100);
-
-    // Contains the NetworkPacket that will be processed by the WISE Flow Table
-    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
-
-    // Contains the NetworkPacket that will be sent over the radio
-    protected final ArrayBlockingQueue<NetworkPacket> txQueue = new ArrayBlockingQueue<>(100);
-
-    // Contains the Log messages
+    /**
+     * Contains the Log messages.
+     */
     protected final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
-
-    // Configuration parameters
-    protected int myNet,
-            cnt_beacon_max,
-            cnt_report_max,
-            cnt_updtable_max,
-            rule_ttl,
-            rssi_min;
-
-    private byte requestId;
 
     // The address of the node
     protected NodeAddress myAddress;
+    /**
+     * Configuration parameters
+     */
+    protected int myNet;
     protected final Set<Neighbor> neighborTable;
-
-    // WISE Flow Table
-    protected List<FlowTableEntry> flowTable = new LinkedList<>();
-
-    // Accepted IDs
-    protected List<NodeAddress> acceptedId = new LinkedList<>();
-
-    // Status Register
-    protected ArrayList<Integer> statusRegister = new ArrayList<>();
-
+    protected int rssi_min;
+    protected int rule_ttl;
+    /**
+     * Contains the NetworkPacket and the RSSI coming from the radio/controller.
+     */
+    protected final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue
+            = new ArrayBlockingQueue<>(100);
     // Sensors
     protected HashMap<String, Object> sensors = new HashMap<>();
 
-    // Functions
-    HashMap<Integer, LinkedList<byte[]>> functionBuffer = new HashMap<>();
-    HashMap<Integer, FunctionInterface> functions = new HashMap<>();
+    // Status Register
+    protected ArrayList<Integer> statusRegister = new ArrayList<>();
+    /**
+     * Contains the NetworkPacket that will be sent over the radio.
+     */
+    protected final ArrayBlockingQueue<NetworkPacket> txQueue = new ArrayBlockingQueue<>(100);
 
-    AbstractCore(byte net, NodeAddress address, Battery battery) {
+    AbstractCore(byte net, NodeAddress address, Dischargeable battery) {
         this.neighborTable = Collections.synchronizedSet(new HashSet<>(100));
         this.myAddress = address;
         this.myNet = net;
         this.battery = battery;
+    }
+
+    /**
+     * Gets the battery.
+     *
+     * @return the battery of the node
+     */
+    public Dischargeable getBattery() {
+        return battery;
+    }
+
+    public final int getFlowTableSize() {
+        return flowTable.size();
+    }
+
+    public Pair<Level, String> getLogToBePrinted() throws InterruptedException {
+        return logQueue.take();
+    }
+
+    public final NodeAddress getMyAddress() {
+        return myAddress;
+    }
+
+    public int getNet() {
+        return myNet;
+    }
+
+    public NetworkPacket getNetworkPacketToBeSend() throws InterruptedException {
+        return txQueue.take();
     }
 
     public void rxRadioPacket(NetworkPacket np, int rssi) {
@@ -119,24 +163,12 @@ public abstract class AbstractCore {
         }
     }
 
-    public NetworkPacket getNetworkPacketToBeSend() throws InterruptedException {
-        return txQueue.take();
-    }
-
-    public Pair<Level, String> getLogToBePrinted() throws InterruptedException {
-        return logQueue.take();
-    }
-
-    public final int getFlowTableSize() {
-        return flowTable.size();
-    }
-
-    public final NodeAddress getMyAddress() {
-        return myAddress;
-    }
-
-    public int getNet() {
-        return myNet;
+    public void start() {
+        initFlowTable();
+        initStatusRegister();
+        initSdnWise();
+        new Thread(new rxPacketManager()).start();
+        new Thread(new ftPacketManager()).start();
     }
 
     public void timer() {
@@ -162,32 +194,26 @@ public abstract class AbstractCore {
         }
     }
 
-    public void start() {
-        initFlowTable();
-        initStatusRegister();
-        initSdnWise();
-        new Thread(new rxPacketManager()).start();
-        new Thread(new ftPacketManager()).start();
-    }
-
-    private void initFlowTable() {
-        FlowTableEntry toSink = new FlowTableEntry();
-        toSink.addWindow(new Window()
-                .setOperator(EQUAL)
-                .setSize(W_SIZE_2)
-                .setLhsLocation(PACKET)
-                .setLhs(DST_INDEX)
-                .setRhsLocation(CONST)
-                .setRhs(this.myAddress.intValue()));
-        toSink.addWindow(fromString("P.TYP == 3"));
-        toSink.addAction(new ForwardUnicastAction(myAddress));
-        toSink.getStats().setPermanent();
-        flowTable.add(toSink);
-    }
-
-    private void initStatusRegister() {
-        for (int i = 0; i < SDN_WISE_STATUS_LEN; i++) {
-            statusRegister.add(0);
+    private boolean compare(final int operatore, final int item1,
+            final int item2) {
+        if (item1 == -1 || item2 == -1) {
+            return false;
+        }
+        switch (operatore) {
+            case EQUAL:
+                return item1 == item2;
+            case NOT_EQUAL:
+                return item1 != item2;
+            case GREATER:
+                return item1 > item2;
+            case LESS:
+                return item1 < item2;
+            case GREATER_OR_EQUAL:
+                return item1 >= item2;
+            case LESS_OR_EQUAL:
+                return item1 <= item2;
+            default:
+                return false;
         }
     }
 
@@ -203,150 +229,27 @@ public abstract class AbstractCore {
         return srvI;
     }
 
-    protected void rxHandler(NetworkPacket packet, int rssi) {
-
-        if (!packet.isSdnWise()) {
-            runFlowMatch(packet);
-        } else if (packet.getLen() > DFLT_HDR_LEN
-                && packet.getNet() == myNet
-                && packet.getTtl() != 0) {
-
-            switch (packet.getTyp()) {
-                case DATA:
-                    rxData(new DataPacket(packet));
-                    break;
-
-                case BEACON:
-                    rxBeacon(new BeaconPacket(packet), rssi);
-                    break;
-
-                case REPORT:
-                    rxReport(new ReportPacket(packet));
-                    break;
-
-                case REQUEST:
-                    rxRequest(new RequestPacket(packet));
-                    break;
-
-                case RESPONSE:
-                    rxResponse(new ResponsePacket(packet));
-                    break;
-
-                case OPEN_PATH:
-                    rxOpenPath(new OpenPathPacket(packet));
-                    break;
-
-                case CONFIG:
-                    rxConfig(new ConfigPacket(packet));
-                    break;
-
-                default:
-                    runFlowMatch(packet);
-                    break;
-            }
-
+    private int doOperation(int operatore, int item1, int item2) {
+        switch (operatore) {
+            case ADD:
+                return item1 + item2;
+            case SUB:
+                return item1 - item2;
+            case DIV:
+                return item1 / item2;
+            case MUL:
+                return item1 * item2;
+            case MOD:
+                return item1 % item2;
+            case AND:
+                return item1 & item2;
+            case OR:
+                return item1 | item2;
+            case XOR:
+                return item1 ^ item2;
+            default:
+                return 0;
         }
-    }
-
-    protected void rxReport(ReportPacket packet) {
-        controllerTX(packet);
-    }
-
-    protected void rxRequest(RequestPacket packet) {
-        controllerTX(packet);
-    }
-
-    protected void rxResponse(ResponsePacket rp) {
-        if (isAcceptedIdPacket(rp)) {
-            rp.getRule().setStats(new Stats());
-            insertRule(rp.getRule());
-        } else {
-            runFlowMatch(rp);
-        }
-    }
-
-    protected void rxOpenPath(OpenPathPacket opp) {
-        if (isAcceptedIdPacket(opp)) {
-            List<NodeAddress> path = opp.getPath();
-            int i;
-            for (i = 0; i < path.size(); i++) {
-                NodeAddress actual = path.get(i);
-                if (isAcceptedIdAddress(actual)) {
-                    break;
-                }
-            }
-
-            if (i > 0) {
-                FlowTableEntry rule = new FlowTableEntry();
-                rule.addWindow(new Window()
-                        .setOperator(EQUAL)
-                        .setSize(W_SIZE_2)
-                        .setLhsLocation(PACKET)
-                        .setLhs(DST_INDEX)
-                        .setRhsLocation(CONST)
-                        .setRhs(path.get(0).intValue()));
-
-                rule.getWindows().addAll(opp.getWindows());
-                rule.addAction(new ForwardUnicastAction(path.get(i - 1)));
-                insertRule(rule);
-            }
-
-            if (i < (path.size() - 1)) {
-                FlowTableEntry rule = new FlowTableEntry();
-                rule.addWindow(new Window()
-                        .setOperator(EQUAL)
-                        .setSize(W_SIZE_2)
-                        .setLhsLocation(PACKET)
-                        .setLhs(DST_INDEX)
-                        .setRhsLocation(CONST)
-                        .setRhs(path.get(path.size() - 1).intValue()));
-
-                rule.getWindows().addAll(opp.getWindows());
-                rule.addAction(new ForwardUnicastAction(path.get(i + 1)));
-                insertRule(rule);
-                opp.setDst(path.get(i + 1));
-                opp.setNxh(path.get(i + 1));
-                radioTX(opp);
-            }
-
-        } else {
-            runFlowMatch(opp);
-        }
-    }
-
-    protected void insertRule(FlowTableEntry rule) {
-        int i = searchRule(rule);
-        if (i != -1) {
-            flowTable.set(i, rule);
-            log(Level.INFO, "Replacing rule " + rule
-                    + " at position " + i);
-        } else {
-            flowTable.add(rule);
-            log(Level.INFO, "Inserting rule " + rule
-                    + " at position " + (flowTable.size() - 1));
-        }
-
-    }
-
-    private int searchRule(FlowTableEntry rule) {
-        int i = 0;
-        for (FlowTableEntry fte : flowTable) {
-            if (fte.equalWindows(rule)) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
-
-    protected boolean isAcceptedIdAddress(NodeAddress addrP) {
-        return (addrP.equals(myAddress)
-                || addrP.isBroadcast()
-                || acceptedId.contains(addrP));
-    }
-
-    protected boolean isAcceptedIdPacket(NetworkPacket packet) {
-        return isAcceptedIdAddress(packet.getDst());
     }
 
     private int getOperand(final NetworkPacket packet, final int size,
@@ -391,15 +294,25 @@ public abstract class AbstractCore {
         }
     }
 
-    // Check if a windows is true or not
-    private boolean matchWindow(Window window, NetworkPacket packet) {
-        int operator = window.getOperator();
-        int size = window.getSize();
-        int lhs = getOperand(
-                packet, size, window.getLhsLocation(), window.getLhs());
-        int rhs = getOperand(
-                packet, size, window.getRhsLocation(), window.getRhs());
-        return compare(operator, lhs, rhs);
+    private void initFlowTable() {
+        FlowTableEntry toSink = new FlowTableEntry();
+        toSink.addWindow(new Window()
+                .setOperator(EQUAL)
+                .setSize(W_SIZE_2)
+                .setLhsLocation(PACKET)
+                .setLhs(DST_INDEX)
+                .setRhsLocation(CONST)
+                .setRhs(this.myAddress.intValue()));
+        toSink.addWindow(fromString("P.TYP == 3"));
+        toSink.addAction(new ForwardUnicastAction(myAddress));
+        toSink.getStats().setPermanent();
+        flowTable.add(toSink);
+    }
+
+    private void initStatusRegister() {
+        for (int i = 0; i < SDN_WISE_STATUS_LEN; i++) {
+            statusRegister.add(0);
+        }
     }
 
     // check if there is a match for the packet
@@ -417,6 +330,51 @@ public abstract class AbstractCore {
             }
         }
         return (actual == target);
+    }
+
+    // Check if a windows is true or not
+    private boolean matchWindow(Window window, NetworkPacket packet) {
+        int operator = window.getOperator();
+        int size = window.getSize();
+        int lhs = getOperand(
+                packet, size, window.getLhsLocation(), window.getLhs());
+        int rhs = getOperand(
+                packet, size, window.getRhsLocation(), window.getRhs());
+        return compare(operator, lhs, rhs);
+    }
+
+    private BeaconPacket prepareBeacon() {
+        BeaconPacket bp = new BeaconPacket(
+                myNet,
+                myAddress,
+                getActualSinkAddress(),
+                sinkDistance,
+                battery.getByteLevel());
+        return bp;
+    }
+
+    private ReportPacket prepareReport() {
+
+        ReportPacket rp = new ReportPacket(
+                myNet,
+                myAddress,
+                getActualSinkAddress(),
+                sinkDistance,
+                battery.getByteLevel());
+
+        rp.setNeighbors(this.neighborTable.size())
+                .setNxh(getNextHopVsSink());
+
+        int j = 0;
+        synchronized (neighborTable) {
+            for (Neighbor n : neighborTable) {
+                rp.setNeighborAddressAt(n.getAddr(), j)
+                        .setLinkQualityAt((byte) n.getRssi(), j);
+                j++;
+            }
+            neighborTable.clear();
+        }
+        return rp;
     }
 
     // Run the corresponding action
@@ -487,50 +445,67 @@ public abstract class AbstractCore {
         }
     }
 
-    private int doOperation(int operatore, int item1, int item2) {
-        switch (operatore) {
-            case ADD:
-                return item1 + item2;
-            case SUB:
-                return item1 - item2;
-            case DIV:
-                return item1 / item2;
-            case MUL:
-                return item1 * item2;
-            case MOD:
-                return item1 % item2;
-            case AND:
-                return item1 & item2;
-            case OR:
-                return item1 | item2;
-            case XOR:
-                return item1 ^ item2;
-            default:
-                return 0;
+    private int searchRule(FlowTableEntry rule) {
+        int i = 0;
+        for (FlowTableEntry fte : flowTable) {
+            if (fte.equalWindows(rule)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    private void updateTable() {
+        int i = 0;
+        for (Iterator<FlowTableEntry> it = flowTable.iterator(); it.hasNext();) {
+            i++;
+            FlowTableEntry fte = it.next();
+            int ttl = fte.getStats().getTtl();
+            if (ttl != ENTRY_TTL_PERMANENT) {
+                if (ttl >= ENTRY_TTL_DECR) {
+                    fte.getStats().decrementTtl(ENTRY_TTL_DECR);
+                } else {
+                    it.remove();
+                    log(Level.INFO, "Removing rule at position " + i);
+                    if (i == 0) {
+                        reset();
+                    }
+                }
+            }
         }
     }
 
-    private boolean compare(final int operatore, final int item1,
-            final int item2) {
-        if (item1 == -1 || item2 == -1) {
-            return false;
-        }
-        switch (operatore) {
-            case EQUAL:
-                return item1 == item2;
-            case NOT_EQUAL:
-                return item1 != item2;
-            case GREATER:
-                return item1 > item2;
-            case LESS:
-                return item1 < item2;
-            case GREATER_OR_EQUAL:
-                return item1 >= item2;
-            case LESS_OR_EQUAL:
-                return item1 <= item2;
-            default:
-                return false;
-        }
+    protected abstract void controllerTX(NetworkPacket pck);
+
+    protected abstract void dataCallback(DataPacket packet);
+
+    protected final void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    protected NodeAddress getActualSinkAddress() {
+        return new NodeAddress(flowTable.get(0).getWindows().get(0).getRhs());
+    }
+
+    protected final NodeAddress getNextHopVsSink() {
+        return ((AbstractForwardAction) (flowTable.get(0).getActions().get(0))).getNextHop();
+    }
+
+    protected final int getSinkDistance() {
+        return sinkDistance;
+    }
+
+    protected final void setSinkDistance(int sinkDistance) {
+        this.sinkDistance = sinkDistance;
+    }
+
+    protected final int getSinkRssi() {
+        return sinkRssi;
+    }
+
+    protected final void setSinkRssi(int rssi) {
+        this.sinkRssi = rssi;
     }
 
     protected void initSdnWise() {
@@ -542,80 +517,39 @@ public abstract class AbstractCore {
         initSdnWiseSpecific();
     }
 
-    protected final void setSinkDistance(int sinkDistance) {
-        this.sinkDistance = sinkDistance;
-    }
+    protected abstract void initSdnWiseSpecific();
 
-    protected final void setSinkRssi(int rssi) {
-        this.sinkRssi = rssi;
-    }
-
-    protected final void setActive(boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    protected final int getSinkDistance() {
-        return sinkDistance;
-    }
-
-    protected final int getSinkRssi() {
-        return sinkRssi;
-    }
-
-    protected final NodeAddress getNextHopVsSink() {
-        return ((AbstractForwardAction) (flowTable.get(0).getActions().get(0))).getNextHop();
-    }
-
-    protected final void rxData(DataPacket packet) {
-        if (isAcceptedIdPacket(packet)) {
-            dataCallback(packet);
-        } else if (isAcceptedIdAddress(packet.getNxh())) {
-            runFlowMatch(packet);
-        }
-    }
-
-    protected void rxBeacon(BeaconPacket bp, int rssi) {
-        Neighbor nb = new Neighbor(bp.getSrc(), rssi, bp.getBattery());
-        this.neighborTable.add(nb);
-    }
-
-    protected final void runFlowMatch(NetworkPacket packet) {
-        int i = 0;
-        boolean matched = false;
-        for (FlowTableEntry fte : flowTable) {
-            i++;
-            if (matchRule(fte, packet)) {
-                log(Level.FINE, "Matched Rule #" + i + " " + fte.toString());
-                matched = true;
-                fte.getActions().stream().forEach((a) -> {
-                    runAction(a, packet);
-                });
-                fte.getStats().increaseCounter();
-                break;
-            }
+    protected void insertRule(FlowTableEntry rule) {
+        int i = searchRule(rule);
+        if (i != -1) {
+            flowTable.set(i, rule);
+            log(Level.INFO, "Replacing rule " + rule
+                    + " at position " + i);
+        } else {
+            flowTable.add(rule);
+            log(Level.INFO, "Inserting rule " + rule
+                    + " at position " + (flowTable.size() - 1));
         }
 
-        if (!matched) {
-            // send a rule request
-            RequestPacket[] rps = RequestPacket.createPackets((byte) myNet,
-                    myAddress, getActualSinkAddress(), requestId++,
-                    packet.toByteArray());
+    }
 
-            for (RequestPacket rp : rps) {
-                controllerTX(rp);
-            }
+    protected boolean isAcceptedIdAddress(NodeAddress addrP) {
+        return (addrP.equals(myAddress)
+                || addrP.isBroadcast()
+                || acceptedId.contains(addrP));
+    }
+
+    protected boolean isAcceptedIdPacket(NetworkPacket packet) {
+        return isAcceptedIdAddress(packet.getDst());
+    }
+
+    protected final void log(final Level level, final String logMessage) {
+        try {
+            logQueue.put(new Pair<>(level, logMessage));
+        } catch (InterruptedException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }
-
-    protected abstract void rxConfig(ConfigPacket packet);
-
-    protected NodeAddress getActualSinkAddress() {
-        return new NodeAddress(flowTable.get(0).getWindows().get(0).getRhs());
-    }
-
-    protected abstract void dataCallback(DataPacket packet);
-
-    protected abstract void controllerTX(NetworkPacket pck);
 
     protected int marshalPacket(ConfigPacket packet) {
         int toBeSent = 0;
@@ -752,74 +686,164 @@ public abstract class AbstractCore {
         return toBeSent;
     }
 
-    void log(Level level, String logMessage) {
-        try {
-            logQueue.put(new Pair<>(level, logMessage));
-        } catch (InterruptedException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
-        }
-    }
-
-    abstract void initSdnWiseSpecific();
-
     protected final void radioTX(final NetworkPacket np) {
         np.decrementTtl();
         txQueue.add(np);
     }
 
-    abstract void reset();
+    protected abstract void reset();
 
-    BeaconPacket prepareBeacon() {
-        BeaconPacket bp = new BeaconPacket(
-                myNet,
-                myAddress,
-                getActualSinkAddress(),
-                sinkDistance,
-                battery.getByteLevel());
-        return bp;
-    }
-
-    ReportPacket prepareReport() {
-
-        ReportPacket rp = new ReportPacket(
-                myNet,
-                myAddress,
-                getActualSinkAddress(),
-                sinkDistance,
-                battery.getByteLevel());
-
-        rp.setNeighbors(this.neighborTable.size())
-                .setNxh(getNextHopVsSink());
-
-        int j = 0;
-        synchronized (neighborTable) {
-            for (Neighbor n : neighborTable) {
-                rp.setNeighborAddressAt(n.getAddr(), j)
-                        .setLinkQualityAt((byte) n.getRssi(), j);
-                j++;
-            }
-            neighborTable.clear();
-        }
-        return rp;
-    }
-
-    final void updateTable() {
+    protected final void runFlowMatch(NetworkPacket packet) {
         int i = 0;
-        for (Iterator<FlowTableEntry> it = flowTable.iterator(); it.hasNext();) {
+        boolean matched = false;
+        for (FlowTableEntry fte : flowTable) {
             i++;
-            FlowTableEntry fte = it.next();
-            int ttl = fte.getStats().getTtl();
-            if (ttl != ENTRY_TTL_PERMANENT) {
-                if (ttl >= ENTRY_TTL_DECR) {
-                    fte.getStats().decrementTtl(ENTRY_TTL_DECR);
-                } else {
-                    it.remove();
-                    log(Level.INFO, "Removing rule at position " + i);
-                    if (i == 0) {
-                        reset();
-                    }
+            if (matchRule(fte, packet)) {
+                log(Level.FINE, "Matched Rule #" + i + " " + fte.toString());
+                matched = true;
+                fte.getActions().stream().forEach((a) -> {
+                    runAction(a, packet);
+                });
+                fte.getStats().increaseCounter();
+                break;
+            }
+        }
+
+        if (!matched) {
+            // send a rule request
+            RequestPacket[] rps = RequestPacket.createPackets((byte) myNet,
+                    myAddress, getActualSinkAddress(), requestId++,
+                    packet.toByteArray());
+
+            for (RequestPacket rp : rps) {
+                controllerTX(rp);
+            }
+        }
+    }
+
+    protected void rxBeacon(BeaconPacket bp, int rssi) {
+        Neighbor nb = new Neighbor(bp.getSrc(), rssi, bp.getBattery());
+        this.neighborTable.add(nb);
+    }
+
+    protected abstract void rxConfig(ConfigPacket packet);
+
+    protected final void rxData(DataPacket packet) {
+        if (isAcceptedIdPacket(packet)) {
+            dataCallback(packet);
+        } else if (isAcceptedIdAddress(packet.getNxh())) {
+            runFlowMatch(packet);
+        }
+    }
+
+    protected void rxHandler(NetworkPacket packet, int rssi) {
+
+        if (!packet.isSdnWise()) {
+            runFlowMatch(packet);
+        } else if (packet.getLen() > DFLT_HDR_LEN
+                && packet.getNet() == myNet
+                && packet.getTtl() != 0) {
+
+            switch (packet.getTyp()) {
+                case DATA:
+                    rxData(new DataPacket(packet));
+                    break;
+
+                case BEACON:
+                    rxBeacon(new BeaconPacket(packet), rssi);
+                    break;
+
+                case REPORT:
+                    rxReport(new ReportPacket(packet));
+                    break;
+
+                case REQUEST:
+                    rxRequest(new RequestPacket(packet));
+                    break;
+
+                case RESPONSE:
+                    rxResponse(new ResponsePacket(packet));
+                    break;
+
+                case OPEN_PATH:
+                    rxOpenPath(new OpenPathPacket(packet));
+                    break;
+
+                case CONFIG:
+                    rxConfig(new ConfigPacket(packet));
+                    break;
+
+                default:
+                    runFlowMatch(packet);
+                    break;
+            }
+
+        }
+    }
+
+    protected void rxOpenPath(OpenPathPacket opp) {
+        if (isAcceptedIdPacket(opp)) {
+            List<NodeAddress> path = opp.getPath();
+            int i;
+            for (i = 0; i < path.size(); i++) {
+                NodeAddress actual = path.get(i);
+                if (isAcceptedIdAddress(actual)) {
+                    break;
                 }
             }
+
+            if (i > 0) {
+                FlowTableEntry rule = new FlowTableEntry();
+                rule.addWindow(new Window()
+                        .setOperator(EQUAL)
+                        .setSize(W_SIZE_2)
+                        .setLhsLocation(PACKET)
+                        .setLhs(DST_INDEX)
+                        .setRhsLocation(CONST)
+                        .setRhs(path.get(0).intValue()));
+
+                rule.getWindows().addAll(opp.getWindows());
+                rule.addAction(new ForwardUnicastAction(path.get(i - 1)));
+                insertRule(rule);
+            }
+
+            if (i < (path.size() - 1)) {
+                FlowTableEntry rule = new FlowTableEntry();
+                rule.addWindow(new Window()
+                        .setOperator(EQUAL)
+                        .setSize(W_SIZE_2)
+                        .setLhsLocation(PACKET)
+                        .setLhs(DST_INDEX)
+                        .setRhsLocation(CONST)
+                        .setRhs(path.get(path.size() - 1).intValue()));
+
+                rule.getWindows().addAll(opp.getWindows());
+                rule.addAction(new ForwardUnicastAction(path.get(i + 1)));
+                insertRule(rule);
+                opp.setDst(path.get(i + 1));
+                opp.setNxh(path.get(i + 1));
+                radioTX(opp);
+            }
+
+        } else {
+            runFlowMatch(opp);
+        }
+    }
+
+    protected void rxReport(ReportPacket packet) {
+        controllerTX(packet);
+    }
+
+    protected void rxRequest(RequestPacket packet) {
+        controllerTX(packet);
+    }
+
+    protected void rxResponse(ResponsePacket rp) {
+        if (isAcceptedIdPacket(rp)) {
+            rp.getRule().setStats(new Stats());
+            insertRule(rp.getRule());
+        } else {
+            runFlowMatch(rp);
         }
     }
 
@@ -827,21 +851,6 @@ public abstract class AbstractCore {
 
         public Class defClass(byte[] data, int len) {
             return defineClass(null, data, 0, len);
-        }
-    }
-
-    private class rxPacketManager implements Runnable {
-
-        @Override
-        public void run() {
-            try {
-                while (true) {
-                    Pair<NetworkPacket, Integer> p = rxQueue.take();
-                    rxHandler(p.getKey(), p.getValue());
-                }
-            } catch (InterruptedException ex) {
-                log(Level.SEVERE, ex.toString());
-            }
         }
     }
 
@@ -853,6 +862,21 @@ public abstract class AbstractCore {
                 while (true) {
                     NetworkPacket np = ftQueue.take();
                     rxQueue.put(new Pair<>(np, 255));
+                }
+            } catch (InterruptedException ex) {
+                log(Level.SEVERE, ex.toString());
+            }
+        }
+    }
+
+    private class rxPacketManager implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    Pair<NetworkPacket, Integer> p = rxQueue.take();
+                    rxHandler(p.getKey(), p.getValue());
                 }
             } catch (InterruptedException ex) {
                 log(Level.SEVERE, ex.toString());

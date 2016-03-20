@@ -21,20 +21,20 @@ package com.github.sdnwiselab.sdnwise.mote.battery;
  *
  * @author Sebastiano Milardo
  */
-public class SinkBattery extends Battery {
+public final class SinkBattery extends Battery {
 
     @Override
-    public Battery transmitRadio(int nByte) {
+    public Battery transmitRadio(final int nByte) {
         return this;
     }
 
     @Override
-    public Battery receiveRadio(int nByte) {
+    public Battery receiveRadio(final int nByte) {
         return this;
     }
 
     @Override
-    public Battery keepAlive(int seconds) {
+    public Battery keepAlive(final int seconds) {
         return this;
     }
 }

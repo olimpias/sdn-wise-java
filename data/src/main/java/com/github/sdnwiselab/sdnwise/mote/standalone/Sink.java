@@ -16,6 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.standalone;
 
+import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import com.github.sdnwiselab.sdnwise.mote.battery.SinkBattery;
 import com.github.sdnwiselab.sdnwise.mote.core.SinkCore;
 import com.github.sdnwiselab.sdnwise.packet.*;
@@ -43,7 +44,7 @@ public class Sink extends AbstractMote {
         super(port, neighboursPath, logLevel);
         this.addrController = addrCtrl;
         this.portController = portCtrl;
-        battery = new SinkBattery();
+        Dischargeable battery = new SinkBattery();
 
         try {
             core = new SinkCore(net, myAddress, battery, dpid, mac, sPort,

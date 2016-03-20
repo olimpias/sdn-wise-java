@@ -17,7 +17,7 @@
 package com.github.sdnwiselab.sdnwise.mote.core;
 
 import com.github.sdnwiselab.sdnwise.packet.RegProxyPacket;
-import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
+import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import com.github.sdnwiselab.sdnwise.packet.*;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.*;
@@ -41,7 +41,7 @@ public class SinkCore extends AbstractCore {
     public SinkCore(
             final byte net,
             final NodeAddress address,
-            final Battery battery,
+            final Dischargeable battery,
             final String switchDPid,
             final String switchMac,
             final long switchPort,
@@ -107,7 +107,7 @@ public class SinkCore extends AbstractCore {
     }
 
     @Override
-    final void reset() {
+    protected final void reset() {
         // Nothing to do here
     }
 }

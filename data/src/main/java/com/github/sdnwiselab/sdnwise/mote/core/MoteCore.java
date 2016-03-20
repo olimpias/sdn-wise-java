@@ -19,7 +19,7 @@ package com.github.sdnwiselab.sdnwise.mote.core;
 import com.github.sdnwiselab.sdnwise.flowtable.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.*;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
-import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
+import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import com.github.sdnwiselab.sdnwise.packet.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
@@ -31,7 +31,7 @@ import java.util.logging.Level;
  */
 public class MoteCore extends AbstractCore {
 
-    public MoteCore(byte net, NodeAddress address, Battery battery) {
+    public MoteCore(byte net, NodeAddress address, Dischargeable battery) {
         super(net, address, battery);
     }
 

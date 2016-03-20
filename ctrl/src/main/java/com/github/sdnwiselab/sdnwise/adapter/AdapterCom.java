@@ -55,6 +55,10 @@ public class AdapterCom extends AbstractAdapter {
             stopBits,
             parity,
             maxPayload;
+    /**
+     * Time in milliseconds to block waiting for port open.
+     */
+    private static final int TIMEOUT = 2000;
 
     /**
      * Each packet sent over the COM port has to start with the start byte and
@@ -130,7 +134,8 @@ public class AdapterCom extends AbstractAdapter {
                     log(Level.INFO, "Serial Port Found: " + port);
                     if (port.equals(this.portName)) {
                         log(Level.INFO, "SINK");
-                        comPort = (SerialPort) portId.open("AdapterCOM", 2000);
+                        comPort = (SerialPort) portId
+                                .open("AdapterCOM", TIMEOUT);
                         break;
                     }
                 }
@@ -144,7 +149,9 @@ public class AdapterCom extends AbstractAdapter {
             comPort.addEventListener(sl);
             comPort.notifyOnDataAvailable(true);
             return true;
-        } catch (PortInUseException | IOException | UnsupportedCommOperationException | TooManyListenersException ex) {
+        } catch (PortInUseException | IOException
+                | UnsupportedCommOperationException
+                | TooManyListenersException ex) {
             log(Level.SEVERE, "Unable to open Serial Port" + ex.toString());
             return false;
         }
@@ -165,18 +172,40 @@ public class AdapterCom extends AbstractAdapter {
         }
     }
 
+    /**
+     * Creates packets from in InputStream.
+     */
     private class InternalSerialListener extends Observable implements
             SerialPortEventListener {
-
-        private boolean startFlag;
-        private boolean idFlag;
-        private int expected;
-        private int b;
+        /**
+         * Flags.
+         */
+        private boolean startFlag, idFlag;
+        /**
+         * Expected.
+         */
+        private int expected, b;
+        /**
+         * Current char.
+         */
         private byte a;
+        /**
+         * Incoming buffer.
+         */
         private final LinkedList<Byte> receivedBytes;
+        /**
+         * Incoming packet.
+         */
         private final LinkedList<Byte> packet;
+        /**
+         * Receiving InputStream.
+         */
         private final InputStream in;
 
+        /**
+         * Creates a Serial Listener from an InputStream.
+         * @param is the InputStream object
+         */
         InternalSerialListener(final InputStream is) {
             packet = new LinkedList<>();
             receivedBytes = new LinkedList<>();

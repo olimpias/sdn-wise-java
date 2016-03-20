@@ -17,6 +17,7 @@
 package com.github.sdnwiselab.sdnwise.mote.standalone;
 
 import com.github.sdnwiselab.sdnwise.mote.battery.Battery;
+import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import com.github.sdnwiselab.sdnwise.mote.core.MoteCore;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
@@ -30,7 +31,7 @@ public class Mote extends AbstractMote {
             String neighboursPath,
             String logLevel) {
         super(port, neighboursPath, logLevel);
-        battery = new Battery();
+        Dischargeable battery = new Battery();
         core = new MoteCore(net, myAddress, battery);
         core.start();
 
