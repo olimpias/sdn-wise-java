@@ -29,11 +29,11 @@ public class Battery implements Dischargeable {
      * Battery statistics.
      */
     private static final double MAX_LEVEL = 5000,
-        // 9000000 mC = 2 AAA batteries = 15 Days
-        // 5000 mC = 12 min
-        KEEP_ALIVE = 6.8, // mC spent every 1 s
-        RADIO_TX = 0.0027, // mC to send 1byte
-        RADIO_RX = 0.00094; // mC to receive 1byte
+            // 9000000 mC = 2 AAA batteries = 15 Days
+            // 5000 mC = 12 min
+            KEEP_ALIVE = 6.8, // mC spent every 1 s
+            RADIO_TX = 0.0027, // mC to send 1byte
+            RADIO_RX = 0.00094; // mC to receive 1byte
 
     /**
      * Battery level.

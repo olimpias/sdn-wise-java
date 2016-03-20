@@ -82,18 +82,15 @@ public abstract class AbstractCore {
     /**
      * Contains the NetworkPacket that will be processed by the WISE Flow Table.
      */
-    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new
-        ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
     /**
      * Function Buffer.
      */
-    private final HashMap<Integer, LinkedList<byte[]>> functionBuffer = new
-        HashMap<>();
+    private final HashMap<Integer, LinkedList<byte[]>> functionBuffer = new HashMap<>();
     /**
      * Function Array.
      */
-    protected final HashMap<Integer, FunctionInterface> functions = new
-        HashMap<>();
+    protected final HashMap<Integer, FunctionInterface> functions = new HashMap<>();
     /**
      * A Mote becomes active after it receives a beacon. A Sink is always
      * active.
@@ -102,8 +99,7 @@ public abstract class AbstractCore {
     /**
      * Contains the Log messages.
      */
-    private final ArrayBlockingQueue<Pair<Level, String>> logQueue = new
-        ArrayBlockingQueue<>(100);
+    private final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
     /**
      * The address of the node.
      */
@@ -131,8 +127,8 @@ public abstract class AbstractCore {
     /**
      * Contains the NetworkPacket that will be sent over the radio.
      */
-    protected final ArrayBlockingQueue<NetworkPacket> txQueue =
-            new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<NetworkPacket> txQueue
+            = new ArrayBlockingQueue<>(100);
 
     AbstractCore(byte net, NodeAddress address, Dischargeable battery) {
         this.neighborTable = Collections.synchronizedSet(new HashSet<>(100));

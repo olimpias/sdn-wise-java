@@ -37,9 +37,9 @@ public final class Constants {
      * Timer constants.
      */
     public static final byte SDN_WISE_DFLT_CNT_DATA_MAX = 10,
-        SDN_WISE_DFLT_CNT_BEACON_MAX = 10,
-        SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX,
-        SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6; // TTL = 150s
+            SDN_WISE_DFLT_CNT_BEACON_MAX = 10,
+            SDN_WISE_DFLT_CNT_REPORT_MAX = 2 * SDN_WISE_DFLT_CNT_BEACON_MAX,
+            SDN_WISE_DFLT_CNT_UPDTABLE_MAX = 6; // TTL = 150s
 
     /**
      * Status Register constants.

@@ -149,9 +149,7 @@ public class AdapterCom extends AbstractAdapter {
             comPort.addEventListener(sl);
             comPort.notifyOnDataAvailable(true);
             return true;
-        } catch (PortInUseException | IOException
-                | UnsupportedCommOperationException
-                | TooManyListenersException ex) {
+        } catch (PortInUseException | IOException | UnsupportedCommOperationException | TooManyListenersException ex) {
             log(Level.SEVERE, "Unable to open Serial Port" + ex.toString());
             return false;
         }
@@ -177,6 +175,7 @@ public class AdapterCom extends AbstractAdapter {
      */
     private class InternalSerialListener extends Observable implements
             SerialPortEventListener {
+
         /**
          * Flags.
          */
@@ -204,6 +203,7 @@ public class AdapterCom extends AbstractAdapter {
 
         /**
          * Creates a Serial Listener from an InputStream.
+         *
          * @param is the InputStream object
          */
         InternalSerialListener(final InputStream is) {

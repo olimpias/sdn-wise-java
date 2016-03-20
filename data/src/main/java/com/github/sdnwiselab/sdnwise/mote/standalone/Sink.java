@@ -19,11 +19,16 @@ package com.github.sdnwiselab.sdnwise.mote.standalone;
 import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import com.github.sdnwiselab.sdnwise.mote.battery.SinkBattery;
 import com.github.sdnwiselab.sdnwise.mote.core.SinkCore;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.io.*;
-import java.net.*;
-import java.util.logging.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Sebastiano Milardo

@@ -49,7 +49,7 @@ public abstract class AbstractMote implements Runnable {
     private int receivedBytes, receivedDataBytes, sentBytes, sentDataBytes;
 
     private DatagramSocket socket;
-    
+
     protected AbstractCore core;
 
     public AbstractMote(
