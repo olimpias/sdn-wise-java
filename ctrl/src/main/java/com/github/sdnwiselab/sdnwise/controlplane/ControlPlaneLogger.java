@@ -17,14 +17,16 @@
 package com.github.sdnwiselab.sdnwise.controlplane;
 
 import com.github.sdnwiselab.sdnwise.util.SimplerFormatter;
-import java.util.logging.*;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
 
 /**
  * @author Sebastiano Milardo
  */
 public class ControlPlaneLogger {
 
-    public static void setupLogger(String prefix) {
+    public static void setupLogger(final String prefix) {
 
         Logger logger = Logger.getLogger(prefix);
         logger.setUseParentHandlers(false);

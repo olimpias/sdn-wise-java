@@ -16,9 +16,13 @@
  */
 package com.github.sdnwiselab.sdnwise.controller;
 
-import com.github.sdnwiselab.sdnwise.adapter.*;
-import com.github.sdnwiselab.sdnwise.configuration.*;
-import com.github.sdnwiselab.sdnwise.topology.*;
+import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.configuration.ConfigController;
+import com.github.sdnwiselab.sdnwise.configuration.Configurator;
+import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
+import com.github.sdnwiselab.sdnwise.topology.VisualNetworkGraph;
 import java.net.InetSocketAddress;
 
 /**
@@ -31,6 +35,31 @@ import java.net.InetSocketAddress;
 public class ControllerFactory {
 
     private static InetSocketAddress newId = null;
+
+    /**
+     * Returns the corresponding AbstractController object given a Configurator
+     * object.
+     *
+     * @param config a Configurator object.
+     * @return an AbstractController object.
+     */
+    public final AbstractController getController(final Configurator config) {
+        AbstractAdapter adapt = getLower(config.getController());
+        NetworkGraph ng = getNetworkGraph(config.getController());
+        return getControllerType(config.getController(), newId, adapt, ng);
+    }
+
+    public AbstractController getControllerType(ConfigController conf, InetSocketAddress newId, AbstractAdapter adapt, NetworkGraph ng) {
+        String type = conf.getAlgorithm().get("TYPE");
+
+        switch (type) {
+            case "DIJKSTRA":
+                return new ControllerDijkstra(newId, adapt, ng);
+            default:
+                throw new UnsupportedOperationException(
+                        "Error in Configuration file");
+        }
+    }
 
     public AbstractAdapter getLower(ConfigController conf) {
 
@@ -59,38 +88,9 @@ public class ControllerFactory {
                 return new VisualNetworkGraph(timeout, rssiResolution);
             case "CLI":
                 return new NetworkGraph(timeout, rssiResolution);
-            /*
-            case "WEB":
-                return new SocketIoNetworkGraph(timeout, rssiResolution,
-                        conf.getMap().get("GRAPH_ADDR"));
-             */
             default:
                 throw new UnsupportedOperationException("Error in Configuration file");
         }
     }
 
-    public AbstractController getControllerType(ConfigController conf, InetSocketAddress newId, AbstractAdapter adapt, NetworkGraph ng) {
-        String type = conf.getAlgorithm().get("TYPE");
-
-        switch (type) {
-            case "DIJKSTRA":
-                return new ControllerDijkstra(newId, adapt, ng);
-            default:
-                throw new UnsupportedOperationException(
-                        "Error in Configuration file");
-        }
-    }
-
-    /**
-     * Returns the corresponding AbstractController object given a Configurator
-     * object.
-     *
-     * @param config a Configurator object.
-     * @return an AbstractController object.
-     */
-    public final AbstractController getController(final Configurator config) {
-        AbstractAdapter adapt = getLower(config.getController());
-        NetworkGraph ng = getNetworkGraph(config.getController());
-        return getControllerType(config.getController(), newId, adapt, ng);
-    }
 }

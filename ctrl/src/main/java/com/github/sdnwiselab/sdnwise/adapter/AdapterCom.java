@@ -16,6 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.adapter;
 
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
@@ -53,8 +54,7 @@ public class AdapterCom extends AbstractAdapter {
     private final int baudRate,
             dataBits,
             stopBits,
-            parity,
-            maxPayload;
+            parity;
     /**
      * Time in milliseconds to block waiting for port open.
      */
@@ -93,7 +93,6 @@ public class AdapterCom extends AbstractAdapter {
      * <li>port</li>
      * <li>stopByte</li>
      * <li>startByte</li>
-     * <li>maxPayload</li>
      * </ol>
      *
      * @param conf contains the serial port configuration data.
@@ -106,7 +105,6 @@ public class AdapterCom extends AbstractAdapter {
         this.portName = conf.get("PORT_NAME");
         this.stopByte = Byte.parseByte(conf.get("STOP_BYTE"));
         this.startByte = Byte.parseByte(conf.get("START_BYTE"));
-        this.maxPayload = Integer.parseInt(conf.get("MAX_PAYLOAD"));
     }
 
     @Override
@@ -159,7 +157,7 @@ public class AdapterCom extends AbstractAdapter {
     public final void send(final byte[] data) {
         try {
             int len = Byte.toUnsignedInt(data[0]);
-            if (len <= maxPayload) { // MAX 802.15.4 DATA FRAME PAYLOAD = 116
+            if (len <= NetworkPacket.MAX_PACKET_LENGTH) {
                 this.out.write(startByte);
                 this.out.write(data);
                 this.out.write(stopByte);

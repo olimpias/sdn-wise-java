@@ -17,7 +17,8 @@
 package com.github.sdnwiselab.sdnwise.controller;
 
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
+import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
@@ -32,12 +33,20 @@ public interface ControllerInterface {
     /**
      * Adds a new address in the list of addresses accepted by the node.
      *
-     * @param net network id of the destination node.
-     * @param dst network address of the destination node.
-     * @param newAddr the address.
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
+     * @param newAddr the address
      */
     void addNodeAlias(byte net, NodeAddress dst, NodeAddress newAddr);
 
+    /**
+     * Adds a new function in the list of the functions of the node.
+     *
+     * @param net network id of the destination node
+     * @param dst network address of the destination node
+     * @param id the id of the function
+     * @param className the name of the class containing the function
+     */
     void addNodeFunction(byte net, NodeAddress dst, byte id, String className);
 
     /**
@@ -49,12 +58,17 @@ public interface ControllerInterface {
      */
     void addNodeRule(byte net, NodeAddress destination, FlowTableEntry rule);
 
+    /**
+     * Reads the id of the Controller.
+     *
+     * @return returns an InetSocketAddress identificating the controller
+     */
     InetSocketAddress getId();
 
     /**
      * Gets the NetworkGraph of the controller.
      *
-     * @return returns a NetworkGraph object.
+     * @return returns a NetworkGraph object
      */
     NetworkGraph getNetworkGraph();
 
@@ -147,9 +161,10 @@ public interface ControllerInterface {
      * @param dst network address of the destination node.
      * @param index position of the entry in the table.
      * @return returns the list of the entries in the WISE Flow Table.
-     * @throws java.util.concurrent.TimeoutException
+     * @throws java.util.concurrent.TimeoutException when the timeout expires
      */
-    FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) throws TimeoutException;
+    FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) throws
+            TimeoutException;
 
     /**
      * Gets the WISE flow table of a node.
@@ -160,6 +175,11 @@ public interface ControllerInterface {
      */
     List<FlowTableEntry> getNodeRules(byte net, NodeAddress dst);
 
+    /**
+     * Gets the NodeAddress of the current Sink.
+     *
+     * @return returns the NodeAddress of the Sink.
+     */
     NodeAddress getSinkAddress();
 
     /**
@@ -172,6 +192,14 @@ public interface ControllerInterface {
      */
     void removeNodeAlias(byte net, NodeAddress dst, byte index);
 
+    /**
+     * Removes a function from the list of functions of the node at
+     * position index.
+     *
+     * @param net network id of the destination node.
+     * @param dst network address of the destination node.
+     * @param index the address.
+     */
     void removeNodeFunction(byte net, NodeAddress dst, byte index);
 
     /**

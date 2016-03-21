@@ -16,6 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.adapter;
 
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -38,7 +39,6 @@ public class AdapterUdp extends AbstractAdapter {
     private final int IN_PORT;
     private final String OUT_IP;
     private final int OUT_PORT;
-    private final int MAX_PAYLOAD;
     private DatagramSocket sck;
     private UDPServer udpServer;
 
@@ -59,7 +59,6 @@ public class AdapterUdp extends AbstractAdapter {
         this.OUT_IP = conf.get("OUT_IP");
         this.OUT_PORT = Integer.parseInt(conf.get("OUT_PORT"));
         this.IN_PORT = Integer.parseInt(conf.get("IN_PORT"));
-        this.MAX_PAYLOAD = Integer.parseInt(conf.get("MAX_PAYLOAD"));
     }
 
     @Override
@@ -124,7 +123,7 @@ public class AdapterUdp extends AbstractAdapter {
         @Override
         public void run() {
             try {
-                byte[] buffer = new byte[MAX_PAYLOAD];
+                byte[] buffer = new byte[NetworkPacket.MAX_PACKET_LENGTH];
                 DatagramPacket p = new DatagramPacket(buffer, buffer.length);
                 while (!isStopped) {
                     sck.receive(p);

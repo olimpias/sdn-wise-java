@@ -18,8 +18,10 @@ package com.github.sdnwiselab.sdnwise.application;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.controller.AbstractController;
-import com.github.sdnwiselab.sdnwise.controlplane.*;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLayer;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLogger;
+import com.github.sdnwiselab.sdnwise.packet.DataPacket;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
@@ -41,10 +43,12 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractApplication extends ControlPlaneLayer {
 
-    // to avoid garbage collection of the logger
+    /**
+     * To avoid garbage collection of the logger.
+     */
     protected static final Logger LOGGER = Logger.getLogger("APP");
-    protected final AbstractController controller;
     private final ArrayBlockingQueue<NetworkPacket> bQ;
+    protected final AbstractController controller;
 
     /**
      * Creates an Application Abstract Class.

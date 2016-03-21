@@ -20,7 +20,6 @@ import com.github.sdnwiselab.sdnwise.adapter.*;
 import com.github.sdnwiselab.sdnwise.controlplane.*;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.packet.*;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
 import java.util.*;
