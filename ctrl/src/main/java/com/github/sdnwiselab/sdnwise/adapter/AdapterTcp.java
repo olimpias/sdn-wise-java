@@ -16,8 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.adapter;
 
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.LEN_INDEX;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.NET_INDEX;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -40,41 +40,55 @@ import java.util.logging.Level;
  */
 public class AdapterTcp extends AbstractAdapter {
 
-    private final String IP;
-    private final boolean IS_SERVER;
-    private final int PORT;
-    private TcpElement tcpElement;
+    /**
+     * Destination ip address.
+     */
+    private final String ip;
+    /**
+     * Boolean used to set the behaviour of the adapter. The adapter can act as
+     * a server or a client.
+     */
+    private final boolean isServer;
+    /**
+     * TCP port of the adapter.
+     */
+    private final int port;
+    /**
+     * Manages TCP connections.
+     */
+    private InternalTcpElement tcpElement;
 
     /**
      * Creates an AdapterTCP object. The conf map is used to pass the
      * configuration settings for the serial port as strings. Specifically
      * needed parameters are:
      * <ol>
-     * <li>IN_PORT</li>
+     * <li>IS_SERVER</li>
+     * <li>IP</li>
+     * <li>PORT</li>
      * </ol>
      *
      * @param conf contains the serial port configuration data.
      */
     public AdapterTcp(final Map<String, String> conf) {
-        this.IS_SERVER = Boolean.parseBoolean(conf.get("IS_SERVER"));
-        this.IP = conf.get("IP");
-        this.PORT = Integer.parseInt(conf.get("PORT"));
+        this.isServer = Boolean.parseBoolean(conf.get("IS_SERVER"));
+        this.ip = conf.get("IP");
+        this.port = Integer.parseInt(conf.get("PORT"));
     }
 
     @Override
     public final boolean close() {
-        tcpElement.isStopped = true;
+        tcpElement.stop();
         return true;
     }
 
     @Override
     public final boolean open() {
-        if (IS_SERVER) {
-            tcpElement = new TcpServer(PORT);
+        if (isServer) {
+            tcpElement = new InternalTcpElementServer();
         } else {
-            tcpElement = new TcpClient(IP, PORT);
+            tcpElement = new InternalTcpElementClient();
         }
-
         tcpElement.addObserver(this);
         new Thread(tcpElement).start();
         return true;
@@ -85,19 +99,56 @@ public class AdapterTcp extends AbstractAdapter {
         tcpElement.send(data);
     }
 
-    private class TcpClient extends TcpElement {
+    /**
+     * Models a generic TCP network element.
+     */
+    private abstract class InternalTcpElement extends Observable
+            implements Runnable, Observer {
 
-        private Socket socket;
+        /**
+         * Manages the status of the element.
+         */
+        private boolean isStopped;
 
-        TcpClient(final String ip, final int port) {
-            super(port);
-            try {
-                socket = new Socket(ip, port);
-            } catch (IOException ex) {
-                log(Level.SEVERE, ex.toString());
-            }
+        /**
+         * Sends a byte array.
+         *
+         * @param data the array to be sent
+         */
+        public abstract void send(final byte[] data);
 
+        /**
+         * Checks if the TCP element is still running.
+         *
+         * @return the status of the TCP element
+         */
+        public synchronized boolean isStopped() {
+            return isStopped;
         }
+
+        @Override
+        public final void update(final Observable o, final Object arg) {
+            setChanged();
+            notifyObservers(arg);
+        }
+
+        /**
+         * Stops the TCP element.
+         */
+        public void stop() {
+            isStopped = true;
+        }
+    }
+
+    /**
+     * Models a TCP client.
+     */
+    private class InternalTcpElementClient extends InternalTcpElement {
+
+        /**
+         * TCP Socket.
+         */
+        private Socket socket;
 
         @Override
         public void send(final byte[] data) {
@@ -113,19 +164,13 @@ public class AdapterTcp extends AbstractAdapter {
         @Override
         public void run() {
             try {
+                socket = new Socket(ip, port);
                 InputStream in = socket.getInputStream();
                 DataInputStream dis = new DataInputStream(in);
-                while (true) {
-                    int net = Byte.toUnsignedInt(dis.readByte());
-                    int len = Byte.toUnsignedInt(dis.readByte());
-                    if (len > 0) {
-                        byte[] data = new byte[len];
-                        data[NET_INDEX] = (byte) net;
-                        data[LEN_INDEX] = (byte) len;
-                        dis.readFully(data, LEN_INDEX + 1, len - 2);
-                        setChanged();
-                        notifyObservers(data);
-                    }
+                while (!isStopped()) {
+                    byte[] data = new NetworkPacket(dis).toByteArray();
+                    setChanged();
+                    notifyObservers(data);
                 }
             } catch (IOException ex) {
                 log(Level.SEVERE, ex.toString());
@@ -133,45 +178,37 @@ public class AdapterTcp extends AbstractAdapter {
         }
     }
 
-    private abstract class TcpElement extends Observable implements Runnable, Observer {
+    /**
+     * Models a TCP server.
+     */
+    private class InternalTcpElementServer extends InternalTcpElement {
 
-        protected boolean isStopped;
-        protected final int port;
-
-        TcpElement(final int port) {
-            this.port = port;
-        }
-
-        public abstract void send(final byte[] data);
-
-        public synchronized boolean isStopped() {
-            return this.isStopped;
-        }
-
-        @Override
-        public final void update(final Observable o, final Object arg) {
-            setChanged();
-            notifyObservers(arg);
-        }
-    }
-
-    private class TcpServer extends TcpElement {
-
+        /**
+         * TCP server socket.
+         */
         private ServerSocket serverSocket = null;
-        private final LinkedList<Socket> clientSockets = new LinkedList<>();
-        private final LinkedList<Socket> removableSockets = new LinkedList<>();
 
-        TcpServer(final int port) {
-            super(port);
-        }
+        /**
+         * A list of client sockets.
+         */
+        private final List<Socket> clientSockets = new LinkedList<>();
+
+        /**
+         * A list of removable client sockets.
+         */
+        private final List<Socket> removableSockets = new LinkedList<>();
 
         @Override
         public void run() {
-            openServerSocket();
+            try {
+                serverSocket = new ServerSocket(port);
+            } catch (IOException e) {
+                throw new UnsupportedOperationException("Cannot open port", e);
+            }
             Socket clientSocket;
             while (!isStopped()) {
                 try {
-                    clientSocket = this.serverSocket.accept();
+                    clientSocket = serverSocket.accept();
                 } catch (IOException e) {
                     if (isStopped()) {
                         return;
@@ -186,21 +223,14 @@ public class AdapterTcp extends AbstractAdapter {
             }
         }
 
+        @Override
         public synchronized void stop() {
-            this.isStopped = true;
+            super.stop();
             try {
                 this.serverSocket.close();
             } catch (IOException e) {
                 throw new UnsupportedOperationException(
                         "Error closing server", e);
-            }
-        }
-
-        private void openServerSocket() {
-            try {
-                this.serverSocket = new ServerSocket(this.port);
-            } catch (IOException e) {
-                throw new UnsupportedOperationException("Cannot open port", e);
             }
         }
 
@@ -223,12 +253,23 @@ public class AdapterTcp extends AbstractAdapter {
             }
         }
 
+        /**
+         * Notifies the observes that a new packet has arrived.
+         */
         private class WorkerRunnable extends Observable implements Runnable {
 
+            /**
+             * Reference to the clientSocket.
+             */
             private final Socket clientSocket;
 
-            WorkerRunnable(Socket clientSocket) {
-                this.clientSocket = clientSocket;
+            /**
+             * Creates a new WorkerRunnable given a clientSocket.
+             *
+             * @param socket the clientSocket
+             */
+            WorkerRunnable(final Socket socket) {
+                this.clientSocket = socket;
             }
 
             @Override
@@ -236,15 +277,8 @@ public class AdapterTcp extends AbstractAdapter {
                 try {
                     InputStream in = clientSocket.getInputStream();
                     DataInputStream dis = new DataInputStream(in);
-                    while (true) {
-                        int net = Byte.toUnsignedInt(dis.readByte());
-                        int len = Byte.toUnsignedInt(dis.readByte());
-                        byte[] data = new byte[len];
-                        data[NET_INDEX] = (byte) net;
-                        data[LEN_INDEX] = (byte) len;
-                        if (len > 0) {
-                            dis.readFully(data, LEN_INDEX + 1, len - 2);
-                        }
+                    while (!isStopped()) {
+                        byte[] data = new NetworkPacket(dis).toByteArray();
                         setChanged();
                         notifyObservers(data);
                     }
