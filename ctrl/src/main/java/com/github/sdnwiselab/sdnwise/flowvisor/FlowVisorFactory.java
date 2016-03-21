@@ -16,8 +16,10 @@
  */
 package com.github.sdnwiselab.sdnwise.flowvisor;
 
-import com.github.sdnwiselab.sdnwise.adapter.*;
-import com.github.sdnwiselab.sdnwise.configuration.*;
+import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.configuration.ConfigFlowVisor;
+import com.github.sdnwiselab.sdnwise.configuration.Configurator;
 
 /**
  * FlowVisorFactory creates an FlowVisor object given the specifications
@@ -40,7 +42,7 @@ public class FlowVisorFactory {
      * @return FlowVisor object with a new AdapterUdp for Lower AbstractAdapter
      * and Upper AbstractAdapter
      */
-    public static final FlowVisor getFlowvisor(Configurator config) {
+    public static final FlowVisor getFlowvisor(final Configurator config) {
         conf = config.getFlowvisor();
         return new FlowVisor(getLower(), getUpper());
     }
