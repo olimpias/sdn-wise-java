@@ -36,29 +36,43 @@ import java.util.logging.Level;
  */
 public class AdapterUdp extends AbstractAdapter {
 
-    private final int IN_PORT;
-    private final String OUT_IP;
-    private final int OUT_PORT;
+    /**
+     * UDP port of the source.
+     */
+    private final int inPort;
+    /**
+     * IP address of the destination.
+     */
+    private final String outIp;
+    /**
+     * UDP port of the destination.
+     */
+    private final int outPort;
+    /**
+     * UDP Socket.
+     */
     private DatagramSocket sck;
-    private UDPServer udpServer;
+    /**
+     * Models an UDP receiver.
+     */
+    private InternalUDPServer udpServer;
 
     /**
      * Creates an AdapterUDP object. The conf map is used to pass the
      * configuration settings for the serial port as strings. Specifically
      * needed parameters are:
      * <ol>
-     * <li>OUT_IP</li>
-     * <li>OUT_PORT</li>
-     * <li>IN_PORT</li>
-     * <li>MAX_PAYLOAD</li>
+     * <li>outIp</li>
+     * <li>outPort</li>
+     * <li>inPort</li>
      * </ol>
      *
      * @param conf contains the serial port configuration data.
      */
     public AdapterUdp(final Map<String, String> conf) {
-        this.OUT_IP = conf.get("OUT_IP");
-        this.OUT_PORT = Integer.parseInt(conf.get("OUT_PORT"));
-        this.IN_PORT = Integer.parseInt(conf.get("IN_PORT"));
+        this.outIp = conf.get("OUT_IP");
+        this.outPort = Integer.parseInt(conf.get("OUT_PORT"));
+        this.inPort = Integer.parseInt(conf.get("IN_PORT"));
     }
 
     @Override
@@ -71,8 +85,8 @@ public class AdapterUdp extends AbstractAdapter {
     @Override
     public final boolean open() {
         try {
-            sck = new DatagramSocket(IN_PORT);
-            udpServer = new UDPServer(sck);
+            sck = new DatagramSocket(inPort);
+            udpServer = new InternalUDPServer();
             udpServer.addObserver(this);
             new Thread(udpServer).start();
             return true;
@@ -86,7 +100,7 @@ public class AdapterUdp extends AbstractAdapter {
     public final void send(final byte[] data) {
         try {
             DatagramPacket packet = new DatagramPacket(
-                    data, data.length, InetAddress.getByName(OUT_IP), OUT_PORT);
+                    data, data.length, InetAddress.getByName(outIp), outPort);
             sck.send(packet);
         } catch (IOException ex) {
             log(Level.SEVERE, ex.toString());
@@ -111,14 +125,16 @@ public class AdapterUdp extends AbstractAdapter {
         }
     }
 
-    private final class UDPServer extends Observable implements Runnable {
+    /**
+     * Models an UDP Receiver.
+     */
+    private final class InternalUDPServer extends Observable implements
+            Runnable {
 
+        /**
+         * Manages the status of the server.
+         */
         private boolean isStopped;
-        private final DatagramSocket sck;
-
-        UDPServer(final DatagramSocket socket) {
-            this.sck = socket;
-        }
 
         @Override
         public void run() {
