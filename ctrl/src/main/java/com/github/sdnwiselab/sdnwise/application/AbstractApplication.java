@@ -47,8 +47,18 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * To avoid garbage collection of the logger.
      */
     protected static final Logger LOGGER = Logger.getLogger("APP");
+    /**
+     * Incomig packets queue size.
+     */
+    private static final int QUEUE_SIZE = 1000;
+    /**
+     * Incoming packets queue.
+     */
     private final ArrayBlockingQueue<NetworkPacket> bQ;
-    protected final AbstractController controller;
+    /**
+     * Controller.
+     */
+    private final AbstractController controller;
 
     /**
      * Creates an Application Abstract Class.
@@ -56,11 +66,12 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * @param ctrl the controller to be used
      * @param lower the adapter to be used
      */
-    public AbstractApplication(AbstractController ctrl, AbstractAdapter lower) {
+    public AbstractApplication(final AbstractController ctrl,
+            final AbstractAdapter lower) {
         super("APP", lower, null);
         ControlPlaneLogger.setupLogger(layerShortName);
         this.controller = ctrl;
-        bQ = new ArrayBlockingQueue<>(1000);
+        bQ = new ArrayBlockingQueue<>(QUEUE_SIZE);
     }
 
     /**
@@ -68,13 +79,24 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      *
      * @return the controller network graph.
      */
-    public NetworkGraph getNetworkGraph() {
+    public final NetworkGraph getNetworkGraph() {
         return controller.getNetworkGraph();
     }
 
+    /**
+     * Invoked every time there is a change in the topology of the network. A
+     * change can be an added/removed node/link or a variation in the rssi
+     * between nodes. The granularity of this updates can be specified in the
+     * NetworkGraph class.
+     */
     public abstract void graphUpdate();
 
-    public abstract void receivePacket(DataPacket data);
+    /**
+     * Invoked every time a DataPacket is received by the application.
+     *
+     * @param data incoming DataPacket.
+     */
+    public abstract void receivePacket(final DataPacket data);
 
     /**
      * Sends a generic message to a node. The message is represented by an array
@@ -84,9 +106,11 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * @param dst network address of the dst node
      * @param message the content of the message to be sent
      */
-    public final void sendMessage(byte net, NodeAddress dst, byte[] message) {
+    public final void sendMessage(final byte net, final NodeAddress dst,
+            final byte[] message) {
         if (message.length != 0) {
-            DataPacket dp = new DataPacket(net, controller.getSinkAddress(), dst, message);
+            DataPacket dp = new DataPacket(net, controller.getSinkAddress(),
+                    dst, message);
             dp.setNxh(controller.getSinkAddress());
             lower.send(dp.toByteArray());
         }
@@ -99,7 +123,8 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * @param destination network address of the destination node
      * @param message the content of the message to be sent
      */
-    public final void sendMessage(byte net, NodeAddress destination, String message) {
+    public final void sendMessage(final byte net, final NodeAddress destination,
+            final String message) {
         if (message != null && !message.isEmpty()) {
             this.sendMessage(net, destination, message.getBytes(UTF8_CHARSET));
         }
@@ -113,7 +138,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     }
 
     @Override
-    public final void update(Observable o, Object arg) {
+    public final void update(final Observable o, final Object arg) {
         if (o.equals(lower)) {
             try {
                 bQ.put(new NetworkPacket((byte[]) arg));
@@ -123,31 +148,30 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
         }
     }
 
-    private void managePacket(NetworkPacket data) {
-        if (data.getTyp() == DATA) {
-            receivePacket(new DataPacket(data));
-        }
-    }
-
     @Override
     protected final void setupLayer() {
-        new Thread(new Worker(bQ)).start();
+        new Thread(new Worker()).start();
     }
 
+    /**
+     * Extracts the packets from the incoming queue and send them to the
+     * receivePacket function.
+     */
     private class Worker implements Runnable {
 
-        private final ArrayBlockingQueue<NetworkPacket> bQ;
+        /**
+         * Manages the status of the worker.
+         */
         private boolean isStopped;
-
-        Worker(ArrayBlockingQueue<NetworkPacket> bQ) {
-            this.bQ = bQ;
-        }
 
         @Override
         public void run() {
             while (!isStopped) {
                 try {
-                    managePacket(bQ.take());
+                    NetworkPacket data = bQ.take();
+                    if (data.getTyp() == DATA) {
+                        receivePacket(new DataPacket(data));
+                    }
                 } catch (InterruptedException ex) {
                     log(Level.SEVERE, ex.toString());
                     isStopped = true;
