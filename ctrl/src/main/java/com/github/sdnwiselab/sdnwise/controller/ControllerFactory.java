@@ -34,7 +34,10 @@ import java.net.InetSocketAddress;
  */
 public class ControllerFactory {
 
-    private static InetSocketAddress newId = null;
+    /**
+     * Controller Identificator.
+     */
+    private static InetSocketAddress id = null;
 
     /**
      * Returns the corresponding AbstractController object given a Configurator
@@ -46,10 +49,14 @@ public class ControllerFactory {
     public final AbstractController getController(final Configurator config) {
         AbstractAdapter adapt = getLower(config.getController());
         NetworkGraph ng = getNetworkGraph(config.getController());
-        return getControllerType(config.getController(), newId, adapt, ng);
+        return getControllerType(config.getController(), id, adapt, ng);
     }
 
-    public AbstractController getControllerType(ConfigController conf, InetSocketAddress newId, AbstractAdapter adapt, NetworkGraph ng) {
+    public final AbstractController getControllerType(
+            final ConfigController conf,
+            final InetSocketAddress newId,
+            final AbstractAdapter adapt,
+            final NetworkGraph ng) {
         String type = conf.getAlgorithm().get("TYPE");
 
         switch (type) {
@@ -61,16 +68,16 @@ public class ControllerFactory {
         }
     }
 
-    public AbstractAdapter getLower(ConfigController conf) {
+    public final AbstractAdapter getLower(final ConfigController conf) {
 
         String type = conf.getLower().get("TYPE");
         switch (type) {
             case "TCP":
-                newId = new InetSocketAddress(conf.getLower().get("IP"),
+                id = new InetSocketAddress(conf.getLower().get("IP"),
                         Integer.parseInt(conf.getLower().get("PORT")));
                 return new AdapterTcp(conf.getLower());
             case "UDP":
-                newId = new InetSocketAddress(conf.getLower().get("OUT_IP"),
+                id = new InetSocketAddress(conf.getLower().get("OUT_IP"),
                         Integer.parseInt(conf.getLower().get("IN_PORT")));
                 return new AdapterUdp(conf.getLower());
             default:
@@ -78,10 +85,11 @@ public class ControllerFactory {
         }
     }
 
-    public NetworkGraph getNetworkGraph(ConfigController conf) {
+    public final NetworkGraph getNetworkGraph(final ConfigController conf) {
         String graph = conf.getMap().get("GRAPH");
         int timeout = Integer.parseInt(conf.getMap().get("TIMEOUT"));
-        int rssiResolution = Integer.parseInt(conf.getMap().get("RSSI_RESOLUTION"));
+        int rssiResolution = Integer.parseInt(conf.getMap()
+                .get("RSSI_RESOLUTION"));
 
         switch (graph) {
             case "GUI":
@@ -89,7 +97,8 @@ public class ControllerFactory {
             case "CLI":
                 return new NetworkGraph(timeout, rssiResolution);
             default:
-                throw new UnsupportedOperationException("Error in Configuration file");
+                throw new UnsupportedOperationException(
+                        "Error in Configuration file");
         }
     }
 
