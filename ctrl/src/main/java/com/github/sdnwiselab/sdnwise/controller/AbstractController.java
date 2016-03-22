@@ -17,22 +17,41 @@
 package com.github.sdnwiselab.sdnwise.controller;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
-import com.github.sdnwiselab.sdnwise.controlplane.*;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLayer;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLogger;
 import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.ConfigPacket;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import static com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty.*;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
+import com.github.sdnwiselab.sdnwise.packet.OpenPathPacket;
+import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
+import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
+import com.github.sdnwiselab.sdnwise.packet.ResponsePacket;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import static com.github.sdnwiselab.sdnwise.util.Utils.*;
-import java.io.*;
+import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
+import static com.github.sdnwiselab.sdnwise.util.Utils.splitInteger;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.logging.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.jodah.expiringmap.ExpiringMap;
 
 /**
@@ -50,8 +69,31 @@ import net.jodah.expiringmap.ExpiringMap;
  *
  * @author Sebastiano Milardo
  */
-public abstract class AbstractController extends ControlPlaneLayer implements ControllerInterface {
+public abstract class AbstractController extends ControlPlaneLayer implements
+        ControllerInterface {
 
+    /**
+     * Function buffer size.
+     */
+    private static final int BUFF_SIZE = 16384;
+    /**
+     * First request delay.
+     */
+    private static final int DELAY = 200;
+    /**
+     * Fields and lengths.
+     */
+    private static final int FUNCTION_HEADER_LEN = 3, CONFIG_HEADER_LEN = 1,
+            FUNCTION_PAYLOAD_LEN = MAX_PACKET_LENGTH - (DFLT_HDR_LEN
+            + FUNCTION_HEADER_LEN + CONFIG_HEADER_LEN);
+    /**
+     * Maximum number of parts for a function.
+     */
+    private static final int PARTS_MAX = 256;
+    /**
+     * Packet queue size.
+     */
+    private static final int QUEUE_SIZE = 1000;
     /**
      * Timeout for requests in cache.
      */
@@ -64,57 +106,95 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * Timeout for a node request. Increase when using COOJA.
      */
     protected static final int RESPONSE_TIMEOUT = 300;
-
-    private final ArrayBlockingQueue<NetworkPacket> bQ = new ArrayBlockingQueue<>(1000);
+    /**
+     * Incoming queue.
+     */
+    private final ArrayBlockingQueue<NetworkPacket> bQ
+            = new ArrayBlockingQueue<>(QUEUE_SIZE);
+    /**
+     * Query cache.
+     */
     private final Map<String, ConfigPacket> configCache = ExpiringMap
             .builder().expiration(CACHE_EXP_TIME, TimeUnit.SECONDS).build();
-    private final InetSocketAddress id;
+    /**
+     * Identificator of the controller.
+     */
+    private final InetSocketAddress myId;
+    /**
+     * Network representation.
+     */
+    private final NetworkGraph networkGraph;
+
+    /**
+     * Request cache.
+     */
     private final Map<String, RequestPacket> requestCache = ExpiringMap
             .builder().expiration(CACHE_EXP_TIME, TimeUnit.SECONDS).build();
+
+    /**
+     * Computed paths cache.
+     */
+    private final HashMap<NodeAddress, LinkedList<NodeAddress>> results
+            = new HashMap<>();
+
+    /**
+     * Sink Address.
+     */
     private NodeAddress sinkAddress;
 
-    protected final NetworkGraph networkGraph;
-    protected final HashMap<NodeAddress, LinkedList<NodeAddress>> results = new HashMap<>();
-
-    public static List<ConfigPacket> createPackets(
+    /**
+     * Converts a Function into a series of ConfigPackets.
+     *
+     * @param net Network ID of the packet
+     * @param src source address of the packet
+     * @param dst destination address of the packet
+     * @param id if of the function
+     * @param buf the function itself as a byte array
+     * @return a list of ConfigPackets
+     */
+    public static List<ConfigPacket> createConfigFunctionPackets(
             final byte net,
             final NodeAddress src,
             final NodeAddress dst,
             final byte id,
             final byte[] buf) {
         LinkedList<ConfigPacket> ll = new LinkedList<>();
-
-        int FUNCTION_HEADER_LEN = 4;
-        int FUNCTION_PAYLOAD_LEN = MAX_PACKET_LENGTH
-                - (DFLT_HDR_LEN + FUNCTION_HEADER_LEN);
-
         int packetNumber = buf.length / FUNCTION_PAYLOAD_LEN;
         int remaining = buf.length % FUNCTION_PAYLOAD_LEN;
-        int totalPackets = packetNumber + (remaining > 0 ? 1 : 0);
+        int totalPackets = packetNumber;
+        if (remaining > 0) {
+            totalPackets++;
+        }
         int pointer = 0;
         int i = 0;
 
-        if (packetNumber < 256) {
+        if (packetNumber < PARTS_MAX) {
             if (packetNumber > 0) {
                 for (i = 0; i < packetNumber; i++) {
-                    byte[] payload = ByteBuffer.allocate(FUNCTION_PAYLOAD_LEN + 3)
+                    byte[] payload = ByteBuffer.allocate(FUNCTION_PAYLOAD_LEN
+                            + FUNCTION_HEADER_LEN)
                             .put(id)
                             .put((byte) (i + 1))
                             .put((byte) totalPackets)
-                            .put(Arrays.copyOfRange(buf, pointer, pointer + FUNCTION_PAYLOAD_LEN)).array();
+                            .put(Arrays.copyOfRange(buf, pointer, pointer
+                                    + FUNCTION_PAYLOAD_LEN)).array();
                     pointer += FUNCTION_PAYLOAD_LEN;
-                    ConfigPacket np = new ConfigPacket(net, src, dst, ADD_FUNCTION, payload);
+                    ConfigPacket np = new ConfigPacket(net, src, dst,
+                            ADD_FUNCTION, payload);
                     ll.add(np);
                 }
             }
 
             if (remaining > 0) {
-                byte[] payload = ByteBuffer.allocate(remaining + 3)
+                byte[] payload = ByteBuffer.allocate(remaining
+                        + FUNCTION_HEADER_LEN)
                         .put(id)
                         .put((byte) (i + 1))
                         .put((byte) totalPackets)
-                        .put(Arrays.copyOfRange(buf, pointer, pointer + remaining)).array();
-                ConfigPacket np = new ConfigPacket(net, src, dst, ADD_FUNCTION, payload);
+                        .put(Arrays.copyOfRange(buf, pointer, pointer
+                                + remaining)).array();
+                ConfigPacket np = new ConfigPacket(net, src, dst, ADD_FUNCTION,
+                        payload);
                 ll.add(np);
             }
         }
@@ -126,31 +206,36 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      *
      * @param id ControllerId object.
      * @param lower Lower Adpater object.
-     * @param networkGraph NetworkGraph object.
+     * @param network NetworkGraph object.
      */
-    AbstractController(InetSocketAddress id, AbstractAdapter lower, NetworkGraph networkGraph) {
+    AbstractController(final InetSocketAddress id,
+            final AbstractAdapter lower,
+            final NetworkGraph network) {
         super("CTRL", lower, null);
         this.sinkAddress = new NodeAddress("0.1");
         ControlPlaneLogger.setupLogger(layerShortName);
-        this.id = id;
-        this.networkGraph = networkGraph;
+        this.myId = id;
+        this.networkGraph = network;
     }
 
     @Override
-    public final void addNodeAlias(byte net, NodeAddress dst,
-            NodeAddress newAddr) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, ADD_ALIAS, newAddr.getArray());
+    public final void addNodeAlias(final byte net, final NodeAddress dst,
+            final NodeAddress newAddr) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, ADD_ALIAS,
+                newAddr.getArray());
         sendNetworkPacket(cp);
     }
 
     @Override
-    public void addNodeFunction(byte net, NodeAddress dst, byte id, String className) {
+    public final void addNodeFunction(final byte net, final NodeAddress dst,
+            final byte id, final String className) {
         try {
-            InputStream is = FunctionInterface.class.getResourceAsStream(className);
+            InputStream is = FunctionInterface.class.getResourceAsStream(
+                    className);
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
             int nRead;
-            byte[] data = new byte[16384];
+            byte[] data = new byte[BUFF_SIZE];
 
             while ((nRead = is.read(data, 0, data.length)) != -1) {
                 buffer.write(data, 0, nRead);
@@ -158,12 +243,12 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
 
             buffer.flush();
 
-            List<ConfigPacket> ll = createPackets(
+            List<ConfigPacket> ll = createConfigFunctionPackets(
                     net, sinkAddress, dst, id, buffer.toByteArray());
             Iterator<ConfigPacket> llIterator = ll.iterator();
             if (llIterator.hasNext()) {
                 sendNetworkPacket(llIterator.next());
-                Thread.sleep(200);
+                Thread.sleep(DELAY);
                 while (llIterator.hasNext()) {
                     sendNetworkPacket(llIterator.next());
                 }
@@ -175,33 +260,44 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     }
 
     @Override
-    public final void addNodeRule(byte net, NodeAddress destination, FlowTableEntry rule) {
-        ResponsePacket rp = new ResponsePacket(net, sinkAddress, destination, rule);
+    public final void addNodeRule(final byte net, final NodeAddress destination,
+            final FlowTableEntry rule) {
+        ResponsePacket rp = new ResponsePacket(
+                net, sinkAddress, destination, rule);
         sendNetworkPacket(rp);
     }
 
     @Override
     public final InetSocketAddress getId() {
-        return id;
+        return myId;
     }
 
+    /**
+     * Gets the topological representation of the network.
+     *
+     * @return a NetworkGraph object
+     */
     @Override
-    public NetworkGraph getNetworkGraph() {
+    public final NetworkGraph getNetworkGraph() {
         return networkGraph;
     }
 
     @Override
-    public final NodeAddress getNodeAddress(byte net, NodeAddress dst) {
+    public final NodeAddress getNodeAddress(final byte net,
+            final NodeAddress dst) {
         return new NodeAddress(getNodeValue(net, dst, MY_ADDRESS));
     }
 
     @Override
-    public NodeAddress getNodeAlias(byte net, NodeAddress dst, byte index) {
+    public final NodeAddress getNodeAlias(final byte net, final NodeAddress dst,
+            final byte index) {
         try {
-            ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_ALIAS);
+            ConfigPacket cp = new ConfigPacket(
+                    net, sinkAddress, dst, GET_ALIAS);
             cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
             ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
+            byte[] rule = Arrays.copyOfRange(
+                    response.getParams(), 1, response.getPayloadSize() - 1);
             return new NodeAddress(rule);
         } catch (TimeoutException ex) {
             return null;
@@ -223,42 +319,50 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     }
 
     @Override
-    public final int getNodeBeaconPeriod(byte net, NodeAddress dst) {
+    public final int getNodeBeaconPeriod(final byte net,
+            final NodeAddress dst) {
         return getNodeValue(net, dst, BEACON_PERIOD);
     }
 
     @Override
-    public final int getNodeEntryTtl(byte net, NodeAddress dst) {
+    public final int getNodeEntryTtl(final byte net,
+            final NodeAddress dst) {
         return getNodeValue(net, dst, RULE_TTL);
     }
 
     @Override
-    public final int getNodeNet(byte net, NodeAddress dst) {
+    public final int getNodeNet(final byte net,
+            final NodeAddress dst) {
         return getNodeValue(net, dst, MY_NET);
     }
 
     @Override
-    public final int getNodePacketTtl(byte net, NodeAddress dst) {
+    public final int getNodePacketTtl(final byte net,
+            final NodeAddress dst) {
         return getNodeValue(net, dst, PACKET_TTL);
     }
 
     @Override
-    public final int getNodeReportPeriod(byte net, NodeAddress dst) {
+    public final int getNodeReportPeriod(final byte net,
+            final NodeAddress dst) {
         return getNodeValue(net, dst, REPORT_PERIOD);
     }
 
     @Override
-    public final int getNodeRssiMin(byte net, NodeAddress dst) {
+    public final int getNodeRssiMin(final byte net,
+            final NodeAddress dst) {
         return getNodeValue(net, dst, RSSI_MIN);
     }
 
     @Override
-    public final FlowTableEntry getNodeRule(byte net, NodeAddress dst, int index) {
+    public final FlowTableEntry getNodeRule(final byte net,
+            final NodeAddress dst, final int index) {
         try {
             ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, GET_RULE);
             cp.setParams(new byte[]{(byte) index}, GET_RULE.getSize());
             ConfigPacket response = sendQuery(cp);
-            byte[] rule = Arrays.copyOfRange(response.getParams(), 1, response.getPayloadSize() - 1);
+            byte[] rule = Arrays.copyOfRange(
+                    response.getParams(), 1, response.getPayloadSize() - 1);
             if (rule.length > 0) {
                 return new FlowTableEntry(rule);
             } else {
@@ -282,12 +386,26 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return list;
     }
 
+    /**
+     * Gets an HashMap with the already computed path.
+     *
+     * @return an hash map with the computed results
+     */
+    public final HashMap<NodeAddress, LinkedList<NodeAddress>> getResults() {
+        return results;
+    }
+
     @Override
-    public NodeAddress getSinkAddress() {
+    public final NodeAddress getSinkAddress() {
         return sinkAddress;
     }
 
-    public void managePacket(final NetworkPacket data) {
+    /**
+     * Manages the packets coming from the network.
+     *
+     * @param data an incoming NetworkPacket
+     */
+    public final void managePacket(final NetworkPacket data) {
 
         switch (data.getTyp()) {
             case REPORT:
@@ -325,50 +443,61 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     }
 
     @Override
-    public final void removeNodeAlias(byte net, NodeAddress dst, byte index) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_ALIAS, new byte[]{index});
+    public final void removeNodeAlias(final byte net, final NodeAddress dst,
+            final byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_ALIAS,
+                new byte[]{index});
         sendNetworkPacket(cp);
     }
 
     @Override
-    public void removeNodeFunction(byte net, NodeAddress dst, byte index) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_FUNCTION, new byte[]{index});
+    public final void removeNodeFunction(final byte net, final NodeAddress dst,
+            final byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_FUNCTION,
+                new byte[]{index});
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void removeNodeRule(byte net, NodeAddress dst, byte index) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_RULE, new byte[]{index});
+    public final void removeNodeRule(final byte net, final NodeAddress dst,
+            final byte index) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, REM_RULE,
+                new byte[]{index});
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void resetNode(byte net, NodeAddress dst) {
+    public final void resetNode(final byte net, final NodeAddress dst) {
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RESET);
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void sendPath(byte net, NodeAddress dst, List<NodeAddress> path) {
+    public final void sendPath(final byte net, final NodeAddress dst,
+            final List<NodeAddress> path) {
         OpenPathPacket op = new OpenPathPacket(net, sinkAddress, dst, path);
         sendNetworkPacket(op);
     }
 
     @Override
-    public final void setNodeAddress(byte net, NodeAddress dst, NodeAddress newAddress) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, MY_ADDRESS, newAddress.getArray());
+    public final void setNodeAddress(final byte net, final NodeAddress dst,
+            final NodeAddress newAddress) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, MY_ADDRESS,
+                newAddress.getArray());
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void setNodeBeaconPeriod(byte net, NodeAddress dst, short period) {
+    public final void setNodeBeaconPeriod(final byte net, final NodeAddress dst,
+            final short period) {
         ConfigPacket cp = new ConfigPacket(
                 net, sinkAddress, dst, BEACON_PERIOD, splitInteger(period));
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void setNodeEntryTtl(byte net, NodeAddress dst, short period) {
+    public final void setNodeEntryTtl(final byte net, final NodeAddress dst,
+            final short period) {
         //TODO TTL should be in seconds
         ConfigPacket cp = new ConfigPacket(
                 net, sinkAddress, dst, RULE_TTL, splitInteger(period));
@@ -376,34 +505,40 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
     }
 
     @Override
-    public final void setNodeNet(byte net, NodeAddress dst, byte newNet) {
+    public final void setNodeNet(final byte net, final NodeAddress dst,
+            final byte newNet) {
         ConfigPacket cp = new ConfigPacket(
                 net, sinkAddress, dst, MY_NET, new byte[]{newNet});
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void setNodePacketTtl(byte net, NodeAddress dst, byte newTtl) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, PACKET_TTL, new byte[]{newTtl});
+    public final void setNodePacketTtl(final byte net, final NodeAddress dst,
+            final byte newTtl) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, PACKET_TTL,
+                new byte[]{newTtl});
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void setNodeReportPeriod(byte net, NodeAddress dst, short period) {
+    public final void setNodeReportPeriod(final byte net, final NodeAddress dst,
+            final short period) {
         ConfigPacket cp = new ConfigPacket(
                 net, sinkAddress, dst, REPORT_PERIOD, splitInteger(period));
         sendNetworkPacket(cp);
     }
 
     @Override
-    public final void setNodeRssiMin(byte net, NodeAddress dst, byte newRssi) {
-        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RSSI_MIN, new byte[]{newRssi});
+    public final void setNodeRssiMin(final byte net, final NodeAddress dst,
+            final byte newRssi) {
+        ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, RSSI_MIN,
+                new byte[]{newRssi});
         sendNetworkPacket(cp);
     }
 
     @Override
-    public void setupLayer() {
-        new Thread(new Worker(bQ)).start();
+    public final void setupLayer() {
+        new Thread(new Worker()).start();
         networkGraph.addObserver(this);
         register();
         setupNetwork();
@@ -420,7 +555,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      * @param arg Object sent by Observable.
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public final void update(final Observable o, final Object arg) {
         if (o.equals(lower)) {
             try {
                 bQ.put(new NetworkPacket((byte[]) arg));
@@ -432,6 +567,14 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         }
     }
 
+    /**
+     * Gets a property from a node.
+     *
+     * @param net Network ID of the packet
+     * @param dst destination address of the packet
+     * @param cfp the property to configure
+     * @return the value from the node
+     */
     private int getNodeValue(final byte net, final NodeAddress dst,
             final ConfigProperty cfp) {
         ConfigPacket cp = new ConfigPacket(net, sinkAddress, dst, cfp);
@@ -448,13 +591,20 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         }
     }
 
-    private NetworkPacket putInRequestCache(RequestPacket rp) {
+    /**
+     * Adds a Request packet in the cache. If the cache already contains a
+     * request with the same key, it means that this is a response, therefore it
+     * returns the packet, otherwise returns null
+     *
+     * @param rp an incoming Request packet
+     * @return null if it sent by the controller, the RequestPacket if sent by a
+     * node
+     */
+    private NetworkPacket putInRequestCache(final RequestPacket rp) {
         if (rp.getTotal() == 1) {
             return new NetworkPacket(rp.getData());
         }
-
         String key = rp.getSrc() + "." + rp.getId();
-
         if (requestCache.containsKey(key)) {
             RequestPacket p0 = requestCache.remove(key);
             return RequestPacket.mergePackets(p0, rp);
@@ -464,11 +614,22 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
         return null;
     }
 
+    /**
+     * Will be used in the future to implement security polcies.
+     */
     private void register() {
         //TODO we need to implement same sort of security check/auth.
     }
 
-    private ConfigPacket sendQuery(ConfigPacket cp) throws TimeoutException {
+    /**
+     * Sends a ConfigPacket to query the node.
+     *
+     * @param cp the Config packet to be sent
+     * @return the response from the node
+     * @throws TimeoutException if the node does not respond
+     */
+    private ConfigPacket sendQuery(final ConfigPacket cp)
+            throws TimeoutException {
 
         sendNetworkPacket(cp);
 
@@ -503,27 +664,23 @@ public abstract class AbstractController extends ControlPlaneLayer implements Co
      *
      * @param packet the packet to be sent.
      */
-    protected void sendNetworkPacket(NetworkPacket packet) {
+    protected final void sendNetworkPacket(final NetworkPacket packet) {
         packet.setNxh(sinkAddress);
         lower.send(packet.toByteArray());
     }
 
+    /**
+     * Manages the queue of incoming packets.
+     */
     private class Worker implements Runnable {
-
-        private final ArrayBlockingQueue<NetworkPacket> bQ;
-        private boolean isStopped;
-
-        Worker(ArrayBlockingQueue<NetworkPacket> bQ) {
-            this.bQ = bQ;
-        }
 
         @Override
         public void run() {
-            while (!isStopped) {
+            while (true) {
                 try {
                     managePacket(bQ.take());
                 } catch (InterruptedException ex) {
-                    isStopped = true;
+                    Logger.getGlobal().log(Level.SEVERE, ex.toString());
                 }
             }
         }

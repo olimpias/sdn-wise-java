@@ -22,6 +22,7 @@ import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import org.graphstream.algorithm.Dijkstra;
@@ -74,32 +75,34 @@ public final class ControllerDijkstra extends AbstractController {
             final NetworkPacket data) {
 
         log(Level.INFO, data.toString());
+        NetworkGraph network = getNetworkGraph();
+        HashMap<NodeAddress, LinkedList<NodeAddress>> results = getResults();
 
         String dst = data.getNet() + "." + data.getDst();
         String src = data.getNet() + "." + req.getSrc();
 
         if (!src.equals(dst)) {
 
-            Node srcNode = networkGraph.getNode(src);
-            Node dstNode = networkGraph.getNode(dst);
+            Node srcNode = network.getNode(src);
+            Node dstNode = network.getNode(dst);
             LinkedList<NodeAddress> p = null;
 
             if (srcNode != null && dstNode != null) {
 
                 if (!lastSource.equals(src) || lastModification
-                        != networkGraph.getLastModification()) {
+                        != network.getLastModification()) {
                     results.clear();
-                    dijkstra.init(networkGraph.getGraph());
-                    dijkstra.setSource(networkGraph.getNode(src));
+                    dijkstra.init(network.getGraph());
+                    dijkstra.setSource(network.getNode(src));
                     dijkstra.compute();
                     lastSource = src;
-                    lastModification = networkGraph.getLastModification();
+                    lastModification = network.getLastModification();
                 } else {
                     p = results.get(data.getDst());
                 }
                 if (p == null) {
                     p = new LinkedList<>();
-                    for (Node node : dijkstra.getPathNodes(networkGraph
+                    for (Node node : dijkstra.getPathNodes(network
                             .getNode(dst))) {
                         p.push((NodeAddress) node.getAttribute("nodeAddress"));
                     }
