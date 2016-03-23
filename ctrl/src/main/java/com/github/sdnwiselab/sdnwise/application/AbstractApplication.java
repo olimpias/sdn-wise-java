@@ -158,12 +158,6 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * receivePacket function.
      */
     private class Worker implements Runnable {
-
-        /**
-         * Manages the status of the worker.
-         */
-        private boolean isStopped;
-
         @Override
         public void run() {
             while (!isStopped) {

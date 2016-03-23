@@ -22,10 +22,24 @@ import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
 /**
+ * Models a logger for each ControlPlane layer.
+ *
  * @author Sebastiano Milardo
  */
-public class ControlPlaneLogger {
+public final class ControlPlaneLogger {
 
+    /**
+     * Private constructor.
+     */
+    private ControlPlaneLogger() {
+        // Nothing to do here
+    }
+
+    /**
+     * Creates a logger using the SimplerFormatter formatter.
+     *
+     * @param prefix the name of the ControlPlane class
+     */
     public static void setupLogger(final String prefix) {
 
         Logger logger = Logger.getLogger(prefix);

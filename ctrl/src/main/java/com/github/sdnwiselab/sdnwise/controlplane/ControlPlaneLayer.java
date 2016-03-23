@@ -18,25 +18,53 @@ package com.github.sdnwiselab.sdnwise.controlplane;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import java.nio.charset.Charset;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Observer;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
+ * Models a layer of the Control Plane. Each layer has a lower and upper adapter
+ * and a scanner to intercept commands coming from the standard input
+ *
  * @author Sebastiano Milardo
  */
 public abstract class ControlPlaneLayer implements Observer, Runnable {
 
+    /**
+     * Identify the layer. This string is reported in each log message.
+     */
     protected final String layerShortName;
-    protected final AbstractAdapter lower;
-    protected final AbstractAdapter upper;
-    protected final Scanner scanner;
+    /**
+     * Adapters.
+     */
+    protected final AbstractAdapter lower, upper;
+    /**
+     * Scanner. Reads incoming commands.
+     */
+    private final Scanner scanner;
+    /**
+     * Manages the status of the layer.
+     */
     protected boolean isStopped;
-    protected final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    /**
+     * Charset in use.
+     */
+    protected static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
 
-    public ControlPlaneLayer(String layerShortName, AbstractAdapter lower, AbstractAdapter upper) {
-        this.layerShortName = layerShortName;
-        this.lower = lower;
-        this.upper = upper;
+    /**
+     * Creates a ControlPlane layer give a name and two adapters.
+     *
+     * @param name the name of the layer
+     * @param low lower adapter
+     * @param up upper adapter
+     */
+    public ControlPlaneLayer(final String name,
+            final AbstractAdapter low,
+            final AbstractAdapter up) {
+        this.layerShortName = name;
+        this.lower = low;
+        this.upper = up;
         this.scanner = new Scanner(System.in, "UTF-8");
     }
 
@@ -59,7 +87,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
         }
     }
 
-    private boolean setupAdapter(AbstractAdapter a) {
+    private boolean setupAdapter(final AbstractAdapter a) {
         if (a == null) {
             return true;
         }
@@ -70,7 +98,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
         return false;
     }
 
-    private void closeAdapter(AbstractAdapter a) {
+    private void closeAdapter(final AbstractAdapter a) {
         if (a != null) {
             a.close();
         }
@@ -84,7 +112,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
      * @param level a standard logging level
      * @param msg the string message to be logged
      */
-    protected void log(Level level, String msg) {
+    protected final void log(final Level level, final String msg) {
         Logger.getLogger(layerShortName).log(level, msg);
     }
 }

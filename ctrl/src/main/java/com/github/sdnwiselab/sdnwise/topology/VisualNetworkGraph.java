@@ -51,32 +51,37 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    public void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
+    public void setupNode(final Node node, final int batt, final long now,
+            final int net, final NodeAddress addr) {
         super.setupNode(node, batt, now, net, addr);
         node.addAttribute("ui.label", node.getId());
         if (net < NetworkPacket.THRES) {
-            node.changeAttribute("ui.style", "fill-color: rgb(0," + batt + ",0),rgb(0,0,0);");
+            node.changeAttribute("ui.style", "fill-color: rgb(0," + batt
+                    + ",0),rgb(0,0,0);");
         } else {
-            node.changeAttribute("ui.style", "fill-color: rgb(" + batt + ",0,0),rgb(0,0,0);");
+            node.changeAttribute("ui.style", "fill-color: rgb(" + batt
+                    + ",0,0),rgb(0,0,0);");
         }
     }
 
     @Override
-    public void updateNode(Node node, int batt, long now) {
+    public void updateNode(final Node node, final int batt, final long now) {
         super.updateNode(node, batt, now);
         if (node.getAttribute("net") != null) {
             int net = node.getAttribute("net");
 
             if (net < 63) {
-                node.changeAttribute("ui.style", "fill-color: rgb(0," + batt + ",0),rgb(0,0,0);");
+                node.changeAttribute("ui.style", "fill-color: rgb(0,"
+                        + batt + ",0),rgb(0,0,0);");
             } else {
-                node.changeAttribute("ui.style", "fill-color: rgb(" + batt + ",0,0),rgb(0,0,0);");
+                node.changeAttribute("ui.style", "fill-color: rgb("
+                        + batt + ",0,0),rgb(0,0,0);");
             }
         }
     }
 
     @Override
-    public void setupEdge(Edge edge, int newLen) {
+    public void setupEdge(final Edge edge, final int newLen) {
         super.setupEdge(edge, newLen);
         int w = 30 + Math.min((((Math.max(255 - newLen, 180)) - 180) * 3), 255);
         edge.changeAttribute("ui.style", "fill-color: rgba(0,0,0," + w + ");");
@@ -85,7 +90,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    public void updateEdge(Edge edge, int newLen) {
+    public void updateEdge(final Edge edge, final int newLen) {
         super.updateEdge(edge, newLen);
         int w = 30 + Math.min((((Math.max(255 - newLen, 180)) - 180) * 3), 255);
         edge.changeAttribute("ui.style", "fill-color: rgba(0,0,0," + w + ");");
