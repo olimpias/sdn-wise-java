@@ -16,10 +16,16 @@
  */
 package com.github.sdnwiselab.sdnwise.topology;
 
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
+import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.util.*;
-import org.graphstream.graph.*;
+import java.util.List;
+import java.util.HashSet;
+import java.util.Observable;
+import java.util.Set;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
 /**
@@ -31,9 +37,11 @@ import org.graphstream.graph.implementations.MultiGraph;
  */
 public class NetworkGraph extends Observable {
 
-    private long lastModification;
+    /**
+     * Timers.
+     */
+    private long lastCheck, lastModification;
     private final int timeout;
-    private long lastCheck;
     protected final Graph graph;
     protected final int rssiResolution;
 
@@ -55,6 +63,53 @@ public class NetworkGraph extends Observable {
         graph.setStrict(false);
     }
 
+    public <T extends Edge> T addEdge(String id, String from, String to,
+            boolean directed) {
+        return graph.addEdge(id, from, to, directed);
+    }
+
+    public <T extends Node> T addNode(String id) {
+        return graph.addNode(id);
+    }
+
+    public final boolean checkConsistency(long now) {
+        boolean modified = false;
+        if (now - lastCheck > (timeout * 1000L)) {
+            lastCheck = now;
+            for (Node n : graph) {
+                if (n.getAttribute("net", Integer.class) < 63
+                        && n.getAttribute("lastSeen", Long.class) != null
+                        && !isAlive(timeout, (long) n.getNumber("lastSeen"),
+                                now)) {
+                    removeNode(n);
+                    modified = true;
+                }
+
+            }
+        }
+        return modified;
+    }
+
+    /**
+     * Gets an Edge of the Graph.
+     *
+     * @param <T> the type of edge in the graph.
+     * @param id string id value to get an Edge.
+     * @return the edge of the graph
+     */
+    public final <T extends Edge> T getEdge(final String id) {
+        return graph.getEdge(id);
+    }
+
+    /**
+     * Gets the Graph contained in the NetworkGraph.
+     *
+     * @return returns a Graph object
+     */
+    public final Graph getGraph() {
+        return graph;
+    }
+
     /**
      * Returns the last time instant when the NetworkGraph was updated.
      *
@@ -66,12 +121,41 @@ public class NetworkGraph extends Observable {
     }
 
     /**
-     * Gets the Graph contained in the NetworkGraph.
+     * Gets a Node of the Graph.
      *
-     * @return returns a Graph object
+     * @param <T> the type of node in the graph.
+     * @param id string id value to get a Node.
+     * @return the node of the graph
      */
-    public final Graph getGraph() {
-        return graph;
+    public final <T extends Node> T getNode(final String id) {
+        return graph.getNode(id);
+    }
+
+    public final boolean isAlive(final long thrs, final long last, final long now) {
+        return ((now - last) < thrs * 1000);
+    }
+
+    public <T extends Edge> T removeEdge(Edge edge) {
+        return graph.removeEdge(edge);
+    }
+
+    public <T extends Node> T removeNode(Node node) {
+        return graph.removeNode(node);
+    }
+
+    public void setupEdge(Edge edge, int newLen) {
+        edge.addAttribute("length", newLen);
+    }
+
+    public void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
+        node.addAttribute("battery", batt);
+        node.addAttribute("lastSeen", now);
+        node.addAttribute("net", net);
+        node.addAttribute("nodeAddress", addr);
+    }
+
+    public void updateEdge(Edge edge, int newLen) {
+        edge.addAttribute("length", newLen);
     }
 
     public final synchronized void updateMap(RequestPacket req, int net, String node1, List<String> neig) {
@@ -221,85 +305,9 @@ public class NetworkGraph extends Observable {
         }
     }
 
-    /**
-     * Gets a Node of the Graph.
-     *
-     * @param <T> the type of node in the graph.
-     * @param id string id value to get a Node.
-     * @return the node of the graph
-     */
-    public final <T extends Node> T getNode(final String id) {
-        return graph.getNode(id);
-    }
-
-    /**
-     * Gets an Edge of the Graph.
-     *
-     * @param <T> the type of edge in the graph.
-     * @param id string id value to get an Edge.
-     * @return the edge of the graph
-     */
-    public final <T extends Edge> T getEdge(final String id) {
-        return graph.getEdge(id);
-    }
-
-    public final boolean checkConsistency(long now) {
-        boolean modified = false;
-        if (now - lastCheck > (timeout * 1000L)) {
-            lastCheck = now;
-            for (Node n : graph) {
-                if (n.getAttribute("net", Integer.class) < 63
-                        && n.getAttribute("lastSeen", Long.class) != null
-                        && !isAlive(timeout, (long) n.getNumber("lastSeen"),
-                                now)) {
-                    removeNode(n);
-                    modified = true;
-                }
-
-            }
-        }
-        return modified;
-    }
-
-    public final boolean isAlive(final long thrs, final long last, final long now) {
-        return ((now - last) < thrs * 1000);
-    }
-
-    public void setupNode(Node node, int batt, long now, int net, NodeAddress addr) {
-        node.addAttribute("battery", batt);
-        node.addAttribute("lastSeen", now);
-        node.addAttribute("net", net);
-        node.addAttribute("nodeAddress", addr);
-    }
-
     public void updateNode(Node node, int batt, long now) {
         node.addAttribute("battery", batt);
         node.addAttribute("lastSeen", now);
-    }
-
-    public void setupEdge(Edge edge, int newLen) {
-        edge.addAttribute("length", newLen);
-    }
-
-    public void updateEdge(Edge edge, int newLen) {
-        edge.addAttribute("length", newLen);
-    }
-
-    public <T extends Node> T addNode(String id) {
-        return graph.addNode(id);
-    }
-
-    public <T extends Edge> T addEdge(String id, String from, String to,
-            boolean directed) {
-        return graph.addEdge(id, from, to, directed);
-    }
-
-    public <T extends Edge> T removeEdge(Edge edge) {
-        return graph.removeEdge(edge);
-    }
-
-    public <T extends Node> T removeNode(Node node) {
-        return graph.removeNode(node);
     }
 
 }

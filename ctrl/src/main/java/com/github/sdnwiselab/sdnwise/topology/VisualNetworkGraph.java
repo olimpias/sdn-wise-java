@@ -70,7 +70,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
         if (node.getAttribute("net") != null) {
             int net = node.getAttribute("net");
 
-            if (net < 63) {
+            if (net < NetworkPacket.THRES) {
                 node.changeAttribute("ui.style", "fill-color: rgb(0,"
                         + batt + ",0),rgb(0,0,0);");
             } else {
