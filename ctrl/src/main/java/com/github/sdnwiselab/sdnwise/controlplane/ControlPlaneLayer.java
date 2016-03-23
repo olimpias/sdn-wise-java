@@ -87,6 +87,12 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
         }
     }
 
+    /**
+     * Opens the adapter and add this object as observer.
+     *
+     * @param a the adapter to open
+     * @return true if opened correctly, false otherwise
+     */
     private boolean setupAdapter(final AbstractAdapter a) {
         if (a == null) {
             return true;
@@ -98,12 +104,20 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
         return false;
     }
 
+    /**
+     * Closes the adapter.
+     *
+     * @param a the adapter to close
+     */
     private void closeAdapter(final AbstractAdapter a) {
         if (a != null) {
             a.close();
         }
     }
 
+    /**
+     * Setup of the ControlPlane layer.
+     */
     protected abstract void setupLayer();
 
     /**
