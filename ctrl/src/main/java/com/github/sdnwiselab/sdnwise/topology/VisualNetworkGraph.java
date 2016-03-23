@@ -31,6 +31,11 @@ import org.graphstream.graph.Node;
 public final class VisualNetworkGraph extends NetworkGraph {
 
     /**
+     * Color constants for rssi.
+     */
+    private static final int MAX_BYTE = 255, MIN_RSSI = 180, BASE = 30, N = 3;
+
+    /**
      * Creates the VisualNetworkGraph object. It requires a time to live for
      * each node in the network and a value representing the RSSI resolution in
      * order to consider a change of the RSSI value a change in the network.
@@ -83,7 +88,8 @@ public final class VisualNetworkGraph extends NetworkGraph {
     @Override
     public void setupEdge(final Edge edge, final int newLen) {
         super.setupEdge(edge, newLen);
-        int w = 30 + Math.min((((Math.max(255 - newLen, 180)) - 180) * 3), 255);
+        int w = BASE + Math.min((((Math.max(MAX_BYTE - newLen, MIN_RSSI))
+                - MIN_RSSI) * N), MAX_BYTE);
         edge.changeAttribute("ui.style", "fill-color: rgba(0,0,0," + w + ");");
         edge.changeAttribute("ui.style", "arrow-shape: arrow;");
         edge.changeAttribute("ui.style", "arrow-size: 5px,2px;");
@@ -92,7 +98,8 @@ public final class VisualNetworkGraph extends NetworkGraph {
     @Override
     public void updateEdge(final Edge edge, final int newLen) {
         super.updateEdge(edge, newLen);
-        int w = 30 + Math.min((((Math.max(255 - newLen, 180)) - 180) * 3), 255);
+        int w = BASE + Math.min((((Math.max(MAX_BYTE - newLen, MIN_RSSI))
+                - MIN_RSSI) * N), MAX_BYTE);
         edge.changeAttribute("ui.style", "fill-color: rgba(0,0,0," + w + ");");
     }
 }

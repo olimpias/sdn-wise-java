@@ -35,17 +35,23 @@ import javax.swing.table.DefaultTableModel;
 public final class ControllerGui extends javax.swing.JFrame {
 
     private static final long serialVersionUID = 1L;
-    private final Charset UTF8_CHARSET = Charset.forName("UTF-8");
-    private final transient AbstractController controller;
+    private final AbstractController controller;
 
     /**
-     * Creates new form ControllerGui
+     * Creates new form ControllerGui.
      *
-     * @param controller
+     * @param ctrl the network controller
      */
-    public ControllerGui(AbstractController controller) {
-        this.controller = controller;
+    public ControllerGui(final AbstractController ctrl) {
+        this.controller = ctrl;
         initComponents();
+        initIcon();
+    }
+
+    /**
+     * Set the icon of the application.
+     */
+    private void initIcon() {
         setIconImage(getToolkit().getImage(
                 getClass().getResource("/sdn-wise_icon.png")));
     }
@@ -500,7 +506,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                     ((Number) this.jSpinnerTTL.getValue()).byteValue());
 
         } catch (ParseException ex) {
-            Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButtonWriteParamsActionPerformed
 
@@ -525,7 +531,7 @@ public final class ControllerGui extends javax.swing.JFrame {
             });
 
         } catch (ParseException ex) {
-            Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButtonReadAcceptedActionPerformed
 
@@ -548,7 +554,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                 ((DefaultTableModel) this.jTableAccepted.getModel()).removeRow(index);
 
             } catch (ParseException ex) {
-                Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getGlobal().log(Level.SEVERE, null, ex);
             }
 
         } else {
@@ -588,7 +594,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                     "Address Error",
                     JOptionPane.ERROR_MESSAGE);
         } catch (ParseException ex) {
-            Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_jButtonAddAcceptedActionPerformed
@@ -613,7 +619,7 @@ public final class ControllerGui extends javax.swing.JFrame {
             });
 
         } catch (ParseException ex) {
-            Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_jButtonReadFlowsActionPerformed
@@ -636,7 +642,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                 model.removeRow(this.jTableFlow.getSelectedRow());
             }
         } catch (ParseException ex) {
-            Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButtonRemoveFlowActionPerformed
 
@@ -656,11 +662,11 @@ public final class ControllerGui extends javax.swing.JFrame {
 
             DataPacket dp = new DataPacket(id, src, dest,
                     jTextField1.getText()
-                    .getBytes(UTF8_CHARSET));
+                    .getBytes(Charset.forName("UTF-8")));
             dp.setNxh(src);
             controller.sendNetworkPacket(dp);
         } catch (ParseException ex) {
-            Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButtonAddAccepted1ActionPerformed
 

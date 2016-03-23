@@ -41,8 +41,20 @@ public class NetworkGraph extends Observable {
      * Timers.
      */
     private long lastCheck, lastModification;
+    /**
+     * TTL of a node. If a node is not sending a message for timeout seconds it
+     * is removed from the network.
+     */
     private final int timeout;
+    /**
+     * Represents the topology of the network
+     */
     protected final Graph graph;
+    /**
+     * If the absolute value of the difference between two successive
+     * measurements of the rssi of a link is greater than this value, an event
+     * is sent to the controller.
+     */
     protected final int rssiResolution;
 
     /**
