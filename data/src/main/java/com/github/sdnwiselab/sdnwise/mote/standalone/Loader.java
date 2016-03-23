@@ -26,6 +26,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 /**
+ * Representation of a command line parser that instanciate an SDN-WISE node.
+ *
  * @author Sebastiano Milardo
  */
 public final class Loader {
@@ -41,53 +43,35 @@ public final class Loader {
      * @param args the command line arguments
      */
     public static void main(final String[] args) {
-
-        Option net = Option.builder("n").argName("net").hasArg().required()
-                .desc("Network ID of the node").numberOfArgs(1).build();
-
-        Option address = Option.builder("a").argName("address").hasArg()
+        Options options = new Options();
+        options.addOption(Option.builder("n").argName("net").hasArg().required()
+                .desc("Network ID of the node").numberOfArgs(1).build());
+        options.addOption(Option.builder("a").argName("address").hasArg()
                 .required().desc("Address of the node <0-65535>")
-                .numberOfArgs(1).build();
-
-        Option port = Option.builder("p").argName("port").hasArg().required()
-                .desc("Listening UDP port").numberOfArgs(1).build();
-
-        Option neighbors = Option.builder("t").argName("filename").hasArg()
+                .numberOfArgs(1).build());
+        options.addOption(Option.builder("p").argName("port").hasArg()
+                .required().desc("Listening UDP port").numberOfArgs(1).build());
+        options.addOption(Option.builder("t").argName("filename").hasArg()
                 .required().desc("Use given file for neighbors discovery")
-                .numberOfArgs(1).build();
-
-        Option controller = Option.builder("c").argName("ip:port").hasArg()
+                .numberOfArgs(1).build());
+        options.addOption(Option.builder("c").argName("ip:port").hasArg()
                 .desc("IP address and TCP port of the controller. (SINK ONLY)")
-                .numberOfArgs(1).build();
-
-        Option switchPort = Option.builder("sp").argName("port").hasArg()
+                .numberOfArgs(1).build());
+        options.addOption(Option.builder("sp").argName("port").hasArg()
                 .desc("Port number of the switch. (SINK ONLY)")
-                .numberOfArgs(1).build();
-
-        Option switchMac = Option.builder("sm").argName("mac").hasArg()
+                .numberOfArgs(1).build());
+        options.addOption(Option.builder("sm").argName("mac").hasArg()
                 .desc("MAC address of the switch. Example: <00:00:00:00:00:00>."
                         + " (SINK ONLY)")
-                .numberOfArgs(1).build();
-
-        Option switchDPID = Option.builder("sd").argName("dpid").hasArg()
+                .numberOfArgs(1).build());
+        options.addOption(Option.builder("sd").argName("dpid").hasArg()
                 .desc("DPID of the switch (SINK ONLY)")
-                .numberOfArgs(1).build();
-
-        Option loglvl = Option.builder("l").argName("level").hasArg()
+                .numberOfArgs(1).build());
+        options.addOption(Option.builder("l").argName("level").hasArg()
                 .desc("Use given log level. Values: SEVERE, WARNING, INFO, "
                         + "CONFIG, FINE, FINER, FINEST.")
-                .numberOfArgs(1).optionalArg(true).build();
+                .numberOfArgs(1).optionalArg(true).build());
 
-        Options options = new Options();
-        options.addOption(net);
-        options.addOption(address);
-        options.addOption(port);
-        options.addOption(neighbors);
-        options.addOption(controller);
-        options.addOption(loglvl);
-        options.addOption(switchPort);
-        options.addOption(switchMac);
-        options.addOption(switchDPID);
         // create the parser
         CommandLineParser parser = new DefaultParser();
         try {
@@ -128,13 +112,8 @@ public final class Loader {
 
                 String[] ipport = line.getOptionValue("c").split(":");
                 th = new Thread(new Sink(cmdNet, cmdAddress, cmdPort, ipport[0],
-                        Integer.parseInt(ipport[1]),
-                        cmdTopo,
-                        cmdLevel,
-                        cmdSDpid,
-                        cmdSMac,
-                        cmdSPort));
-
+                        Integer.parseInt(ipport[1]), cmdTopo, cmdLevel,
+                        cmdSDpid, cmdSMac, cmdSPort));
             } else {
                 th = new Thread(new Mote(cmdNet, cmdAddress, cmdPort, cmdTopo,
                         cmdLevel));
