@@ -52,6 +52,17 @@ public class ControllerFactory {
         return getControllerType(config.getController(), id, adapt, ng);
     }
 
+    /**
+     * Creates a controller. The only accepted type of controller at the
+     * moment is Dijkstra.
+     *
+     * @param conf a ConfigController class containing the config parameters
+     * of the controller
+     * @param newId the id of the controller
+     * @param adapt the lower adapter of the controller
+     * @param ng the NetworkGraph used
+     * @return an AbstractController
+     */
     public final AbstractController getControllerType(
             final ConfigController conf,
             final InetSocketAddress newId,
@@ -68,24 +79,36 @@ public class ControllerFactory {
         }
     }
 
-    public final AbstractAdapter getLower(final ConfigController conf) {
-
+    /**
+     * Creates a lower adapter for the controller.
+     *
+     * @param conf a ConfigController class containing the config parameters
+     * of the controller
+     * @return the lower adapter
+     */
+    private AbstractAdapter getLower(final ConfigController conf) {
         String type = conf.getLower().get("TYPE");
+        id = new InetSocketAddress(conf.getLower().get("IP"),
+                        Integer.parseInt(conf.getLower().get("PORT")));
         switch (type) {
             case "TCP":
-                id = new InetSocketAddress(conf.getLower().get("IP"),
-                        Integer.parseInt(conf.getLower().get("PORT")));
                 return new AdapterTcp(conf.getLower());
             case "UDP":
-                id = new InetSocketAddress(conf.getLower().get("OUT_IP"),
-                        Integer.parseInt(conf.getLower().get("IN_PORT")));
                 return new AdapterUdp(conf.getLower());
             default:
                 throw new UnsupportedOperationException("Error in config file");
         }
     }
 
-    public final NetworkGraph getNetworkGraph(final ConfigController conf) {
+    /**
+     * Creates a NetworkGraph for the controller. This parameter manages the
+     * UI of the controller.
+     *
+     * @param conf a ConfigController class containing the config parameters
+     * of the controller
+     * @return the NetworkGraph object
+     */
+    private NetworkGraph getNetworkGraph(final ConfigController conf) {
         String graph = conf.getMap().get("GRAPH");
         int timeout = Integer.parseInt(conf.getMap().get("TIMEOUT"));
         int rssiResolution = Integer.parseInt(conf.getMap()

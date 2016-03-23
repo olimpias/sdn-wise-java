@@ -17,6 +17,7 @@
 package com.github.sdnwiselab.sdnwise.flowvisor;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
 import com.github.sdnwiselab.sdnwise.configuration.ConfigFlowVisor;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
@@ -52,6 +53,8 @@ public class FlowVisorFactory {
         switch (type) {
             case "UDP":
                 return new AdapterUdp(conf.getLower());
+            case "TCP":
+                return new AdapterTcp(conf.getLower());
             default:
                 throw new UnsupportedOperationException(
                         "Error in Configuration file");

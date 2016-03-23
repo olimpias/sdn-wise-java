@@ -60,7 +60,7 @@ public class AdapterTcp extends AbstractAdapter {
 
     /**
      * Creates an AdapterTCP object. The conf map is used to pass the
-     * configuration settings for the serial port as strings. Specifically
+     * configuration settings for the TPC socket as strings. Specifically the
      * needed parameters are:
      * <ol>
      * <li>IS_SERVER</li>
@@ -71,9 +71,9 @@ public class AdapterTcp extends AbstractAdapter {
      * @param conf contains the serial port configuration data.
      */
     public AdapterTcp(final Map<String, String> conf) {
-        this.isServer = Boolean.parseBoolean(conf.get("IS_SERVER"));
-        this.ip = conf.get("IP");
-        this.port = Integer.parseInt(conf.get("PORT"));
+        isServer = Boolean.parseBoolean(conf.get("IS_SERVER"));
+        ip = conf.get("IP");
+        port = Integer.parseInt(conf.get("PORT"));
     }
 
     @Override
