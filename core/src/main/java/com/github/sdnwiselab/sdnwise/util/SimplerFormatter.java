@@ -24,8 +24,8 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * The SimplerFormatter class formats all the logs. The format used is: HH:mm:ss
- * [LEVEL] [SOURCE] Message
+ * Describes the format of all the logs. The format used is: HH:mm:ss [LEVEL]
+ * [SOURCE] Message
  *
  * @author Sebastiano Milardo
  */
