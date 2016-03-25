@@ -182,8 +182,8 @@ public class NetworkGraph extends Observable {
         edge.addAttribute("length", newLen);
     }
 
-    public final synchronized void updateMap(RequestPacket req, int net, String
-            node1, List<String> neig) {
+    public final synchronized void updateMap(final RequestPacket req, 
+            final int net, final String node1, final List<String> neig) {
         String origin = req.getNet() + "." + req.getSrc();
 
         long now = System.currentTimeMillis();
