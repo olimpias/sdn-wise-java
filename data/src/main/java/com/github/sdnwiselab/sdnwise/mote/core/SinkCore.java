@@ -86,7 +86,7 @@ public class SinkCore extends AbstractCore {
             runFlowMatch(packet);
         } else if (!src.equals(getMyAddress())) {
             controllerTX(packet);
-        } else if (marshalPacket(packet) != 0) {
+        } else if (execConfigPacket(packet)) {
             controllerTX(packet);
         }
     }

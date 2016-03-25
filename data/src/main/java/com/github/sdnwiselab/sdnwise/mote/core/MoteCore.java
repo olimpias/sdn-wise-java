@@ -98,7 +98,7 @@ public class MoteCore extends AbstractCore {
         NodeAddress dest = packet.getDst();
         if (!dest.equals(getMyAddress())) {
             runFlowMatch(packet);
-        } else if (marshalPacket(packet) != 0) {
+        } else if (execConfigPacket(packet)) {
             packet.setSrc(getMyAddress());
             packet.setDst(getActualSinkAddress());
             packet.setTtl((byte) ruleTtl);
