@@ -16,11 +16,19 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.core;
 
-import com.github.sdnwiselab.sdnwise.flowtable.*;
-import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.*;
-import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
+import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.CONST;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.PACKET;
+import com.github.sdnwiselab.sdnwise.flowtable.ForwardUnicastAction;
+import com.github.sdnwiselab.sdnwise.flowtable.Window;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.EQUAL;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.W_SIZE_2;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.fromString;
 import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.BeaconPacket;
+import com.github.sdnwiselab.sdnwise.packet.ConfigPacket;
+import com.github.sdnwiselab.sdnwise.packet.DataPacket;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.nio.charset.Charset;
@@ -31,25 +39,33 @@ import java.util.logging.Level;
  */
 public class MoteCore extends AbstractCore {
 
-    public MoteCore(byte net, NodeAddress address, Dischargeable battery) {
-        super(net, address, battery);
+    /**
+     * Creates the core of a mote.
+     *
+     * @param net the network id of the mote
+     * @param na the node address of the node
+     * @param battery the battery of the node
+     */
+    public MoteCore(final byte net, final NodeAddress na,
+            final Dischargeable battery) {
+        super(net, na, battery);
     }
 
     @Override
-    public final void controllerTX(NetworkPacket pck) {
-        pck.setNxh(getNextHopVsSink());
-        radioTX(pck);
+    public final void controllerTX(final NetworkPacket np) {
+        np.setNxh(getNextHopVsSink());
+        radioTX(np);
     }
 
     @Override
-    public void dataCallback(final DataPacket packet) {
+    public final void dataCallback(final DataPacket dp) {
         if (functions.get(1) == null) {
-            log(Level.INFO, new String(packet.getData(),
+            log(Level.INFO, new String(dp.getData(),
                     Charset.forName("UTF-8")));
-            packet.setSrc(getMyAddress())
+            dp.setSrc(getMyAddress())
                     .setDst(getActualSinkAddress())
                     .setTtl((byte) ruleTtl);
-            runFlowMatch(packet);
+            runFlowMatch(dp);
         } else {
             functions.get(1).function(sensors,
                     flowTable,
@@ -59,12 +75,12 @@ public class MoteCore extends AbstractCore {
                     ftQueue,
                     txQueue,
                     new byte[0],
-                    packet);
+                    dp);
         }
     }
 
     @Override
-    public void rxBeacon(BeaconPacket bp, int rssi) {
+    public final void rxBeacon(final BeaconPacket bp, final int rssi) {
         if (rssi > rssiMin) {
             if (bp.getDistance() < getSinkDistance()
                     && (rssi > getSinkRssi())) {
@@ -94,15 +110,15 @@ public class MoteCore extends AbstractCore {
     }
 
     @Override
-    public void rxConfig(ConfigPacket packet) {
-        NodeAddress dest = packet.getDst();
+    public final void rxConfig(final ConfigPacket cp) {
+        NodeAddress dest = cp.getDst();
         if (!dest.equals(getMyAddress())) {
-            runFlowMatch(packet);
-        } else if (execConfigPacket(packet)) {
-            packet.setSrc(getMyAddress());
-            packet.setDst(getActualSinkAddress());
-            packet.setTtl((byte) ruleTtl);
-            runFlowMatch(packet);
+            runFlowMatch(cp);
+        } else if (execConfigPacket(cp)) {
+            cp.setSrc(getMyAddress());
+            cp.setDst(getActualSinkAddress());
+            cp.setTtl((byte) ruleTtl);
+            runFlowMatch(cp);
         }
     }
 
