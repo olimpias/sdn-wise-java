@@ -18,9 +18,7 @@ package com.github.sdnwiselab.sdnwise.topology;
 
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
-import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.util.List;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
@@ -94,24 +92,6 @@ public class NetworkGraph extends Observable {
         return graph.addNode(id);
     }
 
-    public final boolean checkConsistency(final long now) {
-        boolean modified = false;
-        if (now - lastCheck > (timeout * MILLIS_IN_SECOND)) {
-            lastCheck = now;
-            for (Node n : graph) {
-                if (n.getAttribute("net", Integer.class) < NetworkPacket.THRES
-                        && n.getAttribute("lastSeen", Long.class) != null
-                        && !isAlive(timeout, (long) n.getNumber("lastSeen"),
-                                now)) {
-                    removeNode(n);
-                    modified = true;
-                }
-
-            }
-        }
-        return modified;
-    }
-
     /**
      * Gets an Edge of the Graph.
      *
@@ -153,11 +133,6 @@ public class NetworkGraph extends Observable {
         return graph.getNode(id);
     }
 
-    public final boolean isAlive(final long thrs, final long last,
-            final long now) {
-        return ((now - last) < thrs * MILLIS_IN_SECOND);
-    }
-
     public final <T extends Edge> T removeEdge(final Edge edge) {
         return graph.removeEdge(edge);
     }
@@ -180,69 +155,6 @@ public class NetworkGraph extends Observable {
 
     public void updateEdge(final Edge edge, final int newLen) {
         edge.addAttribute("length", newLen);
-    }
-
-    public final synchronized void updateMap(final RequestPacket req, 
-            final int net, final String node1, final List<String> neig) {
-        String origin = req.getNet() + "." + req.getSrc();
-
-        long now = System.currentTimeMillis();
-        boolean modified = checkConsistency(now);
-
-        Node ori = getNode(origin);
-        if (ori == null) {
-            ori = addNode(origin);
-            setupNode(ori, 0, now, req.getNet(), req.getSrc());
-        }
-
-        String fullNodeId = node1;
-        Node node = getNode(fullNodeId);
-
-        if (node == null) {
-            node = addNode(fullNodeId);
-            setupNode(node, MAX_BYTE, now, net, null);
-
-            for (String node2 : neig) {
-                String other = node2;
-                if (getNode(other) == null) {
-                    Node tmp = addNode(other);
-                    setupNode(tmp, MAX_BYTE, now, net, null);
-                }
-
-                Edge edge = addEdge(other + "-" + fullNodeId, other, fullNodeId,
-                        true);
-                setupEdge(edge, 100);
-            }
-            modified = true;
-
-        } else {
-            updateNode(node, MAX_BYTE, now);
-
-            for (String node2 : neig) {
-                String other = node2;
-                if (getNode(other) == null) {
-                    Node tmp = addNode(other);
-                    setupNode(tmp, MAX_BYTE, now, net, null);
-                }
-
-                Edge edge = getEdge(other + "-" + fullNodeId);
-                if (edge == null) {
-                    Edge tmp = addEdge(other + "-" + fullNodeId, other,
-                            node.getId(), true);
-                    setupEdge(tmp, 100);
-                    modified = true;
-                }
-            }
-        }
-
-        Edge firstEdge = addEdge(origin + "-" + node1, origin, node1, true);
-        setupEdge(firstEdge, 100);
-
-        if (modified) {
-            lastModification++;
-            setChanged();
-            notifyObservers();
-        }
     }
 
     /**
@@ -287,9 +199,7 @@ public class NetworkGraph extends Observable {
         } else {
             updateNode(node, batt, now);
             Set<Edge> oldEdges = new HashSet<>();
-            for (Edge e : node.getEnteringEdgeSet()) {
-                oldEdges.add(e);
-            }
+            oldEdges.addAll(node.getEnteringEdgeSet());
 
             for (int i = 0; i < packet.getNeigborsSize(); i++) {
                 NodeAddress otheraddr = packet.getNeighborAddress(i);
@@ -335,6 +245,28 @@ public class NetworkGraph extends Observable {
     public void updateNode(final Node node, final int batt, final long now) {
         node.addAttribute("battery", batt);
         node.addAttribute("lastSeen", now);
+    }
+
+    private boolean checkConsistency(final long now) {
+        boolean modified = false;
+        if (now - lastCheck > (timeout * MILLIS_IN_SECOND)) {
+            lastCheck = now;
+            for (Node n : graph) {
+                if (n.getAttribute("net", Integer.class) < NetworkPacket.THRES
+                        && n.getAttribute("lastSeen", Long.class) != null
+                        && !isAlive(timeout, (long) n.getNumber("lastSeen"),
+                                now)) {
+                    removeNode(n);
+                    modified = true;
+                }
+
+            }
+        }
+        return modified;
+    }
+
+    private boolean isAlive(final long thrs, final long last, final long now) {
+        return ((now - last) < thrs * MILLIS_IN_SECOND);
     }
 
 }
