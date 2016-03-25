@@ -41,17 +41,21 @@ import java.util.logging.Logger;
  *
  * @author Sebastiano Milardo
  */
-public class SdnWise {
+public final class SdnWise {
 
     /**
      * Dafault config file location.
      */
     private static final String CONFIG_FILE = "/config.ini";
-
-    private Adaptation adaptation;
-    private AbstractController controller;
-    private FlowVisor flowVisor;
+    /**
+     * Set to true to start an emulated network.
+     */
     private static final boolean EMULATED = true;
+    /**
+     * Emulation constants.
+     */
+    private static final int NO_OF_NODES = 11, NO_OF_MOTES = 10,
+            ADA_PORT = 9990, BASE_NODE_PORT = 7770, SETUP_TIME = 60000;
 
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
@@ -79,7 +83,7 @@ public class SdnWise {
         } else {
             is = SdnWise.class.getResourceAsStream(CONFIG_FILE);
         }
-        sw.startExemplaryControlPlane(Configurator.load(is));
+        startExemplaryControlPlane(Configurator.load(is));
     }
 
     /**
@@ -92,8 +96,8 @@ public class SdnWise {
      * layer
      * @return the AbstractController layer of the current SDN-WISE network
      */
-    public final Adaptation startAdaptation(final Configurator conf) {
-        adaptation = AdaptationFactory.getAdaptation(conf);
+    public static Adaptation startAdaptation(final Configurator conf) {
+        Adaptation adaptation = AdaptationFactory.getAdaptation(conf);
         new Thread(adaptation).start();
         return adaptation;
     }
@@ -114,8 +118,9 @@ public class SdnWise {
      * @param conf contains the configuration parameters of the layer
      * @return the AbstractController layer of the current SDN-WISE network
      */
-    public final AbstractController startController(final Configurator conf) {
-        controller = new ControllerFactory().getController(conf);
+    public static AbstractController startController(final Configurator conf) {
+        AbstractController controller = new ControllerFactory()
+                .getController(conf);
         new Thread(controller).start();
         return controller;
     }
@@ -126,16 +131,16 @@ public class SdnWise {
      *
      * @param conf contains the configuration parameters for the Control plane
      */
-    public final void startExemplaryControlPlane(final Configurator conf) {
+    public static void startExemplaryControlPlane(final Configurator conf) {
 
         // Start the elements of the Control Plane
-        controller = startController(conf);
-        adaptation = startAdaptation(conf);
-        flowVisor = startFlowVisor(conf);
+        AbstractController controller = startController(conf);
+        startAdaptation(conf);
+        FlowVisor flowVisor = startFlowVisor(conf);
 
         // Add the nodes IDs that will be managed
         HashSet<NodeAddress> nodeSetAll = new HashSet<>();
-        for (int i = 0; i <= 11; i++) {
+        for (int i = 0; i <= NO_OF_NODES; i++) {
             nodeSetAll.add(new NodeAddress(i));
         }
 
@@ -147,7 +152,7 @@ public class SdnWise {
 
             // Wait for the nodes to be discovered
             try {
-                Thread.sleep(60000);
+                Thread.sleep(SETUP_TIME);
             } catch (InterruptedException ex) {
                 Logger.getGlobal().log(Level.SEVERE, null, ex);
             }
@@ -160,13 +165,13 @@ public class SdnWise {
              */
             controller.addNodeFunction(
                     (byte) 1,
-                    new NodeAddress(8),
+                    new NodeAddress("0.8"),
                     (byte) 1,
                     "HelloWorld.class");
 
             controller.addNodeFunction(
                     (byte) 1,
-                    new NodeAddress(3),
+                    new NodeAddress("0.3"),
                     (byte) 1,
                     "HelloWorld.class");
 
@@ -175,7 +180,7 @@ public class SdnWise {
                     + " FUNCTION 1 9 8 7 6 5 4;"
                     + " FORWARD_U 8;"
                     + "}");
-            controller.addNodeRule((byte) 1, new NodeAddress(3), e1);
+            controller.addNodeRule((byte) 1, new NodeAddress("0.3"), e1);
         }
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {
@@ -192,8 +197,8 @@ public class SdnWise {
      * @param conf contains the configuration parameters of the layer
      * @return the AbstractController layer of the current SDN-WISE network
      */
-    public final FlowVisor startFlowVisor(final Configurator conf) {
-        flowVisor = FlowVisorFactory.getFlowvisor(conf);
+    public static FlowVisor startFlowVisor(final Configurator conf) {
+        FlowVisor flowVisor = FlowVisorFactory.getFlowvisor(conf);
         new Thread(flowVisor).start();
         return flowVisor;
     }
@@ -207,18 +212,18 @@ public class SdnWise {
      * neighbor, which is listening on localhost:7771 and the rssi between 0.0
      * and 0.1 is 215.
      */
-    public void startVirtualNetwork() {
+    public static void startVirtualNetwork() {
         Thread th = new Thread(new Sink(
                 // its own id
                 (byte) 1,
                 // its own address
                 new NodeAddress("0.1"),
                 // listener port
-                7771,
+                BASE_NODE_PORT + 1,
                 // controller address
                 "localhost",
                 // controller port
-                9990,
+                ADA_PORT,
                 // neigh file
                 "Node1.txt",
                 "FINEST",
@@ -228,17 +233,24 @@ public class SdnWise {
         );
         th.start();
 
-        for (int i = 2; i <= 10; i++) {
+        for (int i = 2; i <= NO_OF_MOTES; i++) {
             new Thread(new Mote(
                     // its own id
                     (byte) 1,
                     // its own address
                     new NodeAddress(i),
                     // listener port
-                    7770 + i,
+                    BASE_NODE_PORT + i,
                     // neigh file
                     "Node" + i + ".txt",
                     "FINEST")).start();
         }
+    }
+
+    /**
+     * Private constructor.
+     */
+    private SdnWise() {
+        // Nothing to do here
     }
 }
