@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * GUI of the Controller plane.
  *
  * @author Sebastiano Milardo
  */
