@@ -71,7 +71,6 @@ public final class SdnWise {
      * not specificated, the default one is loaded
      */
     public static void main(final String[] args) {
-        SdnWise sw = new SdnWise();
         InputStream is = null;
 
         if (args.length > 0) {
