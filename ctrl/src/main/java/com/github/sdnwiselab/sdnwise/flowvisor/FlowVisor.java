@@ -47,7 +47,7 @@ public class FlowVisor extends ControlPlaneLayer {
      */
     FlowVisor(AbstractAdapter lower, AdapterUdp upper) {
         super("FLW", lower, upper);
-        ControlPlaneLogger.setupLogger(layerShortName);
+        ControlPlaneLogger.setupLogger(getLayerShortName());
 
         controllerMapping = new HashMap<>();
         applicationMapping = new HashMap<>();

@@ -40,8 +40,8 @@ public final class Pair<K, V> {
      * @param v The value to use for this pair
      */
     public Pair(final K k, final V v) {
-        this.key = k;
-        this.value = v;
+        key = k;
+        value = v;
     }
 
     /**

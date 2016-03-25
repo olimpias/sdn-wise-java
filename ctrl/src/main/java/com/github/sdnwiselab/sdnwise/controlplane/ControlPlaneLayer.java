@@ -34,7 +34,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
     /**
      * Identify the layer. This string is reported in each log message.
      */
-    protected final String layerShortName;
+    private final String layerShortName;
     /**
      * Adapters.
      */
@@ -46,7 +46,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
     /**
      * Manages the status of the layer.
      */
-    protected boolean isStopped;
+    private boolean isStopped;
     /**
      * Charset in use.
      */
@@ -62,10 +62,19 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
     public ControlPlaneLayer(final String name,
             final AbstractAdapter low,
             final AbstractAdapter up) {
-        this.layerShortName = name;
-        this.lower = low;
-        this.upper = up;
-        this.scanner = new Scanner(System.in, "UTF-8");
+        layerShortName = name;
+        lower = low;
+        upper = up;
+        scanner = new Scanner(System.in, "UTF-8");
+    }
+
+    /**
+     * Gets the layer short name.
+     *
+     * @return layer short name as a String
+     */
+    public final String getLayerShortName() {
+        return layerShortName;
     }
 
     /**

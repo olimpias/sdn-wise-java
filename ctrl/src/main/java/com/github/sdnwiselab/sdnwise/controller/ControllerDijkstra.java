@@ -62,7 +62,7 @@ public final class ControllerDijkstra extends AbstractController {
             final AbstractAdapter lower,
             final NetworkGraph networkGraph) {
         super(id, lower, networkGraph);
-        this.dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
+        dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
     }
 
     @Override

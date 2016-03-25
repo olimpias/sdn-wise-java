@@ -44,48 +44,48 @@ public class Battery implements Dischargeable {
      * Initialize a new Battery object. The battery level is set to MAX_LEVEL.
      */
     public Battery() {
-        this.level = Battery.MAX_LEVEL;
+        level = Battery.MAX_LEVEL;
     }
 
     @Override
     public final double getLevel() {
-        return this.level;
+        return level;
     }
 
     @Override
     public final void setLevel(final double batteryLevel) {
         if (batteryLevel >= 0) {
-            this.level = batteryLevel;
+            level = batteryLevel;
         } else {
-            this.level = 0;
+            level = 0;
         }
     }
 
     @Override
     public Battery transmitRadio(final int nBytes) {
-        double newVal = this.level - Battery.RADIO_TX * nBytes;
-        this.setLevel(newVal);
+        double newVal = level - Battery.RADIO_TX * nBytes;
+        setLevel(newVal);
         return this;
     }
 
     @Override
     public Battery receiveRadio(final int nBytes) {
-        double newVal = this.level - Battery.RADIO_RX * nBytes;
-        this.setLevel(newVal);
+        double newVal = level - Battery.RADIO_RX * nBytes;
+        setLevel(newVal);
         return this;
     }
 
     @Override
     public Battery keepAlive(final int n) {
-        double newVal = this.level - Battery.KEEP_ALIVE * n;
-        this.setLevel(newVal);
+        double newVal = level - Battery.KEEP_ALIVE * n;
+        setLevel(newVal);
         return this;
     }
 
     @Override
     public final int getByteLevel() {
         if (Battery.MAX_LEVEL != 0) {
-            return (int) ((this.level / Battery.MAX_LEVEL) * 255);
+            return (int) ((level / Battery.MAX_LEVEL) * 255);
         } else {
             return 0;
         }

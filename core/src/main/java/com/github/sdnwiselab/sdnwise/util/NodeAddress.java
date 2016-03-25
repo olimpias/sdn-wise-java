@@ -50,8 +50,8 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      * @param a int value to set a Node Address.
      */
     public NodeAddress(final int a) {
-        this.addr[0] = (byte) (a >>> Byte.SIZE);
-        this.addr[1] = (byte) a;
+        addr[0] = (byte) (a >>> Byte.SIZE);
+        addr[1] = (byte) a;
     }
 
     /**
@@ -62,8 +62,8 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      */
     public NodeAddress(final byte[] a) {
         if (a.length == 2) {
-            this.addr[0] = a[0];
-            this.addr[1] = a[1];
+            addr[0] = a[0];
+            addr[1] = a[1];
         }
     }
 
@@ -75,12 +75,12 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
     public NodeAddress(final String a) {
         String[] add = a.split("\\s*\\.\\s*");
         if (add.length == 2) {
-            this.addr[0] = (byte) Integer.parseInt(add[0]);
-            this.addr[1] = (byte) Integer.parseInt(add[1]);
+            addr[0] = (byte) Integer.parseInt(add[0]);
+            addr[1] = (byte) Integer.parseInt(add[1]);
         } else {
             int adr = Integer.parseInt(a);
-            this.addr[0] = (byte) (adr >>> Byte.SIZE);
-            this.addr[1] = (byte) adr;
+            addr[0] = (byte) (adr >>> Byte.SIZE);
+            addr[1] = (byte) adr;
         }
     }
 
@@ -91,19 +91,19 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      * @param addr1 int value to set second part of a Node Address.
      */
     public NodeAddress(final int addr0, final int addr1) {
-        this.addr[0] = (byte) addr0;
-        this.addr[1] = (byte) addr1;
+        addr[0] = (byte) addr0;
+        addr[1] = (byte) addr1;
     }
 
     @Override
     public int compareTo(final NodeAddress other) {
-        return Integer.valueOf(this.intValue()).compareTo(other.intValue());
+        return Integer.valueOf(intValue()).compareTo(other.intValue());
     }
 
     @Override
     public boolean equals(final Object obj) {
         return obj instanceof NodeAddress
-                && ((NodeAddress) obj).intValue() == this.intValue();
+                && ((NodeAddress) obj).intValue() == intValue();
     }
 
     /**
@@ -135,7 +135,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
 
     @Override
     public int hashCode() {
-        return Integer.valueOf(this.intValue()).hashCode();
+        return Integer.valueOf(intValue()).hashCode();
     }
 
     /**
@@ -153,7 +153,7 @@ public final class NodeAddress implements Comparable<NodeAddress>, Serializable 
      * @return true if equal to 255.255 false otherwise
      */
     public boolean isBroadcast() {
-        return this.equals(BROADCAST_ADDR);
+        return equals(BROADCAST_ADDR);
     }
 
     /**

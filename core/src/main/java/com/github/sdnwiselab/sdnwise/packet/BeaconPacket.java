@@ -100,7 +100,7 @@ public class BeaconPacket extends NetworkPacket {
      * @return the packet itself
      */
     public final BeaconPacket setDistance(final byte value) {
-        this.setPayloadAt(value, DIST_INDEX);
+        setPayloadAt(value, DIST_INDEX);
         return this;
     }
 
@@ -123,7 +123,7 @@ public class BeaconPacket extends NetworkPacket {
      * @return the packet itself
      */
     public final BeaconPacket setBattery(final byte value) {
-        this.setPayloadAt(value, BATT_INDEX);
+        setPayloadAt(value, BATT_INDEX);
         return this;
     }
 
@@ -134,7 +134,7 @@ public class BeaconPacket extends NetworkPacket {
      * @return the packet itself
      */
     public final BeaconPacket setSinkAddress(final NodeAddress addr) {
-        this.setNxh(addr);
+        setNxh(addr);
         return this;
     }
 
@@ -144,6 +144,6 @@ public class BeaconPacket extends NetworkPacket {
      * @return the address of the sink
      */
     public final NodeAddress getSinkAddress() {
-        return this.getNxh();
+        return getNxh();
     }
 }

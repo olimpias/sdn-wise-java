@@ -178,7 +178,7 @@ public class NetworkPacket implements Cloneable {
      * @param d the data contained in the NetworkPacket
      */
     public NetworkPacket(final int[] d) {
-        this.data = new byte[MAX_PACKET_LENGTH];
+        data = new byte[MAX_PACKET_LENGTH];
         setArray(fromIntArrayToByteArray(d));
     }
 
@@ -189,7 +189,7 @@ public class NetworkPacket implements Cloneable {
      * @param dis the DataInputStreamt
      */
     public NetworkPacket(final DataInputStream dis) {
-        this.data = new byte[MAX_PACKET_LENGTH];
+        data = new byte[MAX_PACKET_LENGTH];
         byte[] tmpData = new byte[MAX_PACKET_LENGTH];
         try {
             int net = Byte.toUnsignedInt(dis.readByte());
@@ -226,15 +226,15 @@ public class NetworkPacket implements Cloneable {
             if (array.length <= MAX_PACKET_LENGTH && array.length
                     >= DFLT_HDR_LEN) {
 
-                this.setLen(array[LEN_INDEX]);
-                this.setNet(array[NET_INDEX]);
-                this.setSrc(array[SRC_INDEX], array[SRC_INDEX + 1]);
-                this.setDst(array[DST_INDEX], array[DST_INDEX + 1]);
-                this.setTyp(array[TYP_INDEX]);
-                this.setTtl(array[TTL_INDEX]);
-                this.setNxh(array[NXH_INDEX], array[NXH_INDEX + 1]);
-                this.setPayload(Arrays.copyOfRange(array, DFLT_HDR_LEN,
-                        this.getLen()));
+                setLen(array[LEN_INDEX]);
+                setNet(array[NET_INDEX]);
+                setSrc(array[SRC_INDEX], array[SRC_INDEX + 1]);
+                setDst(array[DST_INDEX], array[DST_INDEX + 1]);
+                setTyp(array[TYP_INDEX]);
+                setTtl(array[TTL_INDEX]);
+                setNxh(array[NXH_INDEX], array[NXH_INDEX + 1]);
+                setPayload(Arrays.copyOfRange(array, DFLT_HDR_LEN,
+                        getLen()));
             } else {
                 throw new IllegalArgumentException("Invalid array size: "
                         + array.length);
@@ -250,7 +250,7 @@ public class NetworkPacket implements Cloneable {
      * @return an integer representing the length of the message
      */
     public final int getLen() {
-        if (this.isSdnWise()) {
+        if (isSdnWise()) {
             return Byte.toUnsignedInt(data[LEN_INDEX]);
         } else {
             return data.length;
@@ -443,7 +443,7 @@ public class NetworkPacket implements Cloneable {
      * @return packet itself.
      */
     public final NetworkPacket setNxh(final NodeAddress address) {
-        NetworkPacket.this.setNxh(address.getHigh(), address.getLow());
+        setNxh(address.getHigh(), address.getLow());
         return this;
     }
 
@@ -454,7 +454,7 @@ public class NetworkPacket implements Cloneable {
      * @return packet itself.
      */
     public final NetworkPacket setNxh(final String address) {
-        NetworkPacket.this.setNxh(new NodeAddress(address));
+        setNxh(new NodeAddress(address));
         return this;
     }
 
@@ -464,7 +464,7 @@ public class NetworkPacket implements Cloneable {
      * @return the packet payload size.
      */
     public final int getPayloadSize() {
-        return (this.getLen() - DFLT_HDR_LEN);
+        return (getLen() - DFLT_HDR_LEN);
     }
 
     /**
@@ -474,7 +474,7 @@ public class NetworkPacket implements Cloneable {
      */
     @Override
     public final String toString() {
-        return Arrays.toString(this.toIntArray());
+        return Arrays.toString(toIntArray());
     }
 
     /**
@@ -483,7 +483,7 @@ public class NetworkPacket implements Cloneable {
      * @return a byte array representation of the NetworkPacket
      */
     public final byte[] toByteArray() {
-        return Arrays.copyOf(data, this.getLen());
+        return Arrays.copyOf(data, getLen());
     }
 
     /**
@@ -492,7 +492,7 @@ public class NetworkPacket implements Cloneable {
      * @return a int array representation of the NetworkPacket
      */
     public final int[] toIntArray() {
-        int[] tmp = new int[this.getLen()];
+        int[] tmp = new int[getLen()];
         for (int i = 0; i < tmp.length; i++) {
             tmp[i] = Byte.toUnsignedInt(data[i]);
         }
@@ -535,7 +535,7 @@ public class NetworkPacket implements Cloneable {
      */
     protected final byte[] getPayload() {
         return Arrays.copyOfRange(data, DFLT_HDR_LEN,
-                this.getLen());
+                getLen());
     }
 
     /**
@@ -547,7 +547,7 @@ public class NetworkPacket implements Cloneable {
     protected final NetworkPacket setPayload(final byte[] p) {
         if (p.length + DFLT_HDR_LEN <= MAX_PACKET_LENGTH) {
             System.arraycopy(p, 0, data, DFLT_HDR_LEN, p.length);
-            this.setLen((byte) (p.length + DFLT_HDR_LEN));
+            setLen((byte) (p.length + DFLT_HDR_LEN));
         } else {
             throw new IllegalArgumentException("Payload exceeds packet size");
         }
@@ -562,7 +562,7 @@ public class NetworkPacket implements Cloneable {
      */
     protected final NetworkPacket setPayloadSize(final int size) {
         if (DFLT_HDR_LEN + size <= MAX_PACKET_LENGTH) {
-            this.setLen((byte) (DFLT_HDR_LEN + size));
+            setLen((byte) (DFLT_HDR_LEN + size));
         } else {
             throw new IllegalArgumentException("Index cannot be greater than "
                     + "the maximum payload size: " + size);
@@ -580,8 +580,8 @@ public class NetworkPacket implements Cloneable {
     protected final NetworkPacket setPayloadAt(final byte d, final int i) {
         if (DFLT_HDR_LEN + i < MAX_PACKET_LENGTH) {
             data[DFLT_HDR_LEN + i] = d;
-            if ((i + DFLT_HDR_LEN) >= this.getLen()) {
-                this.setLen((byte) (DFLT_HDR_LEN + i + 1));
+            if ((i + DFLT_HDR_LEN) >= getLen()) {
+                setLen((byte) (DFLT_HDR_LEN + i + 1));
             }
         } else {
             throw new IllegalArgumentException("Index cannot be greater than "
@@ -608,8 +608,8 @@ public class NetworkPacket implements Cloneable {
         if (srcPos < 0 || payloadPos < 0 || length < 0) {
             throw new IllegalArgumentException("Negative index");
         } else {
-            this.copyPayload(src, srcPos, payloadPos, length);
-            this.setPayloadSize(length + payloadPos);
+            copyPayload(src, srcPos, payloadPos, length);
+            setPayloadSize(length + payloadPos);
         }
         return this;
     }
@@ -641,7 +641,7 @@ public class NetworkPacket implements Cloneable {
      * @return the byte of the payload.
      */
     protected final byte getPayloadAt(final int i) {
-        if (i + DFLT_HDR_LEN < this.getLen()) {
+        if (i + DFLT_HDR_LEN < getLen()) {
             return data[DFLT_HDR_LEN + i];
         } else {
             throw new IllegalArgumentException("Index cannot be greater than "
@@ -666,11 +666,11 @@ public class NetworkPacket implements Cloneable {
             throw new IllegalArgumentException(
                     "Stop must be greater than 0");
         }
-        if (start + DFLT_HDR_LEN > this.getLen()) {
+        if (start + DFLT_HDR_LEN > getLen()) {
             throw new IllegalArgumentException(
                     "Start is greater than packet size");
         }
-        int newStop = Math.min(stop + DFLT_HDR_LEN, this.getLen());
+        int newStop = Math.min(stop + DFLT_HDR_LEN, getLen());
         return Arrays.copyOfRange(data, start + DFLT_HDR_LEN, newStop);
     }
 

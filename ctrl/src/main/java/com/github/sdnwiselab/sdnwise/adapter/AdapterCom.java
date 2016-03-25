@@ -98,13 +98,13 @@ public class AdapterCom extends AbstractAdapter {
      * @param conf contains the serial port configuration data.
      */
     public AdapterCom(final Map<String, String> conf) {
-        this.parity = Integer.parseInt(conf.get("PARITY"));
-        this.stopBits = Integer.parseInt(conf.get("STOP_BITS"));
-        this.dataBits = Integer.parseInt(conf.get("DATA_BITS"));
-        this.baudRate = Integer.parseInt(conf.get("BAUD_RATE"));
-        this.portName = conf.get("PORT_NAME");
-        this.stopByte = Byte.parseByte(conf.get("STOP_BYTE"));
-        this.startByte = Byte.parseByte(conf.get("START_BYTE"));
+        parity = Integer.parseInt(conf.get("PARITY"));
+        stopBits = Integer.parseInt(conf.get("STOP_BITS"));
+        dataBits = Integer.parseInt(conf.get("DATA_BITS"));
+        baudRate = Integer.parseInt(conf.get("BAUD_RATE"));
+        portName = conf.get("PORT_NAME");
+        stopByte = Byte.parseByte(conf.get("STOP_BYTE"));
+        startByte = Byte.parseByte(conf.get("START_BYTE"));
     }
 
     @Override
@@ -130,7 +130,7 @@ public class AdapterCom extends AbstractAdapter {
                 if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
                     String port = portId.getName();
                     log(Level.INFO, "Serial Port Found: " + port);
-                    if (port.equals(this.portName)) {
+                    if (port.equals(portName)) {
                         log(Level.INFO, "SINK");
                         comPort = (SerialPort) portId
                                 .open("AdapterCOM", TIMEOUT);
@@ -158,10 +158,10 @@ public class AdapterCom extends AbstractAdapter {
         try {
             int len = Byte.toUnsignedInt(data[0]);
             if (len <= NetworkPacket.MAX_PACKET_LENGTH) {
-                this.out.write(startByte);
-                this.out.write(data);
-                this.out.write(stopByte);
-                this.out.flush();
+                out.write(startByte);
+                out.write(data);
+                out.write(stopByte);
+                out.flush();
             }
         } catch (IOException ex) {
             log(Level.SEVERE, ex.toString());

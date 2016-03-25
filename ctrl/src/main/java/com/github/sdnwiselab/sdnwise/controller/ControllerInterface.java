@@ -193,8 +193,8 @@ public interface ControllerInterface {
     void removeNodeAlias(byte net, NodeAddress dst, byte index);
 
     /**
-     * Removes a function from the list of functions of the node at
-     * position index.
+     * Removes a function from the list of functions of the node at position
+     * index.
      *
      * @param net network id of the destination node.
      * @param dst network address of the destination node.

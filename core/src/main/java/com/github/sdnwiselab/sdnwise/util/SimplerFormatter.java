@@ -48,7 +48,7 @@ public class SimplerFormatter extends Formatter {
      * message
      */
     public SimplerFormatter(final String n) {
-        this.name = n;
+        name = n;
     }
 
     @Override

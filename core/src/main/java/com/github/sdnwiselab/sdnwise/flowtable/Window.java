@@ -83,13 +83,13 @@ public final class Window implements FlowTableInterface {
         String[] operands = val.split(" ");
         if (operands.length == WIN_LEN) {
             String lhs = operands[0];
-            int[] tmpLhs = w.getOperandFromString(lhs);
+            int[] tmpLhs = Window.getOperandFromString(lhs);
             w.setLhsLocation(tmpLhs[0]);
             w.setLhs(tmpLhs[1]);
             w.setOperator(w.getOperatorFromString(operands[1]));
 
             String rhs = operands[2];
-            int[] tmpRhs = w.getOperandFromString(rhs);
+            int[] tmpRhs = Window.getOperandFromString(rhs);
             w.setRhsLocation(tmpRhs[0]);
             w.setRhs(tmpRhs[1]);
 
@@ -168,7 +168,7 @@ public final class Window implements FlowTableInterface {
     public String getLhsToString() {
         switch (getLhsLocation()) {
             case CONST:
-                return String.valueOf(this.getLhs());
+                return String.valueOf(getLhs());
             case PACKET:
                 return "P." + NetworkPacket.getNetworkPacketByteName(getLhs());
             case STATUS:
@@ -299,7 +299,7 @@ public final class Window implements FlowTableInterface {
     public String getRhsToString() {
         switch (getRhsLocation()) {
             case CONST:
-                return String.valueOf(this.getRhs());
+                return String.valueOf(getRhs());
             case PACKET:
                 return "P." + NetworkPacket.getNetworkPacketByteName(getRhs());
             case STATUS:
@@ -329,7 +329,7 @@ public final class Window implements FlowTableInterface {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(this.window);
+        return Arrays.hashCode(window);
     }
 
     /**
@@ -339,8 +339,8 @@ public final class Window implements FlowTableInterface {
      * @return this Window
      */
     public Window setLhs(final int val) {
-        this.window[LEFT_INDEX_H] = (byte) (val >>> Byte.SIZE);
-        this.window[LEFT_INDEX_L] = (byte) val;
+        window[LEFT_INDEX_H] = (byte) (val >>> Byte.SIZE);
+        window[LEFT_INDEX_L] = (byte) val;
         return this;
     }
 
@@ -375,8 +375,8 @@ public final class Window implements FlowTableInterface {
      * @return this Window
      */
     public Window setRhs(final int val) {
-        this.window[RIGHT_INDEX_H] = (byte) (val >>> Byte.SIZE);
-        this.window[RIGHT_INDEX_L] = (byte) val;
+        window[RIGHT_INDEX_H] = (byte) (val >>> Byte.SIZE);
+        window[RIGHT_INDEX_L] = (byte) val;
         return this;
     }
 
@@ -411,9 +411,7 @@ public final class Window implements FlowTableInterface {
 
     @Override
     public String toString() {
-        return this.getLhsToString()
-                + this.getOperatorToString()
-                + this.getRhsToString();
+        return getLhsToString() + getOperatorToString() + getRhsToString();
     }
 
 }

@@ -70,9 +70,9 @@ public class AdapterUdp extends AbstractAdapter {
      * @param conf contains the serial port configuration data.
      */
     public AdapterUdp(final Map<String, String> conf) {
-        this.outIp = conf.get("IP");
-        this.outPort = Integer.parseInt(conf.get("PORT"));
-        this.inPort = Integer.parseInt(conf.get("IN_PORT"));
+        outIp = conf.get("IP");
+        outPort = Integer.parseInt(conf.get("PORT"));
+        inPort = Integer.parseInt(conf.get("IN_PORT"));
     }
 
     @Override

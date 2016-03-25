@@ -50,7 +50,7 @@ public class Adaptation extends ControlPlaneLayer {
      */
     Adaptation(final AbstractAdapter lower, final AbstractAdapter upper) {
         super("ADA", lower, upper);
-        ControlPlaneLogger.setupLogger(layerShortName);
+        ControlPlaneLogger.setupLogger(getLayerShortName());
     }
 
     @Override

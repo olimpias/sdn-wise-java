@@ -51,7 +51,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
         graph.addAttribute("ui.quality");
         graph.addAttribute("ui.antialias");
         graph.addAttribute("ui.stylesheet",
-                "url(" + this.getClass().getResource("/style.css") + ")");
+                "url(" + getClass().getResource("/style.css") + ")");
         graph.display(true);
     }
 

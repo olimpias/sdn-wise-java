@@ -60,8 +60,8 @@ public class ResponsePacket extends NetworkPacket {
             final NodeAddress dst,
             final FlowTableEntry entry) {
         super(net, src, dst);
-        this.setTyp(RESPONSE);
-        this.setRule(entry);
+        setTyp(RESPONSE);
+        setRule(entry);
     }
 
     /**
@@ -83,7 +83,7 @@ public class ResponsePacket extends NetworkPacket {
     public final ResponsePacket setRule(final FlowTableEntry rule) {
         byte[] tmp = rule.toByteArray();
         // the last byte is for stats so it is useless to send it in a response
-        this.setPayload(Arrays.copyOf(tmp, tmp.length - 1));
+        setPayload(Arrays.copyOf(tmp, tmp.length - 1));
         return this;
     }
 
@@ -93,7 +93,7 @@ public class ResponsePacket extends NetworkPacket {
      * @return the rule as a FlowTableEntry
      */
     public final FlowTableEntry getRule() {
-        FlowTableEntry rule = new FlowTableEntry(this.getPayload());
+        FlowTableEntry rule = new FlowTableEntry(getPayload());
         return rule;
     }
 }

@@ -227,7 +227,7 @@ public class AdapterTcp extends AbstractAdapter {
         public synchronized void stop() {
             super.stop();
             try {
-                this.serverSocket.close();
+                serverSocket.close();
             } catch (IOException e) {
                 throw new UnsupportedOperationException(
                         "Error closing server", e);
@@ -269,7 +269,7 @@ public class AdapterTcp extends AbstractAdapter {
              * @param socket the clientSocket
              */
             WorkerRunnable(final Socket socket) {
-                this.clientSocket = socket;
+                clientSocket = socket;
             }
 
             @Override

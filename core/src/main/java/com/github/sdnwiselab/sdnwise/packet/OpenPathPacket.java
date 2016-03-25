@@ -57,9 +57,9 @@ public class OpenPathPacket extends NetworkPacket {
             final NodeAddress dst,
             final List<NodeAddress> path) {
         super(net, src, dst);
-        this.setTyp(OPEN_PATH);
-        this.setPayloadAt((byte) 0, WINDOWS_SIZE_INDEX);
-        this.setPath(path);
+        setTyp(OPEN_PATH);
+        setPayloadAt((byte) 0, WINDOWS_SIZE_INDEX);
+        setPath(path);
     }
 
     /**
@@ -113,7 +113,7 @@ public class OpenPathPacket extends NetworkPacket {
      */
     public final List<NodeAddress> getPath() {
         LinkedList<NodeAddress> list = new LinkedList<>();
-        byte[] payload = this.getPayload();
+        byte[] payload = getPayload();
         int p = (getPayloadAt(WINDOWS_SIZE_INDEX) * Window.SIZE) + 1;
         for (int i = p; i < payload.length - 1; i += 2) {
             list.add(new NodeAddress(payload[i], payload[i + 1]));
@@ -130,15 +130,15 @@ public class OpenPathPacket extends NetworkPacket {
     public final OpenPathPacket setWindows(final List<Window> conditions) {
         List<NodeAddress> tmp = getPath();
 
-        this.setPayloadAt((byte) conditions.size(), WINDOWS_SIZE_INDEX);
+        setPayloadAt((byte) conditions.size(), WINDOWS_SIZE_INDEX);
         int i = WINDOWS_SIZE_INDEX + 1;
 
         for (Window w : conditions) {
             byte[] win = w.toByteArray();
-            this.setPayload(win, 0, i, win.length);
+            setPayload(win, 0, i, win.length);
             i = i + win.length;
         }
-        this.setPath(tmp);
+        setPath(tmp);
         return this;
     }
 
@@ -150,10 +150,10 @@ public class OpenPathPacket extends NetworkPacket {
     public final List<Window> getWindows() {
         LinkedList<Window> w = new LinkedList<>();
 
-        int nWindows = this.getPayloadAt(WINDOWS_SIZE_INDEX);
+        int nWindows = getPayloadAt(WINDOWS_SIZE_INDEX);
         int j = 0;
         for (int i = 0; i < nWindows; i++) {
-            Window win = new Window(this.getPayloadFromTo(
+            Window win = new Window(getPayloadFromTo(
                     WINDOWS_SIZE_INDEX + 1 + j,
                     WINDOWS_SIZE_INDEX + 1 + Window.SIZE + j));
             w.add(win);

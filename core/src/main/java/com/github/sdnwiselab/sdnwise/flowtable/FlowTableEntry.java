@@ -152,8 +152,8 @@ public final class FlowTableEntry implements FlowTableInterface {
      * @param w the windows list to set
      */
     public void setWindows(final List<Window> w) {
-        this.windows.clear();
-        this.windows.addAll(w);
+        windows.clear();
+        windows.addAll(w);
     }
 
     /**
@@ -181,8 +181,8 @@ public final class FlowTableEntry implements FlowTableInterface {
      * @param a the action to set
      */
     public void setAction(final List<AbstractAction> a) {
-        this.actions.clear();
-        this.actions.addAll(a);
+        actions.clear();
+        actions.addAll(a);
     }
 
     /**
@@ -210,7 +210,7 @@ public final class FlowTableEntry implements FlowTableInterface {
      * @param s the statistics will be set.
      */
     public void setStats(final Stats s) {
-        this.stats = s;
+        stats = s;
     }
 
     @Override
@@ -241,9 +241,8 @@ public final class FlowTableEntry implements FlowTableInterface {
 
     @Override
     public int hashCode() {
-        int hash = Objects.hashCode(this.windows)
-                + Objects.hashCode(this.actions)
-                + Objects.hashCode(this.stats);
+        int hash = Objects.hashCode(windows) + Objects.hashCode(actions)
+                + Objects.hashCode(stats);
         return hash;
     }
 
@@ -256,7 +255,7 @@ public final class FlowTableEntry implements FlowTableInterface {
      * {@code false} otherwise.
      */
     public boolean equalWindows(final FlowTableEntry other) {
-        return Objects.deepEquals(this.windows, other.windows);
+        return Objects.deepEquals(windows, other.windows);
     }
 
     @Override
@@ -268,10 +267,10 @@ public final class FlowTableEntry implements FlowTableInterface {
             return false;
         }
         final FlowTableEntry other = (FlowTableEntry) obj;
-        if (!Objects.deepEquals(this.windows, other.windows)) {
+        if (!Objects.deepEquals(windows, other.windows)) {
             return false;
         }
-        return Objects.deepEquals(this.actions, other.actions);
+        return Objects.deepEquals(actions, other.actions);
     }
 
 }

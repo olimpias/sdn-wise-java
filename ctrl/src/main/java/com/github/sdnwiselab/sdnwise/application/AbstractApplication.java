@@ -69,8 +69,8 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     public AbstractApplication(final AbstractController ctrl,
             final AbstractAdapter lower) {
         super("APP", lower, null);
-        ControlPlaneLogger.setupLogger(layerShortName);
-        this.controller = ctrl;
+        ControlPlaneLogger.setupLogger(getLayerShortName());
+        controller = ctrl;
         bQ = new ArrayBlockingQueue<>(QUEUE_SIZE);
     }
 
@@ -126,15 +126,8 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
     public final void sendMessage(final byte net, final NodeAddress destination,
             final String message) {
         if (message != null && !message.isEmpty()) {
-            this.sendMessage(net, destination, message.getBytes(UTF8_CHARSET));
+            sendMessage(net, destination, message.getBytes(UTF8_CHARSET));
         }
-    }
-
-    /**
-     * Stops the working thread that manages incoming requests.
-     */
-    public final void stop() {
-        isStopped = true;
     }
 
     @Override
@@ -158,9 +151,10 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * receivePacket function.
      */
     private class Worker implements Runnable {
+
         @Override
         public void run() {
-            while (!isStopped) {
+            while (true) {
                 try {
                     NetworkPacket data = bQ.take();
                     if (data.getTyp() == DATA) {
@@ -168,7 +162,6 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
                     }
                 } catch (InterruptedException ex) {
                     log(Level.SEVERE, ex.toString());
-                    isStopped = true;
                 }
             }
         }

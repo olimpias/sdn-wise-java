@@ -98,7 +98,7 @@ public class ConfigPacket extends NetworkPacket {
             final ConfigProperty write,
             final byte[] value) {
         super(net, src, dst);
-        this.setConfigId(write).setWrite().setParams(value, write.size)
+        setConfigId(write).setWrite().setParams(value, write.size)
                 .setTyp(CONFIG);
     }
 
@@ -287,8 +287,8 @@ public class ConfigPacket extends NetworkPacket {
          * @param s size of the ConfigProperty
          */
         ConfigProperty(final int v, final int s) {
-            this.value = (byte) v;
-            this.size = s;
+            value = (byte) v;
+            size = s;
         }
     }
 }

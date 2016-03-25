@@ -53,11 +53,11 @@ public class ControllerFactory {
     }
 
     /**
-     * Creates a controller. The only accepted type of controller at the
-     * moment is Dijkstra.
+     * Creates a controller. The only accepted type of controller at the moment
+     * is Dijkstra.
      *
-     * @param conf a ConfigController class containing the config parameters
-     * of the controller
+     * @param conf a ConfigController class containing the config parameters of
+     * the controller
      * @param newId the id of the controller
      * @param adapt the lower adapter of the controller
      * @param ng the NetworkGraph used
@@ -82,14 +82,14 @@ public class ControllerFactory {
     /**
      * Creates a lower adapter for the controller.
      *
-     * @param conf a ConfigController class containing the config parameters
-     * of the controller
+     * @param conf a ConfigController class containing the config parameters of
+     * the controller
      * @return the lower adapter
      */
     private AbstractAdapter getLower(final ConfigController conf) {
         String type = conf.getLower().get("TYPE");
         id = new InetSocketAddress(conf.getLower().get("IP"),
-                        Integer.parseInt(conf.getLower().get("PORT")));
+                Integer.parseInt(conf.getLower().get("PORT")));
         switch (type) {
             case "TCP":
                 return new AdapterTcp(conf.getLower());
@@ -101,11 +101,11 @@ public class ControllerFactory {
     }
 
     /**
-     * Creates a NetworkGraph for the controller. This parameter manages the
-     * UI of the controller.
+     * Creates a NetworkGraph for the controller. This parameter manages the UI
+     * of the controller.
      *
-     * @param conf a ConfigController class containing the config parameters
-     * of the controller
+     * @param conf a ConfigController class containing the config parameters of
+     * the controller
      * @return the NetworkGraph object
      */
     private NetworkGraph getNetworkGraph(final ConfigController conf) {

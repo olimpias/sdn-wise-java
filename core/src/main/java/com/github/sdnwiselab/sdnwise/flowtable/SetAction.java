@@ -181,7 +181,7 @@ public final class SetAction extends AbstractAction {
             case NULL:
                 return "";
             case CONST:
-                return String.valueOf(this.getLhs());
+                return String.valueOf(getLhs());
             case PACKET:
                 return "P." + NetworkPacket.getNetworkPacketByteName(getLhs());
             case STATUS:
@@ -350,7 +350,7 @@ public final class SetAction extends AbstractAction {
             case NULL:
                 return "";
             case CONST:
-                return String.valueOf(this.getRhs());
+                return String.valueOf(getRhs());
             case PACKET:
                 return "P." + NetworkPacket.getNetworkPacketByteName(getRhs());
             case STATUS:
@@ -446,10 +446,10 @@ public final class SetAction extends AbstractAction {
 
     @Override
     public String toString() {
-        String f = this.getResToString();
-        String l = this.getLhsToString();
-        String r = this.getRhsToString();
-        String o = this.getOperatorToString();
+        String f = getResToString();
+        String l = getLhsToString();
+        String r = getRhsToString();
+        String o = getOperatorToString();
 
         if (!l.isEmpty() && !r.isEmpty()) {
             return f + l + o + r;

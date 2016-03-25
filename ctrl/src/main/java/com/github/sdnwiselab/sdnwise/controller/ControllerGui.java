@@ -34,7 +34,14 @@ import javax.swing.table.DefaultTableModel;
  */
 public final class ControllerGui extends javax.swing.JFrame {
 
+    /**
+     * For serialization purposes.
+     */
     private static final long serialVersionUID = 1L;
+
+    /**
+     * The Controller managed by this ui.
+     */
     private final AbstractController controller;
 
     /**
@@ -43,7 +50,7 @@ public final class ControllerGui extends javax.swing.JFrame {
      * @param ctrl the network controller
      */
     public ControllerGui(final AbstractController ctrl) {
-        this.controller = ctrl;
+        controller = ctrl;
         initComponents();
         initIcon();
     }
@@ -434,36 +441,36 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrH.commitEdit();
             jSpinnerAddrL.commitEdit();
 
-            this.jSpinnerBeacon.setValue(
+            jSpinnerBeacon.setValue(
                     controller.getNodeBeaconPeriod(
-                            ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                            ((Integer) jSpinnerNetID.getValue()).byteValue(),
                             new NodeAddress(
-                                    (Integer) this.jSpinnerAddrH.getValue(),
-                                    (Integer) this.jSpinnerAddrL.getValue())));
+                                    (Integer) jSpinnerAddrH.getValue(),
+                                    (Integer) jSpinnerAddrL.getValue())));
 
-            this.jSpinnerReport.setValue(
+            jSpinnerReport.setValue(
                     controller.getNodeReportPeriod(
-                            ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                            ((Integer) jSpinnerNetID.getValue()).byteValue(),
                             new NodeAddress(
-                                    (Integer) this.jSpinnerAddrH.getValue(),
-                                    (Integer) this.jSpinnerAddrL.getValue())));
+                                    (Integer) jSpinnerAddrH.getValue(),
+                                    (Integer) jSpinnerAddrL.getValue())));
 
-            this.jSpinnerRSSI.setValue(
+            jSpinnerRSSI.setValue(
                     controller.getNodeRssiMin(
-                            ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                            ((Integer) jSpinnerNetID.getValue()).byteValue(),
                             new NodeAddress(
-                                    (Integer) this.jSpinnerAddrH.getValue(),
-                                    (Integer) this.jSpinnerAddrL.getValue())));
+                                    (Integer) jSpinnerAddrH.getValue(),
+                                    (Integer) jSpinnerAddrL.getValue())));
 
-            this.jSpinnerTTL.setValue(
+            jSpinnerTTL.setValue(
                     controller.getNodePacketTtl(
-                            ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                            ((Integer) jSpinnerNetID.getValue()).byteValue(),
                             new NodeAddress(
-                                    (Integer) this.jSpinnerAddrH.getValue(),
-                                    (Integer) this.jSpinnerAddrL.getValue())));
+                                    (Integer) jSpinnerAddrH.getValue(),
+                                    (Integer) jSpinnerAddrL.getValue())));
 
         } catch (ParseException ex) {
-            Logger.getLogger(ControllerGui.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButtonReadParamsActionPerformed
 
@@ -478,32 +485,32 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerReport.commitEdit();
 
             controller.setNodeBeaconPeriod(
-                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                    ((Integer) jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
-                            (Integer) this.jSpinnerAddrH.getValue(),
-                            (Integer) this.jSpinnerAddrL.getValue()),
-                    ((Number) this.jSpinnerBeacon.getValue()).shortValue());
+                            (Integer) jSpinnerAddrH.getValue(),
+                            (Integer) jSpinnerAddrL.getValue()),
+                    ((Number) jSpinnerBeacon.getValue()).shortValue());
 
             controller.setNodeReportPeriod(
-                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                    ((Integer) jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
-                            (Integer) this.jSpinnerAddrH.getValue(),
-                            (Integer) this.jSpinnerAddrL.getValue()),
-                    ((Number) this.jSpinnerReport.getValue()).shortValue());
+                            (Integer) jSpinnerAddrH.getValue(),
+                            (Integer) jSpinnerAddrL.getValue()),
+                    ((Number) jSpinnerReport.getValue()).shortValue());
 
             controller.setNodeRssiMin(
-                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                    ((Integer) jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
-                            (Integer) this.jSpinnerAddrH.getValue(),
-                            (Integer) this.jSpinnerAddrL.getValue()),
-                    ((Number) this.jSpinnerRSSI.getValue()).byteValue());
+                            (Integer) jSpinnerAddrH.getValue(),
+                            (Integer) jSpinnerAddrL.getValue()),
+                    ((Number) jSpinnerRSSI.getValue()).byteValue());
 
             controller.setNodePacketTtl(
-                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                    ((Integer) jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
-                            (Integer) this.jSpinnerAddrH.getValue(),
-                            (Integer) this.jSpinnerAddrL.getValue()),
-                    ((Number) this.jSpinnerTTL.getValue()).byteValue());
+                            (Integer) jSpinnerAddrH.getValue(),
+                            (Integer) jSpinnerAddrL.getValue()),
+                    ((Number) jSpinnerTTL.getValue()).byteValue());
 
         } catch (ParseException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
@@ -517,12 +524,13 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrL.commitEdit();
             List<NodeAddress> list
                     = controller.getNodeAliases(
-                            ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                            ((Integer) jSpinnerNetID.getValue()).byteValue(),
                             new NodeAddress(
-                                    (Integer) this.jSpinnerAddrH.getValue(),
-                                    (Integer) this.jSpinnerAddrL.getValue()));
+                                    (Integer) jSpinnerAddrH.getValue(),
+                                    (Integer) jSpinnerAddrL.getValue()));
 
-            DefaultTableModel model = (DefaultTableModel) this.jTableAccepted.getModel();
+            DefaultTableModel model = (DefaultTableModel) jTableAccepted
+                    .getModel();
             model.setRowCount(0);
 
             list.stream().forEach((na) -> {
@@ -536,7 +544,7 @@ public final class ControllerGui extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonReadAcceptedActionPerformed
 
     private void jButtonRemoveAcceptedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveAcceptedActionPerformed
-        int index = this.jTableAccepted.getSelectedRow();
+        int index = jTableAccepted.getSelectedRow();
         if (index >= 0) {
             try {
 
@@ -545,13 +553,14 @@ public final class ControllerGui extends javax.swing.JFrame {
                 jSpinnerAddrL.commitEdit();
 
                 controller.removeNodeAlias(
-                        ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                        ((Integer) jSpinnerNetID.getValue()).byteValue(),
                         new NodeAddress(
-                                (Integer) this.jSpinnerAddrH.getValue(),
-                                (Integer) this.jSpinnerAddrL.getValue()),
+                                (Integer) jSpinnerAddrH.getValue(),
+                                (Integer) jSpinnerAddrL.getValue()),
                         (byte) index);
 
-                ((DefaultTableModel) this.jTableAccepted.getModel()).removeRow(index);
+                ((DefaultTableModel) jTableAccepted.getModel())
+                        .removeRow(index);
 
             } catch (ParseException ex) {
                 Logger.getGlobal().log(Level.SEVERE, null, ex);
@@ -581,10 +590,10 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrL.commitEdit();
 
             controller.addNodeAlias(
-                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                    ((Integer) jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
-                            (Integer) this.jSpinnerAddrH.getValue(),
-                            (Integer) this.jSpinnerAddrL.getValue()),
+                            (Integer) jSpinnerAddrH.getValue(),
+                            (Integer) jSpinnerAddrL.getValue()),
                     addr);
 
         } catch (HeadlessException | NumberFormatException e) {
@@ -606,12 +615,12 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrL.commitEdit();
 
             List<FlowTableEntry> list = controller.getNodeRules(
-                    ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                    ((Integer) jSpinnerNetID.getValue()).byteValue(),
                     new NodeAddress(
-                            (Integer) this.jSpinnerAddrH.getValue(),
-                            (Integer) this.jSpinnerAddrL.getValue()));
+                            (Integer) jSpinnerAddrH.getValue(),
+                            (Integer) jSpinnerAddrL.getValue()));
 
-            DefaultTableModel model = (DefaultTableModel) this.jTableFlow.getModel();
+            DefaultTableModel model = (DefaultTableModel) jTableFlow.getModel();
             model.setRowCount(0);
 
             list.stream().forEach((na) -> {
@@ -626,20 +635,21 @@ public final class ControllerGui extends javax.swing.JFrame {
 
     private void jButtonRemoveFlowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoveFlowActionPerformed
         try {
-            if (this.jTableFlow.getSelectedRow() != -1) {
+            if (jTableFlow.getSelectedRow() != -1) {
                 jSpinnerNetID.commitEdit();
                 jSpinnerAddrH.commitEdit();
                 jSpinnerAddrL.commitEdit();
 
                 controller.removeNodeRule(
-                        ((Integer) this.jSpinnerNetID.getValue()).byteValue(),
+                        ((Integer) jSpinnerNetID.getValue()).byteValue(),
                         new NodeAddress(
-                                (Integer) this.jSpinnerAddrH.getValue(),
-                                (Integer) this.jSpinnerAddrL.getValue()),
-                        (byte) this.jTableFlow.getSelectedRow());
+                                (Integer) jSpinnerAddrH.getValue(),
+                                (Integer) jSpinnerAddrL.getValue()),
+                        (byte) jTableFlow.getSelectedRow());
 
-                DefaultTableModel model = (DefaultTableModel) jTableFlow.getModel();
-                model.removeRow(this.jTableFlow.getSelectedRow());
+                DefaultTableModel model = (DefaultTableModel) jTableFlow
+                        .getModel();
+                model.removeRow(jTableFlow.getSelectedRow());
             }
         } catch (ParseException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
@@ -654,11 +664,11 @@ public final class ControllerGui extends javax.swing.JFrame {
             jSpinnerAddrL.commitEdit();
 
             NodeAddress dest = new NodeAddress(
-                    (Integer) this.jSpinnerAddrH.getValue(),
-                    (Integer) this.jSpinnerAddrL.getValue());
+                    (Integer) jSpinnerAddrH.getValue(),
+                    (Integer) jSpinnerAddrL.getValue());
             NodeAddress src = controller.getSinkAddress();
 
-            byte id = ((Integer) this.jSpinnerNetID.getValue()).byteValue();
+            byte id = ((Integer) jSpinnerNetID.getValue()).byteValue();
 
             DataPacket dp = new DataPacket(id, src, dest,
                     jTextField1.getText()

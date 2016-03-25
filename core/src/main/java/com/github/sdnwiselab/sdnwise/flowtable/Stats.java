@@ -146,7 +146,7 @@ public final class Stats implements FlowTableInterface {
      * @return the object itself
      */
     public Stats setPermanent() {
-        this.setTtl(ENTRY_TTL_PERMANENT);
+        setTtl(ENTRY_TTL_PERMANENT);
         return this;
     }
 
@@ -156,7 +156,7 @@ public final class Stats implements FlowTableInterface {
      * @return the object itself
      */
     public Stats restoreTtl() {
-        this.setTtl(SDN_WISE_RL_TTL_MAX);
+        setTtl(SDN_WISE_RL_TTL_MAX);
         return this;
     }
 
@@ -167,7 +167,7 @@ public final class Stats implements FlowTableInterface {
      * @return the object itself
      */
     public Stats decrementTtl(final int value) {
-        this.setTtl(getTtl() - value);
+        setTtl(getTtl() - value);
         return this;
     }
 
@@ -178,7 +178,7 @@ public final class Stats implements FlowTableInterface {
      * @return the object itself
      */
     private Stats setTtl(final int ttl) {
-        this.stats[TTL_INDEX] = (byte) ttl;
+        stats[TTL_INDEX] = (byte) ttl;
         return this;
     }
 }

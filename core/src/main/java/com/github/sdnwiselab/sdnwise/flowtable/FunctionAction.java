@@ -57,7 +57,7 @@ public final class FunctionAction extends AbstractAction {
             for (int i = 0; i < args.length; i++) {
                 args[i] = (byte) (Integer.parseInt(tmp[i + 1]));
             }
-            this.setValue(args);
+            setValue(args);
         } else {
             throw new IllegalArgumentException();
         }
@@ -92,7 +92,7 @@ public final class FunctionAction extends AbstractAction {
     public FunctionAction setArgs(final byte[] args) {
         int i = 0;
         for (byte b : args) {
-            this.setValue(ARGS_INDEX + i, b);
+            setValue(ARGS_INDEX + i, b);
             i++;
         }
         return this;

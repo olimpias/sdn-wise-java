@@ -91,7 +91,7 @@ public abstract class AbstractAction implements FlowTableInterface {
          * @param v a byte representing the action.
          */
         Action(final int v) {
-            this.value = (byte) v;
+            value = (byte) v;
         }
     }
 
@@ -128,7 +128,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @param value a byte array representing the action
      */
     public AbstractAction(final byte[] value) {
-        this.action = value;
+        action = value;
     }
 
     /**
@@ -203,7 +203,7 @@ public abstract class AbstractAction implements FlowTableInterface {
      * @return the AbstracAction itself
      */
     protected final AbstractAction setValue(final byte[] value) {
-        Action type = this.getType();
+        Action type = getType();
         action = ByteBuffer.allocate(value.length + 1)
                 .put(type.value)
                 .put(value).array();

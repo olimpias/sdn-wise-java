@@ -68,8 +68,8 @@ public class DataPacket extends NetworkPacket {
             final NodeAddress dst,
             final byte[] payload) {
         super(net, src, dst);
-        this.setTyp(DATA);
-        this.setPayload(payload);
+        setTyp(DATA);
+        setPayload(payload);
     }
 
     /**

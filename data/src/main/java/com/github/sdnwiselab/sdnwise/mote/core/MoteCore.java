@@ -43,7 +43,7 @@ public class MoteCore extends AbstractCore {
 
     @Override
     public void dataCallback(final DataPacket packet) {
-        if (this.functions.get(1) == null) {
+        if (functions.get(1) == null) {
             log(Level.INFO, new String(packet.getData(),
                     Charset.forName("UTF-8")));
             packet.setSrc(getMyAddress())
@@ -51,7 +51,7 @@ public class MoteCore extends AbstractCore {
                     .setTtl((byte) ruleTtl);
             runFlowMatch(packet);
         } else {
-            this.functions.get(1).function(sensors,
+            functions.get(1).function(sensors,
                     flowTable,
                     neighborTable,
                     statusRegister,
@@ -66,7 +66,7 @@ public class MoteCore extends AbstractCore {
     @Override
     public void rxBeacon(BeaconPacket bp, int rssi) {
         if (rssi > rssiMin) {
-            if (bp.getDistance() < this.getSinkDistance()
+            if (bp.getDistance() < getSinkDistance()
                     && (rssi > getSinkRssi())) {
                 setActive(true);
                 FlowTableEntry toSink = new FlowTableEntry();
@@ -83,7 +83,7 @@ public class MoteCore extends AbstractCore {
 
                 setSinkDistance(bp.getDistance() + 1);
                 setSinkRssi(rssi);
-            } else if ((bp.getDistance() + 1) == this.getSinkDistance()
+            } else if ((bp.getDistance() + 1) == getSinkDistance()
                     && getNextHopVsSink().equals(bp.getSrc())) {
                 flowTable.get(0).getStats().restoreTtl();
                 flowTable.get(0).getWindows().get(0)
@@ -98,7 +98,7 @@ public class MoteCore extends AbstractCore {
         NodeAddress dest = packet.getDst();
         if (!dest.equals(getMyAddress())) {
             runFlowMatch(packet);
-        } else if (this.marshalPacket(packet) != 0) {
+        } else if (marshalPacket(packet) != 0) {
             packet.setSrc(getMyAddress());
             packet.setDst(getActualSinkAddress());
             packet.setTtl((byte) ruleTtl);

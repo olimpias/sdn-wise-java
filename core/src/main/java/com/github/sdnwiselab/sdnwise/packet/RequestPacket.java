@@ -161,7 +161,7 @@ public class RequestPacket extends NetworkPacket {
      * @return a byte array representing the data payload of a single packet
      */
     public final byte[] getData() {
-        return this.getPayloadFromTo(TOTAL_INDEX + 1, getPayloadSize());
+        return getPayloadFromTo(TOTAL_INDEX + 1, getPayloadSize());
     }
 
     /**
@@ -170,7 +170,7 @@ public class RequestPacket extends NetworkPacket {
      * @return data payload size in bytes
      */
     public final int getDataSize() {
-        return this.getPayloadSize() - (TOTAL_INDEX + 1);
+        return getPayloadSize() - (TOTAL_INDEX + 1);
     }
 
     /**
@@ -180,7 +180,7 @@ public class RequestPacket extends NetworkPacket {
      * @return the id of the request
      */
     public final int getId() {
-        return this.getPayloadAt(ID_INDEX);
+        return getPayloadAt(ID_INDEX);
     }
 
     /**
@@ -191,7 +191,7 @@ public class RequestPacket extends NetworkPacket {
      * @return the part number
      */
     public final int getPart() {
-        return this.getPayloadAt(PART_INDEX);
+        return getPayloadAt(PART_INDEX);
     }
 
     /**
@@ -202,7 +202,7 @@ public class RequestPacket extends NetworkPacket {
      * @return the total number of parts
      */
     public final int getTotal() {
-        return this.getPayloadAt(TOTAL_INDEX);
+        return getPayloadAt(TOTAL_INDEX);
     }
 
     /**
@@ -212,7 +212,7 @@ public class RequestPacket extends NetworkPacket {
      * @return the packet itself
      */
     private RequestPacket setData(final byte[] data) {
-        this.setPayload(data, 0, TOTAL_INDEX + 1, data.length);
+        setPayload(data, 0, TOTAL_INDEX + 1, data.length);
         return this;
     }
 
@@ -224,7 +224,7 @@ public class RequestPacket extends NetworkPacket {
      * @return the packet itself
      */
     private RequestPacket setId(final int id) {
-        this.setPayloadAt((byte) id, ID_INDEX);
+        setPayloadAt((byte) id, ID_INDEX);
         return this;
     }
 
@@ -237,7 +237,7 @@ public class RequestPacket extends NetworkPacket {
      * @return the packet itself
      */
     private RequestPacket setPart(final int part) {
-        this.setPayloadAt((byte) part, PART_INDEX);
+        setPayloadAt((byte) part, PART_INDEX);
         return this;
     }
 
@@ -250,7 +250,7 @@ public class RequestPacket extends NetworkPacket {
      * @param total the expected number of parts
      */
     private RequestPacket setTotal(final int total) {
-        this.setPayloadAt((byte) total, TOTAL_INDEX);
+        setPayloadAt((byte) total, TOTAL_INDEX);
         return this;
     }
 

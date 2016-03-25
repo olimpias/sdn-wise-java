@@ -102,7 +102,7 @@ public class RegProxyPacket extends NetworkPacket {
      * @return the dPid of the Sink node
      */
     public final String getDpid() {
-        return new String(this.getPayloadFromTo(DPID_INDEX, MAC_INDEX));
+        return new String(getPayloadFromTo(DPID_INDEX, MAC_INDEX));
     }
 
     /**
@@ -112,7 +112,7 @@ public class RegProxyPacket extends NetworkPacket {
      */
     public final InetSocketAddress getInetSocketAddress() {
         try {
-            byte[] ip = this.getPayloadFromTo(IP_INDEX, IP_INDEX + IP_LEN);
+            byte[] ip = getPayloadFromTo(IP_INDEX, IP_INDEX + IP_LEN);
             return new InetSocketAddress(InetAddress.getByAddress(ip),
                     Utils.mergeBytes(getPayloadAt(TCP_INDEX),
                             getPayloadAt(TCP_INDEX + 1)));
@@ -128,7 +128,7 @@ public class RegProxyPacket extends NetworkPacket {
      */
     public final String getMac() {
         StringBuilder sb = new StringBuilder(MAC_STR_LEN);
-        byte[] mac = this.getPayloadFromTo(MAC_INDEX, MAC_INDEX + MAC_LEN);
+        byte[] mac = getPayloadFromTo(MAC_INDEX, MAC_INDEX + MAC_LEN);
         for (byte b : mac) {
             if (sb.length() > 0) {
                 sb.append(':');
@@ -144,7 +144,7 @@ public class RegProxyPacket extends NetworkPacket {
      * @return the physical port of the Sink node
      */
     public final long getPort() {
-        return new BigInteger(this.getPayloadFromTo(PORT_INDEX, PORT_INDEX
+        return new BigInteger(getPayloadFromTo(PORT_INDEX, PORT_INDEX
                 + PORT_LEN)).longValue();
     }
 

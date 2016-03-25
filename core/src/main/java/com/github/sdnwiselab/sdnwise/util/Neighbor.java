@@ -47,18 +47,18 @@ public final class Neighbor {
      * @param b battery value of the NodeAddress.
      */
     public Neighbor(final NodeAddress a, final int r, final int b) {
-        this.addr = a;
-        this.rssi = r;
-        this.batt = b;
+        addr = a;
+        rssi = r;
+        batt = b;
     }
 
     /**
      * Constructs a Neighbor object.
      */
     public Neighbor() {
-        this.addr = NodeAddress.BROADCAST_ADDR;
-        this.rssi = DEFAULT;
-        this.batt = DEFAULT;
+        addr = NodeAddress.BROADCAST_ADDR;
+        rssi = DEFAULT;
+        batt = DEFAULT;
     }
 
     /**
