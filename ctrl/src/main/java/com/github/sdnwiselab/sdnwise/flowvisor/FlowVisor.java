@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,14 +16,23 @@
  */
 package com.github.sdnwiselab.sdnwise.flowvisor;
 
-import com.github.sdnwiselab.sdnwise.adapter.*;
-import com.github.sdnwiselab.sdnwise.controlplane.*;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLayer;
+import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLogger;
+import com.github.sdnwiselab.sdnwise.packet.DataPacket;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REPORT;
+import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
-import java.util.*;
-import java.util.logging.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Observable;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class registers Nodes and Controllers of the SDN-WISE Network.
@@ -35,17 +44,30 @@ import java.util.logging.*;
  */
 public class FlowVisor extends ControlPlaneLayer {
 
-    // to avoid garbage collection of the logger
+    /**
+     * Avoid garbage collection of the logger.
+     */
     protected static final Logger LOGGER = Logger.getLogger("FLW");
 
-    private final HashMap<InetSocketAddress, Set<NodeAddress>> controllerMapping;
-    private final HashMap<InetSocketAddress, InetSocketAddress> applicationMapping;
+    /**
+     * Maps each controller to a set of nodes.
+     */
+    private final HashMap<InetSocketAddress, Set<NodeAddress>>
+            controllerMapping;
+    /**
+     * Maps each application to a controller.
+     */
+    private final HashMap<InetSocketAddress, InetSocketAddress>
+            applicationMapping;
 
     /**
      * Constructor for the FlowVisor. It defines Lower and Upper
-     * AbstractAdapter.
+     * AbstractAdapters.
+     *
+     * @param lower the lower adapter
+     * @param upper the upper adapter
      */
-    FlowVisor(AbstractAdapter lower, AdapterUdp upper) {
+    FlowVisor(final AbstractAdapter lower, final AdapterUdp upper) {
         super("FLW", lower, upper);
         ControlPlaneLogger.setupLogger(getLayerShortName());
 
@@ -60,7 +82,8 @@ public class FlowVisor extends ControlPlaneLayer {
      * @param controller Controller Identity to register
      * @param set Set of Nodes to register
      */
-    public final void addController(InetSocketAddress controller, Set<NodeAddress> set) {
+    public final void addController(final InetSocketAddress controller,
+            final Set<NodeAddress> set) {
         controllerMapping.put(controller, set);
     }
 
@@ -71,30 +94,31 @@ public class FlowVisor extends ControlPlaneLayer {
      * @param application Application Identity to register
      * @param controller Controller Identity for the Application
      */
-    public final void addApplication(InetSocketAddress application, InetSocketAddress controller) {
+    public final void addApplication(final InetSocketAddress application,
+            final InetSocketAddress controller) {
         applicationMapping.put(application, controller);
     }
 
     /**
-     * Remove a Controller from this FlowVisor
+     * Remove a Controller from this FlowVisor.
      *
      * @param controller Controller Identity to remove
      */
-    public final void removeController(InetSocketAddress controller) {
+    public final void removeController(final InetSocketAddress controller) {
         controllerMapping.remove(controller);
     }
 
     /**
-     * Remove an Application from this FlowVisor
+     * Remove an Application from this FlowVisor.
      *
      * @param application Application Identity to remove
      */
-    public final void removeApplication(InetSocketAddress application) {
+    public final void removeApplication(final InetSocketAddress application) {
         applicationMapping.remove(application);
     }
 
     @Override
-    public final void update(Observable o, Object arg) {
+    public final void update(final Observable o, final Object arg) {
         if (o.equals(getLower())) {
             // if it is a data packet send to the application, else send it to
             // the controller
@@ -125,7 +149,7 @@ public class FlowVisor extends ControlPlaneLayer {
      *
      * @param data Byte Array contains data message
      */
-    private void manageReports(byte[] data) {
+    private void manageReports(final byte[] data) {
         controllerMapping.entrySet().stream().forEach((set) -> {
             ReportPacket pkt = new ReportPacket(
                     Arrays.copyOf(data, data.length));
@@ -157,36 +181,48 @@ public class FlowVisor extends ControlPlaneLayer {
      *
      * @param data Byte Array contains data message
      */
-    private void manageRequests(byte[] data) {
+    private void manageRequests(final byte[] data) {
         NetworkPacket pkt = new NetworkPacket(data);
-        controllerMapping.entrySet().stream().filter((set) -> (set.getValue().contains(pkt.getSrc())
+        controllerMapping.entrySet().stream().filter((set) -> (set.getValue()
+                .contains(pkt.getSrc())
                 && set.getValue().contains(pkt.getDst()))).map((set) -> {
             ((AdapterUdp) getUpper()).send(data, set.getKey().getAddress()
                     .getHostAddress(),
                     set.getKey().getPort());
             return set;
         }).forEach((set) -> {
-            log(Level.INFO, "Sending request to " + set.getKey().getAddress() + ":"
-                    + set.getKey().getPort());
+            log(Level.INFO, "Sending request to " + set.getKey().getAddress()
+                    + ":" + set.getKey().getPort());
         });
     }
 
-    private void manageData(byte[] data) {
+    /**
+     * Manages data packets.
+     *
+     * @param data a DataPacket as a byte array
+     */
+    private void manageData(final byte[] data) {
         DataPacket pkt = new DataPacket(data);
 
         applicationMapping.keySet().stream().forEach((app) -> {
-            Set<NodeAddress> nodes = controllerMapping.get(applicationMapping.get(app));
+            Set<NodeAddress> nodes = controllerMapping.get(applicationMapping
+                    .get(app));
             if (nodes.contains(pkt.getSrc())
                     && nodes.contains(pkt.getDst())) {
-                ((AdapterUdp) getUpper()).send(data, app.getAddress().getHostAddress(),
-                        app.getPort());
+                ((AdapterUdp) getUpper()).send(data, app.getAddress()
+                        .getHostAddress(), app.getPort());
                 log(Level.INFO, "Sending data to " + app.getAddress() + ":"
                         + app.getPort());
             }
         });
     }
 
-    private void manageResponses(byte[] data) {
+    /**
+     * Manages Responses from the Controller.
+     *
+     * @param data a Response packet as a byte array
+     */
+    private void manageResponses(final byte[] data) {
         log(Level.INFO, "Receiving " + Arrays.toString(data));
         getLower().send(data);
     }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 SDN-WISE
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,25 +29,31 @@ import com.github.sdnwiselab.sdnwise.configuration.Configurator;
  *
  * @author Sebastiano Milardo
  */
-public class FlowVisorFactory {
+public final class FlowVisorFactory {
 
+    /**
+     * Contains the configuration parameters of the class.
+     */
     private static ConfigFlowVisor conf;
 
     /**
      *
-     * Getter Method to obtain a FlowVisor object, created by this Factory
-     * Class.
+     * Gets a FlowVisor object, created by this Factory Class.
      *
-     * @param config ConfigFlowVisor file for this FlowVisorFactory.
-     *
+     * @param c ConfigFlowVisor file for this FlowVisorFactory.
      * @return FlowVisor object with a new AdapterUdp for Lower AbstractAdapter
      * and Upper AbstractAdapter
      */
-    public static final FlowVisor getFlowvisor(final Configurator config) {
-        conf = config.getFlowvisor();
+    public static FlowVisor getFlowvisor(final Configurator c) {
+        conf = c.getFlowvisor();
         return new FlowVisor(getLower(), getUpper());
     }
 
+    /**
+     * Gets the lower adapter.
+     *
+     * @return the lower adapter
+     */
     private static AbstractAdapter getLower() {
         String type = conf.getLower().get("TYPE");
         switch (type) {
@@ -61,6 +67,11 @@ public class FlowVisorFactory {
         }
     }
 
+    /**
+     * Gets the upper adapter.
+     *
+     * @return the upper adapter
+     */
     private static AdapterUdp getUpper() {
         String type = conf.getUpper().get("TYPE");
         switch (type) {
@@ -72,6 +83,10 @@ public class FlowVisorFactory {
         }
     }
 
+    /**
+     * Private constructor.
+     */
     private FlowVisorFactory() {
+        // Nothing to do here
     }
 }

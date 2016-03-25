@@ -86,5 +86,6 @@ public final class AdaptationFactory {
      * Private constructor.
      */
     private AdaptationFactory() {
+        // Nothing to do here
     }
 }
