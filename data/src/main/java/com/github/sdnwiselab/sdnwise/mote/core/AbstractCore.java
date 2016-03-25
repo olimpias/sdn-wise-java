@@ -82,15 +82,18 @@ public abstract class AbstractCore {
     /**
      * Contains the NetworkPacket that will be processed by the WISE Flow Table.
      */
-    protected final ArrayBlockingQueue<NetworkPacket> ftQueue = new ArrayBlockingQueue<>(100);
+    protected final ArrayBlockingQueue<NetworkPacket> ftQueue
+            = new ArrayBlockingQueue<>(100);
     /**
      * Function Buffer.
      */
-    private final HashMap<Integer, LinkedList<byte[]>> functionBuffer = new HashMap<>();
+    private final HashMap<Integer, LinkedList<byte[]>> functionBuffer
+            = new HashMap<>();
     /**
      * Function Array.
      */
-    protected final HashMap<Integer, FunctionInterface> functions = new HashMap<>();
+    protected final HashMap<Integer, FunctionInterface> functions
+            = new HashMap<>();
     /**
      * A Mote becomes active after it receives a beacon. A Sink is always
      * active.
@@ -99,7 +102,8 @@ public abstract class AbstractCore {
     /**
      * Contains the Log messages.
      */
-    private final ArrayBlockingQueue<Pair<Level, String>> logQueue = new ArrayBlockingQueue<>(100);
+    private final ArrayBlockingQueue<Pair<Level, String>> logQueue
+            = new ArrayBlockingQueue<>(100);
     /**
      * The address of the node.
      */
@@ -130,11 +134,11 @@ public abstract class AbstractCore {
     protected final ArrayBlockingQueue<NetworkPacket> txQueue
             = new ArrayBlockingQueue<>(100);
 
-    AbstractCore(byte net, NodeAddress address, Dischargeable battery) {
-        this.neighborTable = Collections.synchronizedSet(new HashSet<>(100));
-        this.myAddress = address;
-        this.myNet = net;
-        this.battery = battery;
+    AbstractCore(byte net, NodeAddress address, Dischargeable bat) {
+        neighborTable = Collections.synchronizedSet(new HashSet<>(100));
+        myAddress = address;
+        myNet = net;
+        battery = bat;
     }
 
     /**
@@ -210,12 +214,11 @@ public abstract class AbstractCore {
         }
     }
 
-    private boolean compare(final int operatore, final int item1,
-            final int item2) {
+    private boolean compare(final int op, final int item1, final int item2) {
         if (item1 == -1 || item2 == -1) {
             return false;
         }
-        switch (operatore) {
+        switch (op) {
             case EQUAL:
                 return item1 == item2;
             case NOT_EQUAL:
