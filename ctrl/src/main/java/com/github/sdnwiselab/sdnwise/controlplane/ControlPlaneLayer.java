@@ -32,25 +32,27 @@ import java.util.logging.Logger;
 public abstract class ControlPlaneLayer implements Observer, Runnable {
 
     /**
-     * Identify the layer. This string is reported in each log message.
+     * Charset in use.
      */
-    private final String layerShortName;
-    /**
-     * Adapters.
-     */
-    protected final AbstractAdapter lower, upper;
-    /**
-     * Scanner. Reads incoming commands.
-     */
-    private final Scanner scanner;
+    protected static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     /**
      * Manages the status of the layer.
      */
     private boolean isStopped;
+
     /**
-     * Charset in use.
+     * Identify the layer. This string is reported in each log message.
      */
-    protected static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    private final String layerShortName;
+
+    /**
+     * Adapters.
+     */
+    private final AbstractAdapter lower, upper;
+    /**
+     * Scanner. Reads incoming commands.
+     */
+    private final Scanner scanner;
 
     /**
      * Creates a ControlPlane layer give a name and two adapters.
@@ -78,6 +80,24 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
     }
 
     /**
+     * Gets the lower adapter.
+     *
+     * @return the lower adapter
+     */
+    public final AbstractAdapter getLower() {
+        return lower;
+    }
+
+    /**
+     * Gets the upper adapter.
+     *
+     * @return the upper adapter
+     */
+    public final AbstractAdapter getUpper() {
+        return upper;
+    }
+
+    /**
      * Starts the layer thread and checks if both adapters have been opened
      * correctly. This method is listening for incoming closing messages from
      * the standard input.
@@ -93,6 +113,17 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
             }
             closeAdapter(lower);
             closeAdapter(upper);
+        }
+    }
+
+    /**
+     * Closes the adapter.
+     *
+     * @param a the adapter to close
+     */
+    private void closeAdapter(final AbstractAdapter a) {
+        if (a != null) {
+            a.close();
         }
     }
 
@@ -114,22 +145,6 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
     }
 
     /**
-     * Closes the adapter.
-     *
-     * @param a the adapter to close
-     */
-    private void closeAdapter(final AbstractAdapter a) {
-        if (a != null) {
-            a.close();
-        }
-    }
-
-    /**
-     * Setup of the ControlPlane layer.
-     */
-    protected abstract void setupLayer();
-
-    /**
      * Logs messages depending on the verbosity level.
      *
      * @param level a standard logging level
@@ -138,4 +153,9 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
     protected final void log(final Level level, final String msg) {
         Logger.getLogger(layerShortName).log(level, msg);
     }
+
+    /**
+     * Setup of the ControlPlane layer.
+     */
+    protected abstract void setupLayer();
 }

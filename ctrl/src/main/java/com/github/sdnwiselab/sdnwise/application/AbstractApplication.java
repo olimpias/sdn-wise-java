@@ -112,7 +112,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
             DataPacket dp = new DataPacket(net, controller.getSinkAddress(),
                     dst, message);
             dp.setNxh(controller.getSinkAddress());
-            lower.send(dp.toByteArray());
+            getLower().send(dp.toByteArray());
         }
     }
 
@@ -132,7 +132,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
 
     @Override
     public final void update(final Observable o, final Object arg) {
-        if (o.equals(lower)) {
+        if (o.equals(getLower())) {
             try {
                 bQ.put(new NetworkPacket((byte[]) arg));
             } catch (InterruptedException ex) {

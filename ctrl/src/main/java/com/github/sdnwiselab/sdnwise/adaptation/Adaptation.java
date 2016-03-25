@@ -67,12 +67,12 @@ public class Adaptation extends ControlPlaneLayer {
      */
     @Override
     public final void update(final Observable o, final Object arg) {
-        if (o.equals(lower)) {
+        if (o.equals(getLower())) {
             log(Level.INFO, "\u2191" + Arrays.toString((byte[]) arg));
-            upper.send((byte[]) arg);
-        } else if (o.equals(upper)) {
+            getUpper().send((byte[]) arg);
+        } else if (o.equals(getUpper())) {
             log(Level.INFO, "\u2193" + Arrays.toString((byte[]) arg));
-            lower.send((byte[]) arg);
+            getLower().send((byte[]) arg);
         }
     }
 }

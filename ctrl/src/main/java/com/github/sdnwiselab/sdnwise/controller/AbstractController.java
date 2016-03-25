@@ -556,7 +556,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      */
     @Override
     public final void update(final Observable o, final Object arg) {
-        if (o.equals(lower)) {
+        if (o.equals(getLower())) {
             try {
                 bQ.put(new NetworkPacket((byte[]) arg));
             } catch (InterruptedException ex) {
@@ -666,7 +666,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      */
     protected final void sendNetworkPacket(final NetworkPacket packet) {
         packet.setNxh(sinkAddress);
-        lower.send(packet.toByteArray());
+        getLower().send(packet.toByteArray());
     }
 
     /**

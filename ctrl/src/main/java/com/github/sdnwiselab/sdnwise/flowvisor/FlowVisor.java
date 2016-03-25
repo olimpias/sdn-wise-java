@@ -95,7 +95,7 @@ public class FlowVisor extends ControlPlaneLayer {
 
     @Override
     public final void update(Observable o, Object arg) {
-        if (o.equals(lower)) {
+        if (o.equals(getLower())) {
             // if it is a data packet send to the application, else send it to
             // the controller
             byte[] data = (byte[]) arg;
@@ -111,7 +111,7 @@ public class FlowVisor extends ControlPlaneLayer {
                     manageRequests(data);
                     break;
             }
-        } else if (o.equals(upper)) {
+        } else if (o.equals(getUpper())) {
             manageResponses((byte[]) arg);
         }
     }
@@ -145,7 +145,8 @@ public class FlowVisor extends ControlPlaneLayer {
                     pkt.setNeighbors(map);
                 }
 
-                ((AdapterUdp) upper).send(pkt.toByteArray(), set.getKey().getAddress().getHostAddress(),
+                ((AdapterUdp) getUpper()).send(pkt.toByteArray(), set.getKey()
+                        .getAddress().getHostAddress(),
                         set.getKey().getPort());
             }
         });
@@ -160,7 +161,8 @@ public class FlowVisor extends ControlPlaneLayer {
         NetworkPacket pkt = new NetworkPacket(data);
         controllerMapping.entrySet().stream().filter((set) -> (set.getValue().contains(pkt.getSrc())
                 && set.getValue().contains(pkt.getDst()))).map((set) -> {
-            ((AdapterUdp) upper).send(data, set.getKey().getAddress().getHostAddress(),
+            ((AdapterUdp) getUpper()).send(data, set.getKey().getAddress()
+                    .getHostAddress(),
                     set.getKey().getPort());
             return set;
         }).forEach((set) -> {
@@ -176,7 +178,7 @@ public class FlowVisor extends ControlPlaneLayer {
             Set<NodeAddress> nodes = controllerMapping.get(applicationMapping.get(app));
             if (nodes.contains(pkt.getSrc())
                     && nodes.contains(pkt.getDst())) {
-                ((AdapterUdp) upper).send(data, app.getAddress().getHostAddress(),
+                ((AdapterUdp) getUpper()).send(data, app.getAddress().getHostAddress(),
                         app.getPort());
                 log(Level.INFO, "Sending data to " + app.getAddress() + ":"
                         + app.getPort());
@@ -186,7 +188,7 @@ public class FlowVisor extends ControlPlaneLayer {
 
     private void manageResponses(byte[] data) {
         log(Level.INFO, "Receiving " + Arrays.toString(data));
-        lower.send(data);
+        getLower().send(data);
     }
 
 }
