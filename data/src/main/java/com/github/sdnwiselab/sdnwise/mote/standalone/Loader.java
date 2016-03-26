@@ -17,6 +17,7 @@
 package com.github.sdnwiselab.sdnwise.mote.standalone;
 
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+import java.net.InetSocketAddress;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -97,11 +98,9 @@ public final class Loader {
                 if (!line.hasOption("sd")) {
                     throw new ParseException("-sd option missing");
                 }
-
                 if (!line.hasOption("sp")) {
                     throw new ParseException("-sp option missing");
                 }
-
                 if (!line.hasOption("sm")) {
                     throw new ParseException("-sm option missing");
                 }
@@ -109,10 +108,10 @@ public final class Loader {
                 String cmdSDpid = line.getOptionValue("sd");
                 String cmdSMac = line.getOptionValue("sm");
                 long cmdSPort = Long.parseLong(line.getOptionValue("sp"));
-
                 String[] ipport = line.getOptionValue("c").split(":");
-                th = new Thread(new Sink(cmdNet, cmdAddress, cmdPort, ipport[0],
-                        Integer.parseInt(ipport[1]), cmdTopo, cmdLevel,
+                th = new Thread(new Sink(cmdNet, cmdAddress, cmdPort,
+                        new InetSocketAddress(ipport[0], Integer
+                                .parseInt(ipport[1])), cmdTopo, cmdLevel,
                         cmdSDpid, cmdSMac, cmdSPort));
             } else {
                 th = new Thread(new Mote(cmdNet, cmdAddress, cmdPort, cmdTopo,

@@ -22,10 +22,21 @@ import com.github.sdnwiselab.sdnwise.mote.core.MoteCore;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 
 /**
+ * Models a SDN-WISE Mote as a standalone application.
+ *
  * @author Sebastiano Milardo
  */
 public class Mote extends AbstractMote {
 
+    /**
+     * Creates and starts a new Mote application.
+     *
+     * @param net the Network Id of the node
+     * @param myAddress the address of the node
+     * @param port the listening port of the node
+     * @param neighboursPath the path to the file containing neighbours info
+     * @param logLevel log level of the logger of the node
+     */
     public Mote(final byte net,
             final NodeAddress myAddress,
             final int port,

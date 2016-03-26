@@ -31,6 +31,7 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -220,9 +221,7 @@ public final class SdnWise {
                 // listener port
                 BASE_NODE_PORT + 1,
                 // controller address
-                "localhost",
-                // controller port
-                ADA_PORT,
+                new InetSocketAddress("localhost", ADA_PORT),
                 // neigh file
                 "Node1.txt",
                 "FINEST",

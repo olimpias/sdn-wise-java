@@ -24,40 +24,46 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Models a SDN-WISE Sink Node as a standalone application.
+ *
  * @author Sebastiano Milardo
  */
 public class Sink extends AbstractMote {
 
-    private final String addrController;
-    private final int portController;
+    private final InetSocketAddress ctrl;
     private Socket tcpSocket;
     private DataOutputStream inviaOBJ;
     private DataInputStream riceviOBJ;
 
+    /**
+     * Creates and starts a new Sink application.
+     *
+     * @param net the Network Id of the node
+     * @param myAddress the address of the node
+     * @param port the listening port of the node
+     * @param controller address of the controller
+     * @param neighboursPath the path to the file containing neighbours info
+     * @param logLevel log level of the logger of the node
+     * @param dpid dpid of the sink
+     * @param mac mac address of the sink
+     * @param sPort physical port of the sink
+     */
     public Sink(final byte net, final NodeAddress myAddress, final int port,
-            final String addrCtrl, final int portCtrl,
+            final InetSocketAddress controller,
             final String neighboursPath, final String logLevel,
             final String dpid, final String mac, final long sPort) {
 
         super(port, neighboursPath, logLevel);
-        this.addrController = addrCtrl;
-        this.portController = portCtrl;
+        this.ctrl = controller;
         Dischargeable battery = new SinkBattery();
-
-        try {
-            core = new SinkCore(net, myAddress, battery, dpid, mac, sPort,
-                    InetAddress.getByName(addrController), portController);
-            core.start();
-        } catch (UnknownHostException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
-        }
+        core = new SinkCore(net, myAddress, battery, dpid, mac, sPort, ctrl);
+        core.start();
     }
 
     private class TcpListener implements Runnable {
@@ -96,7 +102,7 @@ public class Sink extends AbstractMote {
     protected final void startThreads() {
         super.startThreads();
         try {
-            tcpSocket = new Socket(addrController, portController);
+            tcpSocket = new Socket(ctrl.getAddress(), ctrl.getPort());
             new Thread(new TcpListener()).start();
             new Thread(new TcpSender()).start();
         } catch (IOException ex) {

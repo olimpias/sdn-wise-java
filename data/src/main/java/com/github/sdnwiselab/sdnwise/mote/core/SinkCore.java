@@ -18,11 +18,13 @@ package com.github.sdnwiselab.sdnwise.mote.core;
 
 import com.github.sdnwiselab.sdnwise.packet.RegProxyPacket;
 import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.packet.ConfigPacket;
+import com.github.sdnwiselab.sdnwise.packet.DataPacket;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
-import java.net.*;
+import java.net.InetSocketAddress;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.*;
+import java.util.logging.Level;
 
 /**
  * @author Sebastiano Milardo
@@ -32,8 +34,7 @@ public class SinkCore extends AbstractCore {
     private final String switchDPid;
     private final String switchMac;
     private final long switchPort;
-    private final InetAddress addrController;
-    private final int port;
+    private final InetSocketAddress addrController;
 
     /**
      * Contains the NetworkPacket that will be sent over the serial port to the
@@ -45,21 +46,19 @@ public class SinkCore extends AbstractCore {
             final byte net,
             final NodeAddress address,
             final Dischargeable battery,
-            final String switchDPid,
-            final String switchMac,
-            final long switchPort,
-            final InetAddress addrController,
-            final int port) {
+            final String dPid,
+            final String mac,
+            final long port,
+            final InetSocketAddress ctrl) {
         super(net, address, battery);
-        this.switchDPid = switchDPid;
-        this.switchMac = switchMac;
-        this.switchPort = switchPort;
-        this.addrController = addrController;
-        this.port = port;
+        this.switchDPid = dPid;
+        this.switchMac = mac;
+        this.switchPort = port;
+        this.addrController = ctrl;
     }
 
     @Override
-    public final void controllerTX(NetworkPacket pck) {
+    public final void controllerTX(final NetworkPacket pck) {
         try {
             txControllerQueue.put(pck);
             log(Level.FINE, "CTX " + pck);
@@ -68,17 +67,18 @@ public class SinkCore extends AbstractCore {
         }
     }
 
-    public final NetworkPacket getControllerPacketTobeSend() throws InterruptedException {
+    public final NetworkPacket getControllerPacketTobeSend()
+            throws InterruptedException {
         return txControllerQueue.take();
     }
 
     @Override
-    public void dataCallback(DataPacket packet) {
+    public final void dataCallback(final DataPacket packet) {
         controllerTX(packet);
     }
 
     @Override
-    public void rxConfig(ConfigPacket packet) {
+    public final void rxConfig(final ConfigPacket packet) {
         NodeAddress dest = packet.getDst();
         NodeAddress src = packet.getSrc();
 
@@ -92,7 +92,7 @@ public class SinkCore extends AbstractCore {
     }
 
     @Override
-    public NodeAddress getActualSinkAddress() {
+    public final NodeAddress getActualSinkAddress() {
         return getMyAddress();
     }
 
@@ -101,11 +101,8 @@ public class SinkCore extends AbstractCore {
         setSinkDistance(0);
         setSinkRssi(255);
         setActive(true);
-
-        InetSocketAddress iAddr;
-        iAddr = new InetSocketAddress(addrController, port);
         RegProxyPacket rpp = new RegProxyPacket(1, getMyAddress(), switchDPid,
-                switchMac, switchPort, iAddr);
+                switchMac, switchPort, addrController);
         controllerTX(rpp);
     }
 

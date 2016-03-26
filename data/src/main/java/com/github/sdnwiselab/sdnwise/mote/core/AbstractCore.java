@@ -885,14 +885,12 @@ public abstract class AbstractCore {
     }
 
     private class CustomClassLoader extends ClassLoader {
-
         public Class defClass(byte[] data, int len) {
             return defineClass(null, data, 0, len);
         }
     }
 
     private class ftPacketManager implements Runnable {
-
         @Override
         public void run() {
             try {
@@ -907,7 +905,6 @@ public abstract class AbstractCore {
     }
 
     private class rxPacketManager implements Runnable {
-
         @Override
         public void run() {
             try {
