@@ -82,12 +82,31 @@ public class NetworkGraph extends Observable {
         graph.setStrict(false);
     }
 
+    /**
+     * Adds a edge directed edge between the two given nodes. If directed, the
+     * edge goes in the 'from' 'to' direction.
+     *
+     * @param <T> Extends an edge
+     * @param id Unique and arbitrary string identifying the edge.
+     * @param from The first node identifier.
+     * @param to The second node identifier.
+     * @param directed Is the edge directed?
+     * @return The newly created edge, an existing edge or {@code null}
+     */
     public final <T extends Edge> T addEdge(final String id, final String from,
             final String to,
             final boolean directed) {
         return graph.addEdge(id, from, to, directed);
     }
 
+    /**
+     * Add a node in the graph. This acts as a factory, creating the node
+     * instance automatically (and eventually using the node factory provided).
+     *
+     * @param <T> returns something that extends node
+     * @param id Arbitrary and unique string identifying the node.
+     * @return The created node (or the already existing node).
+     */
     public final <T extends Node> T addNode(final String id) {
         return graph.addNode(id);
     }
@@ -133,10 +152,26 @@ public class NetworkGraph extends Observable {
         return graph.getNode(id);
     }
 
+    /**
+     * Removes an edge.
+     *
+     * @param <T> This method is implicitly generic and returns something which
+     * extends Edge.
+     * @param edge The edge to be removed
+     * @return The removed edge
+     */
     public final <T extends Edge> T removeEdge(final Edge edge) {
         return graph.removeEdge(edge);
     }
 
+    /**
+     * Removes a node.
+     *
+     * @param <T> This method is implicitly generic and returns something which
+     * extends Node.
+     * @param node The node to be removed
+     * @return The removed edge
+     */
     public final <T extends Node> T removeNode(final Node node) {
         return graph.removeNode(node);
     }
@@ -247,6 +282,13 @@ public class NetworkGraph extends Observable {
         node.addAttribute("lastSeen", now);
     }
 
+    /**
+     * Checks if there were modifications in the graph. This method deletes dead
+     * nodes.
+     *
+     * @param now actual time in milliseconds
+     * @return true if the graph was changed, false otherwise
+     */
     private boolean checkConsistency(final long now) {
         boolean modified = false;
         if (now - lastCheck > (timeout * MILLIS_IN_SECOND)) {
@@ -265,6 +307,15 @@ public class NetworkGraph extends Observable {
         return modified;
     }
 
+    /**
+     * Checks if a node is still alive.
+     *
+     * @param thrs if the node is not responding for more than thrs seconds is
+     * deleted
+     * @param last last time the graph was updated
+     * @param now actual time in milliseconds
+     * @return true if the node is still alive, false otherwise
+     */
     private boolean isAlive(final long thrs, final long last, final long now) {
         return ((now - last) < thrs * MILLIS_IN_SECOND);
     }
