@@ -176,10 +176,25 @@ public class NetworkGraph extends Observable {
         return graph.removeNode(node);
     }
 
+    /**
+     * Setups an Edge.
+     *
+     * @param edge the edge to setup
+     * @param newLen the weight of the edge
+     */
     public void setupEdge(final Edge edge, final int newLen) {
         edge.addAttribute("length", newLen);
     }
 
+    /**
+     * Setups a Node.
+     *
+     * @param node the node to setup
+     * @param batt residual charge of the node
+     * @param now last time time the node was alive
+     * @param net Node network id
+     * @param addr Node address
+     */
     public void setupNode(final Node node, final int batt, final long now,
             final int net, final NodeAddress addr) {
         node.addAttribute("battery", batt);
@@ -188,6 +203,12 @@ public class NetworkGraph extends Observable {
         node.addAttribute("nodeAddress", addr);
     }
 
+    /**
+     * Updates an existing Edge.
+     *
+     * @param edge the edge to setup
+     * @param newLen the weight of the edge
+     */
     public void updateEdge(final Edge edge, final int newLen) {
         edge.addAttribute("length", newLen);
     }
@@ -277,6 +298,13 @@ public class NetworkGraph extends Observable {
         }
     }
 
+    /**
+     * Updates a existing Node.
+     *
+     * @param node the node to setup
+     * @param batt residual charge of the node
+     * @param now last time time the node was alive
+     */
     public void updateNode(final Node node, final int batt, final long now) {
         node.addAttribute("battery", batt);
         node.addAttribute("lastSeen", now);
