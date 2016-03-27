@@ -134,6 +134,10 @@ public final class SdnWise {
     public static void startExemplaryControlPlane(final Configurator conf) {
 
         // Start the elements of the Control Plane
+
+        // TODO depending on the oder of execution the different control plane
+        // may be stated in different order thus the connection refused
+
         AbstractController controller = startController(conf);
         startAdaptation(conf);
         FlowVisor flowVisor = startFlowVisor(conf);

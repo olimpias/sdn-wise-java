@@ -104,15 +104,36 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
      */
     @Override
     public final void run() {
-        if (setupAdapter(lower) && setupAdapter(upper)) {
+        int started = 0;
+        int total = 0;
+
+        if (lower != null) {
+            total++;
+            if (setupAdapter(lower)) {
+                started++;
+            }
+        }
+
+        if (upper != null) {
+            total++;
+            if (setupAdapter(upper)) {
+                started++;
+            }
+        }
+
+        if (started == total) {
             setupLayer();
             while (!isStopped) {
                 if (scanner.nextLine().equals("q")) {
                     isStopped = true;
                 }
             }
-            closeAdapter(lower);
-            closeAdapter(upper);
+            if (lower != null) {
+                closeAdapter(lower);
+            }
+            if (upper != null) {
+                closeAdapter(upper);
+            }
         }
     }
 
@@ -134,9 +155,6 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
      * @return true if opened correctly, false otherwise
      */
     private boolean setupAdapter(final AbstractAdapter a) {
-        if (a == null) {
-            return true;
-        }
         if (a.open()) {
             a.addObserver(this);
             return true;
