@@ -56,7 +56,8 @@ public final class SdnWise {
      * Emulation constants.
      */
     private static final int NO_OF_NODES = 11, NO_OF_MOTES = 10,
-            ADA_PORT = 9990, BASE_NODE_PORT = 7770, SETUP_TIME = 60000;
+            ADA_PORT = 9990, BASE_NODE_PORT = 7770, SETUP_TIME = 60000,
+            TIMEOUT = 100;
 
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
@@ -134,13 +135,21 @@ public final class SdnWise {
     public static void startExemplaryControlPlane(final Configurator conf) {
 
         // Start the elements of the Control Plane
-
         // TODO depending on the oder of execution the different control plane
         // may be stated in different order thus the connection refused
-
         AbstractController controller = startController(conf);
-        startAdaptation(conf);
+        try {
+            Thread.sleep(TIMEOUT);
+        } catch (InterruptedException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+        }
         FlowVisor flowVisor = startFlowVisor(conf);
+        try {
+            Thread.sleep(TIMEOUT);
+        } catch (InterruptedException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+        }
+        startAdaptation(conf);
 
         // Add the nodes IDs that will be managed
         HashSet<NodeAddress> nodeSetAll = new HashSet<>();

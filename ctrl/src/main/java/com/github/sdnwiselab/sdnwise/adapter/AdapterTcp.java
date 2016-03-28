@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Representation of a TCP Adapter. Configuration data are passed using a
@@ -54,10 +53,6 @@ public class AdapterTcp extends AbstractAdapter {
      * TCP port of the adapter.
      */
     private final int port;
-    /**
-     * Retries if the server is not ready.
-     */
-    private final static int RETRIES = 3, TIMEOUT = 1000;
     /**
      * Manages TCP connections.
      */
@@ -168,27 +163,19 @@ public class AdapterTcp extends AbstractAdapter {
 
         @Override
         public void run() {
-            for (int i = 0; i < RETRIES; i++) {
-                try {
-                    socket = new Socket(ip, port);
-                    InputStream in = socket.getInputStream();
-                    DataInputStream dis = new DataInputStream(in);
-                    i = RETRIES;
-                    while (!isStopped()) {
-                        byte[] data = new NetworkPacket(dis).toByteArray();
-                        setChanged();
-                        notifyObservers(data);
-                    }
-                } catch (IOException ex) {
-                    log(Level.SEVERE, "+++++" + ex.toString());
+            try {
+                socket = new Socket(ip, port);
+                InputStream in = socket.getInputStream();
+                DataInputStream dis = new DataInputStream(in);
+                while (!isStopped()) {
+                    byte[] data = new NetworkPacket(dis).toByteArray();
+                    setChanged();
+                    notifyObservers(data);
                 }
-                
-                try {
-                    Thread.sleep(TIMEOUT);
-                } catch (InterruptedException ex) {
-                    log(Level.SEVERE, ex.toString());
-                }
+            } catch (IOException ex) {
+                log(Level.SEVERE, "+++++" + ex.toString());
             }
+
         }
     }
 
