@@ -132,7 +132,7 @@ public final class FlowTableEntry implements FlowTableInterface {
             });
             out.append("} (")
                     .append(getStats().toString())
-                    .append(")");
+                    .append(')');
         }
         return out.toString().toUpperCase();
     }

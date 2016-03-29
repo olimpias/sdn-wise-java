@@ -113,9 +113,9 @@ public final class FunctionAction extends AbstractAction {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(FUNCTION.name());
-        sb.append(" ").append(getId()).append(" ");
+        sb.append(' ').append(getId()).append(' ');
         for (byte b : getArgs()) {
-            sb.append(Byte.toUnsignedInt(b)).append(" ");
+            sb.append(Byte.toUnsignedInt(b)).append(' ');
         }
         return sb.toString();
     }
