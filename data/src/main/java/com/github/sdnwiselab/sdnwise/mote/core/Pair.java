@@ -72,7 +72,8 @@ public final class Pair<K, V> {
             if (key != null ? !key.equals(pair.key) : pair.key != null) {
                 return false;
             }
-            return !(value != null ? !value.equals(pair.value) : pair.value != null);
+            return !(value != null
+                    ? !value.equals(pair.value) : pair.value != null);
         }
         return false;
     }

@@ -31,17 +31,42 @@ import java.util.logging.Level;
  */
 public class SinkCore extends AbstractCore {
 
-    private final String switchDPid;
-    private final String switchMac;
+    /**
+     * Fake RSSI towards the Control plane.
+     */
+    private static final int CTRL_RSSI = 255;
+    /**
+     * Sink parameters.
+     */
+    private final String switchDPid, switchMac;
+    /**
+     * Sink physical port connetect to the controller.
+     */
     private final long switchPort;
+    /**
+     * Sink controller ip and port.
+     */
     private final InetSocketAddress addrController;
 
     /**
      * Contains the NetworkPacket that will be sent over the serial port to the
      * controller.
      */
-    private final ArrayBlockingQueue<NetworkPacket> txControllerQueue = new ArrayBlockingQueue<>(100);
+    private final ArrayBlockingQueue<NetworkPacket> txControllerQueue =
+            new ArrayBlockingQueue<>(QUEUE_SIZE);
 
+    /**
+     * Creates a new Sink node. The Sink node is the only node directly conneted
+     * to the control plane.
+     *
+     * @param net Network ID of the packet
+     * @param address the NodeAddress of the Sink
+     * @param battery the kind of battery to use
+     * @param dPid dPid of th Sink
+     * @param mac MAC address of the Sink
+     * @param port physical port to which the Control plane is connected
+     * @param ctrl the address of the Control plane
+     */
     public SinkCore(
             final byte net,
             final NodeAddress address,
@@ -67,6 +92,11 @@ public class SinkCore extends AbstractCore {
         }
     }
 
+    /**
+     * Gets a packet to be send to the Control plane.
+     * @return a packet to be send
+     * @throws InterruptedException because it waits for a packet in the queue
+     */
     public final NetworkPacket getControllerPacketTobeSend()
             throws InterruptedException {
         return txControllerQueue.take();
@@ -99,7 +129,7 @@ public class SinkCore extends AbstractCore {
     @Override
     protected final void initSdnWiseSpecific() {
         setSinkDistance(0);
-        setSinkRssi(255);
+        setSinkRssi(CTRL_RSSI);
         setActive(true);
         RegProxyPacket rpp = new RegProxyPacket(1, getMyAddress(), switchDPid,
                 switchMac, switchPort, addrController);

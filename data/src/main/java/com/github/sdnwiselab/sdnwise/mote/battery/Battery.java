@@ -36,6 +36,11 @@ public class Battery implements Dischargeable {
             RADIO_RX = 0.00094; // mC to receive 1byte
 
     /**
+     * Max battery level in bytes.
+     */
+    private static final int MAX_BATT = 255;
+
+    /**
      * Battery level.
      */
     private double level;
@@ -85,7 +90,7 @@ public class Battery implements Dischargeable {
     @Override
     public final int getByteLevel() {
         if (Battery.MAX_LEVEL != 0) {
-            return (int) ((level / Battery.MAX_LEVEL) * 255);
+            return (int) ((level / Battery.MAX_LEVEL) * MAX_BATT);
         } else {
             return 0;
         }

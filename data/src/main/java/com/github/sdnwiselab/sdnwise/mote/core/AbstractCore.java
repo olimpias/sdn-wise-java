@@ -16,23 +16,44 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.core;
 
-import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
-import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.*;
-import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.*;
 import com.github.sdnwiselab.sdnwise.flowtable.*;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.CONST;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.NULL;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.PACKET;
+import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.STATUS;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.ADD;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.AND;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.DIV;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.MOD;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.MUL;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.OR;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.SUB;
+import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.XOR;
+import static com.github.sdnwiselab.sdnwise.flowtable.Stats.ENTRY_TTL_PERMANENT;
 import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
 import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
-import static com.github.sdnwiselab.sdnwise.mote.core.Constants.*;
-import com.github.sdnwiselab.sdnwise.packet.*;
+import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
+import static com.github.sdnwiselab.sdnwise.mote.core.Constants.ENTRY_TTL_DECR;
+import static com.github.sdnwiselab.sdnwise.mote.core.Constants.SDN_WISE_DFLT_CNT_BEACON_MAX;
+import static com.github.sdnwiselab.sdnwise.mote.core.Constants.SDN_WISE_DFLT_CNT_REPORT_MAX;
+import static com.github.sdnwiselab.sdnwise.mote.core.Constants.SDN_WISE_DFLT_CNT_UPDTABLE_MAX;
+import static com.github.sdnwiselab.sdnwise.mote.core.Constants.SDN_WISE_DFLT_RSSI_MIN;
+import static com.github.sdnwiselab.sdnwise.mote.core.Constants.SDN_WISE_STATUS_LEN;
+import com.github.sdnwiselab.sdnwise.packet.BeaconPacket;
+import com.github.sdnwiselab.sdnwise.packet.ConfigPacket;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
+import com.github.sdnwiselab.sdnwise.packet.DataPacket;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
-import java.nio.ByteBuffer;
-import java.util.concurrent.ArrayBlockingQueue;
-import static com.github.sdnwiselab.sdnwise.flowtable.Stats.ENTRY_TTL_PERMANENT;
+import com.github.sdnwiselab.sdnwise.packet.OpenPathPacket;
+import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
+import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
+import com.github.sdnwiselab.sdnwise.packet.ResponsePacket;
 import com.github.sdnwiselab.sdnwise.util.Neighbor;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
 import static com.github.sdnwiselab.sdnwise.util.Utils.splitInteger;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +63,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,6 +73,10 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractCore {
 
+    /**
+     * Queue size.
+     */
+    protected static final int QUEUE_SIZE = 100;
     /**
      * Battery.
      */
@@ -119,7 +145,7 @@ public abstract class AbstractCore {
      * Contains the NetworkPacket and the RSSI coming from the radio/controller.
      */
     private final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue
-            = new ArrayBlockingQueue<>(100);
+            = new ArrayBlockingQueue<>(QUEUE_SIZE);
     /**
      * Sensors.
      */
@@ -132,10 +158,10 @@ public abstract class AbstractCore {
      * Contains the NetworkPacket that will be sent over the radio.
      */
     protected final ArrayBlockingQueue<NetworkPacket> txQueue
-            = new ArrayBlockingQueue<>(100);
+            = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     AbstractCore(byte net, NodeAddress address, Dischargeable bat) {
-        neighborTable = Collections.synchronizedSet(new HashSet<>(100));
+        neighborTable = Collections.synchronizedSet(new HashSet<>());
         myAddress = address;
         myNet = net;
         battery = bat;
@@ -885,12 +911,14 @@ public abstract class AbstractCore {
     }
 
     private class CustomClassLoader extends ClassLoader {
+
         public Class defClass(byte[] data, int len) {
             return defineClass(null, data, 0, len);
         }
     }
 
     private class ftPacketManager implements Runnable {
+
         @Override
         public void run() {
             try {
@@ -905,6 +933,7 @@ public abstract class AbstractCore {
     }
 
     private class rxPacketManager implements Runnable {
+
         @Override
         public void run() {
             try {

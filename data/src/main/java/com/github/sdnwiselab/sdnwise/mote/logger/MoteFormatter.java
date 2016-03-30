@@ -22,6 +22,8 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
+ * Representation of the formatter used by the loggers of the nodes.
+ *
  * @author Sebastiano Milardo
  */
 public class MoteFormatter extends Formatter {
