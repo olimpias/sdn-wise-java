@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -51,6 +53,15 @@ public final class ControllerGui extends javax.swing.JFrame {
      * @param ctrl the network controller
      */
     public ControllerGui(final AbstractController ctrl) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | UnsupportedLookAndFeelException ex) {
+            Logger.getGlobal().log(Level.SEVERE, null, ex);
+        }
+                
         controller = ctrl;
         initComponents();
         initIcon();
