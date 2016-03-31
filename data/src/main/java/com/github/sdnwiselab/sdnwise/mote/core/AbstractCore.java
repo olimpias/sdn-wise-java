@@ -247,7 +247,12 @@ public abstract class AbstractCore {
         return myAddress;
     }
 
-    public int getNet() {
+    /**
+     * Gets the Network ID of the node.
+     *
+     * @return the Network ID of the node
+     */
+    public final int getNet() {
         return myNet;
     }
 
