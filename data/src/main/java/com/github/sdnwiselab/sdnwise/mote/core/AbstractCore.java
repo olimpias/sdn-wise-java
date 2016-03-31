@@ -227,10 +227,22 @@ public abstract class AbstractCore {
         return flowTable.size();
     }
 
-    public Pair<Level, String> getLogToBePrinted() throws InterruptedException {
+    /**
+     * Returns a log to be printed.
+     *
+     * @return a pair Level, String pair
+     * @throws java.lang.InterruptedException this method wait for incoming logs
+     */
+    public final Pair<Level, String> getLogToBePrinted() throws
+            InterruptedException {
         return logQueue.take();
     }
 
+    /**
+     * Gets the address of the node.
+     *
+     * @return the address of the node
+     */
     public final NodeAddress getMyAddress() {
         return myAddress;
     }
