@@ -16,11 +16,17 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.core;
 
-import com.github.sdnwiselab.sdnwise.flowtable.*;
+import com.github.sdnwiselab.sdnwise.flowtable.AbstractAction;
+import static com.github.sdnwiselab.sdnwise.flowtable.AbstractAction.Action.FORWARD_U;
+import com.github.sdnwiselab.sdnwise.flowtable.AbstractForwardAction;
+import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.CONST;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.NULL;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.PACKET;
 import static com.github.sdnwiselab.sdnwise.flowtable.FlowTableInterface.STATUS;
+import com.github.sdnwiselab.sdnwise.flowtable.ForwardUnicastAction;
+import com.github.sdnwiselab.sdnwise.flowtable.FunctionAction;
+import com.github.sdnwiselab.sdnwise.flowtable.SetAction;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.ADD;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.AND;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.DIV;
@@ -29,8 +35,18 @@ import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.MUL;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.OR;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.SUB;
 import static com.github.sdnwiselab.sdnwise.flowtable.SetAction.XOR;
+import com.github.sdnwiselab.sdnwise.flowtable.Stats;
 import static com.github.sdnwiselab.sdnwise.flowtable.Stats.ENTRY_TTL_PERMANENT;
-import static com.github.sdnwiselab.sdnwise.flowtable.Window.*;
+import com.github.sdnwiselab.sdnwise.flowtable.Window;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.EQUAL;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.NOT_EQUAL;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.GREATER;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.GREATER_OR_EQUAL;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.LESS;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.LESS_OR_EQUAL;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.W_SIZE_1;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.W_SIZE_2;
+import static com.github.sdnwiselab.sdnwise.flowtable.Window.fromString;
 import com.github.sdnwiselab.sdnwise.function.FunctionInterface;
 import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import static com.github.sdnwiselab.sdnwise.mote.core.Constants.ENTRY_TTL_DECR;
@@ -44,7 +60,16 @@ import com.github.sdnwiselab.sdnwise.packet.ConfigPacket;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket.ConfigProperty;
 import com.github.sdnwiselab.sdnwise.packet.DataPacket;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
-import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.*;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.BEACON;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.CONFIG;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DFLT_HDR_LEN;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DFLT_TTL_MAX;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.OPEN_PATH;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REPORT;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.REQUEST;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.RESPONSE;
 import com.github.sdnwiselab.sdnwise.packet.OpenPathPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
 import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
@@ -138,8 +163,17 @@ public abstract class AbstractCore {
      * Configuration parameters.
      */
     private int myNet;
+    /**
+     * Contains the NodeAddress, RSSI, and battery of the Neigbors of the node.
+     */
     protected final Set<Neighbor> neighborTable;
+    /**
+     * A packet having an RSSI less than this value is dropped.
+     */
     protected int rssiMin;
+    /**
+     * A rule in the flowtable is deleted after ruleTtl seconds.
+     */
     protected int ruleTtl;
     /**
      * Contains the NetworkPacket and the RSSI coming from the radio/controller.
@@ -160,7 +194,15 @@ public abstract class AbstractCore {
     protected final ArrayBlockingQueue<NetworkPacket> txQueue
             = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
-    AbstractCore(byte net, NodeAddress address, Dischargeable bat) {
+    /**
+     * Creates the core of the node.
+     *
+     * @param net Network ID of the node
+     * @param address Node address of the node
+     * @param bat models the battery of the node
+     */
+    AbstractCore(final byte net, final NodeAddress address,
+            final Dischargeable bat) {
         neighborTable = Collections.synchronizedSet(new HashSet<>());
         myAddress = address;
         myNet = net;
@@ -176,6 +218,11 @@ public abstract class AbstractCore {
         return battery;
     }
 
+    /**
+     * Gets the size of the FlowTable.
+     *
+     * @return the number of entries in the FlowTable
+     */
     public final int getFlowTableSize() {
         return flowTable.size();
     }
