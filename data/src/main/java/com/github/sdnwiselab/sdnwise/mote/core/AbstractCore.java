@@ -256,11 +256,25 @@ public abstract class AbstractCore {
         return myNet;
     }
 
-    public NetworkPacket getNetworkPacketToBeSend() throws InterruptedException {
+    /**
+     * Gets a NetworkPacket that has to be send.
+     *
+     * @return a NetworkPacket
+     * @throws InterruptedException the method waits for a new packet
+     */
+    public final NetworkPacket getNetworkPacketToBeSend() throws
+            InterruptedException {
         return txQueue.take();
     }
 
-    public void rxRadioPacket(NetworkPacket np, int rssi) {
+    /**
+     * When received, if it matches some conditions, a NetworkPacket is added in
+     * the incoming rxQueue.
+     *
+     * @param np a NetworkPacket
+     * @param rssi the RSSI of the NetworkPacket
+     */
+    public final void rxRadioPacket(final NetworkPacket np, final int rssi) {
         if (np.getDst().isBroadcast()
                 || np.getNxh().equals(myAddress)
                 || acceptedId.contains(np.getNxh())
@@ -273,6 +287,10 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Starts the Core of the node. To be called before doing anything with the
+     * node itself.
+     */
     public final void start() {
         initFlowTable();
         initStatusRegister();
@@ -281,6 +299,10 @@ public abstract class AbstractCore {
         new Thread(new ftPacketManager()).start();
     }
 
+    /**
+     * This method is called every second, and it is used to decide when to send
+     * a Beacon, a Report, and to age the entries of the FlowTable.
+     */
     public final void timer() {
         if (isActive) {
             cntBeacon++;
@@ -304,6 +326,14 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Compares two integers.
+     *
+     * @param op the comparison operator
+     * @param item1 the first operand
+     * @param item2 the second operand
+     * @return a bolean depending on the result of the operation
+     */
     private boolean compare(final int op, final int item1, final int item2) {
         if (item1 == -1 || item2 == -1) {
             return false;
