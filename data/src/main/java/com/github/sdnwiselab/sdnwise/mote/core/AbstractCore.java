@@ -356,6 +356,13 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Creates a function starting from a byte array.
+     *
+     * @param classFile a byte array containing a class that implemements
+     * FunctionInterface
+     * @return an instance of the function
+     */
     private FunctionInterface createServiceInterface(final byte[] classFile) {
         CustomClassLoader cl = new CustomClassLoader();
         FunctionInterface srvI = null;
@@ -368,6 +375,14 @@ public abstract class AbstractCore {
         return srvI;
     }
 
+    /**
+     * Executes a math operation between two integers.
+     *
+     * @param op the operation to execute
+     * @param item1 the first operand
+     * @param item2 the second operand
+     * @return the result if the operation
+     */
     private int doOperation(final int op, final int item1, final int item2) {
         switch (op) {
             case ADD:
