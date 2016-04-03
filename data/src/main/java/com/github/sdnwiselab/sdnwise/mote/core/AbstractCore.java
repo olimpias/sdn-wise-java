@@ -406,6 +406,17 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Gets the value of an operand, given its location.
+     *
+     * @param packet the incoming packet
+     * @param size the number of bytes of which the operand is made of
+     * @param location the location where the operand is placed. May be a null,
+     * a constant, a packet or the status register.
+     * @param value the index in the location where the operand is placed or the
+     * value itself if it is a constant
+     * @return the value of the operand
+     */
     private int getOperand(final NetworkPacket packet, final int size,
             final int location, final int value) {
         switch (location) {
