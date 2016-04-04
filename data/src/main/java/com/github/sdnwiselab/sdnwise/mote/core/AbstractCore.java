@@ -459,6 +459,10 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Initialize the FlowTable. The first rule is used to send Requests to the
+     * Control Plane.
+     */
     private void initFlowTable() {
         FlowTableEntry toSink = new FlowTableEntry();
         toSink.addWindow(new Window()
@@ -474,13 +478,22 @@ public abstract class AbstractCore {
         flowTable.add(toSink);
     }
 
+    /**
+     * Initialize the Status Register.
+     */
     private void initStatusRegister() {
         for (int i = 0; i < SDN_WISE_STATUS_LEN; i++) {
             statusRegister.add(0);
         }
     }
 
-    // check if there is a match for the packet
+    /**
+     * Checks if there is a match for a packet.
+     *
+     * @param rule a FlowTable entry
+     * @param packet a packet to be match
+     * @return true if there is a match, false otherwise
+     */
     private boolean matchRule(final FlowTableEntry rule,
             final NetworkPacket packet) {
         if (rule.getWindows().isEmpty()) {
