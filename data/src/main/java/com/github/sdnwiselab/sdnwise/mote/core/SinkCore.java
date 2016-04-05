@@ -52,8 +52,8 @@ public class SinkCore extends AbstractCore {
      * Contains the NetworkPacket that will be sent over the serial port to the
      * controller.
      */
-    private final ArrayBlockingQueue<NetworkPacket> txControllerQueue =
-            new ArrayBlockingQueue<>(QUEUE_SIZE);
+    private final ArrayBlockingQueue<NetworkPacket> txControllerQueue
+            = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     /**
      * Creates a new Sink node. The Sink node is the only node directly conneted
@@ -94,6 +94,7 @@ public class SinkCore extends AbstractCore {
 
     /**
      * Gets a packet to be send to the Control plane.
+     *
      * @return a packet to be send
      * @throws InterruptedException because it waits for a packet in the queue
      */

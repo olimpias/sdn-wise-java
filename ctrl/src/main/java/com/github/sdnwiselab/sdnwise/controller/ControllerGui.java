@@ -61,7 +61,7 @@ public final class ControllerGui extends javax.swing.JFrame {
                 | UnsupportedLookAndFeelException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
-                
+
         controller = ctrl;
         initComponents();
         initIcon();

@@ -43,8 +43,8 @@ public final class RequestPacketTest {
         DataPacket dp = new DataPacket(1, new NodeAddress("0.2"),
                 new NodeAddress("0.0"),
                 ("SDN-WISE: The stateful Software Defined Networking solution"
-                        + " for the Internet of Things - Test."
-                ).getBytes(UTF8_CHARSET));
+                + " for the Internet of Things - Test.").getBytes(UTF8_CHARSET)
+        );
         RequestPacket[] instance = RequestPacket.createPackets(1,
                 new NodeAddress("0.1"), new NodeAddress("0.1"), (byte) 1,
                 dp.toByteArray());
