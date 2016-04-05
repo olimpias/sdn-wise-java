@@ -717,15 +717,30 @@ public abstract class AbstractCore {
         return sinkDistance;
     }
 
-    protected final void setSinkDistance(int sinkDistance) {
-        this.sinkDistance = sinkDistance;
+    /**
+     * Set the distance from the Sink in terms of number of hops.
+     *
+     * @param distance the distance from the Sink
+     */
+    protected final void setSinkDistance(final int distance) {
+        this.sinkDistance = distance;
     }
 
+    /**
+     * Gets the RSSI of the next best hop towards the Sink.
+     *
+     * @return the RSSI of the next best hop towards the Sink
+     */
     protected final int getSinkRssi() {
         return sinkRssi;
     }
 
-    protected final void setSinkRssi(int rssi) {
+    /**
+     * Sets the RSSI of the next best hop towards the Sink.
+     *
+     * @param rssi the RSSI of the next best hop towards the Sink
+     */
+    protected final void setSinkRssi(final int rssi) {
         this.sinkRssi = rssi;
     }
 
