@@ -593,19 +593,22 @@ public abstract class AbstractCore {
                     int rhs = getOperand(np, W_SIZE_1, ftam.getRhsLocation(),
                             ftam.getRhs());
                     if (lhs == -1 || rhs == -1) {
-                        throw new IllegalArgumentException("Operators out of bound");
+                        throw new IllegalArgumentException(
+                                "Operators out of bound");
                     }
                     int res = doOperation(operator, lhs, rhs);
                     if (ftam.getResLocation() == PACKET) {
                         int[] packet = np.toIntArray();
                         if (ftam.getRes() >= packet.length) {
-                            throw new IllegalArgumentException("Result out of bound");
+                            throw new IllegalArgumentException(
+                                    "Result out of bound");
                         }
                         packet[ftam.getRes()] = res;
                         np.setArray(packet);
                     } else {
                         statusRegister.set(ftam.getRes(), res);
-                        log(Level.INFO, "SET R." + ftam.getRes() + " = " + res + ". Done.");
+                        log(Level.INFO, "SET R." + ftam.getRes() + " = "
+                                + res + ". Done.");
                     }
                     break;
                 case FUNCTION:
@@ -626,7 +629,8 @@ public abstract class AbstractCore {
                     }
                     break;
                 case ASK:
-                    RequestPacket[] rps = RequestPacket.createPackets((byte) myNet, myAddress,
+                    RequestPacket[] rps = RequestPacket.createPackets(
+                            (byte) myNet, myAddress,
                             getActualSinkAddress(),
                             requestId++, np.toByteArray());
 
@@ -645,6 +649,12 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Returns the index of a rule in the FlowTable.
+     *
+     * @param rule the FlowTableEntry to search for
+     * @return the index of the FlowTableEntry, -1 if not found
+     */
     private int searchRule(final FlowTableEntry rule) {
         int i = 0;
         for (FlowTableEntry fte : flowTable) {
@@ -656,9 +666,13 @@ public abstract class AbstractCore {
         return -1;
     }
 
+    /**
+     * Decrement the time to live of the FlowTableEntries.
+     */
     private void updateTable() {
         int i = 0;
-        for (Iterator<FlowTableEntry> it = flowTable.iterator(); it.hasNext();) {
+        for (Iterator<FlowTableEntry> it = flowTable.iterator();
+                it.hasNext();) {
             i++;
             FlowTableEntry fte = it.next();
             int ttl = fte.getStats().getTtl();
@@ -676,12 +690,28 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Sends a NetworkPacket to the controller.
+     *
+     * @param pck the packet to be sent
+     */
     protected abstract void controllerTX(NetworkPacket pck);
 
+    /**
+     * The behavior of the node when it receives a DataPacket.
+     *
+     * @param packet a DataPacket
+     */
     protected abstract void dataCallback(DataPacket packet);
 
-    protected final void setActive(boolean isActive) {
-        this.isActive = isActive;
+    /**
+     * Turns on the node. A mote is turned on after it receives it first beacon.
+     * a Sink is always turned on.
+     *
+     * @param active true to activate the node, false to disactivate it
+     */
+    protected final void setActive(final boolean active) {
+        this.isActive = active;
     }
 
     protected NodeAddress getActualSinkAddress() {
