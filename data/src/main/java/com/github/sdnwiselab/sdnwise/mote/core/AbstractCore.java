@@ -109,7 +109,8 @@ public abstract class AbstractCore {
     /**
      * Timers.
      */
-    private int cntBeacon, cntReport, cntUpdTable;
+    private int cntBeacon, cntReport, cntUpdTable, cntBeaconMax, cntReportMax,
+            cntUpdtableMax;
     /**
      * Requests count.
      */
@@ -122,10 +123,6 @@ public abstract class AbstractCore {
      * Accepted IDs.
      */
     protected List<NodeAddress> acceptedId = new LinkedList<>();
-    /**
-     * Timers max values.
-     */
-    private int cntBeaconMax, cntReportMax, cntUpdtableMax;
     /**
      * WISE Flow Table.
      */
@@ -465,12 +462,8 @@ public abstract class AbstractCore {
      */
     private void initFlowTable() {
         FlowTableEntry toSink = new FlowTableEntry();
-        toSink.addWindow(new Window()
-                .setOperator(EQUAL)
-                .setSize(W_SIZE_2)
-                .setLhsLocation(PACKET)
-                .setLhs(DST_INDEX)
-                .setRhsLocation(CONST)
+        toSink.addWindow(new Window().setOperator(EQUAL).setSize(W_SIZE_2)
+                .setLhsLocation(PACKET).setLhs(DST_INDEX).setRhsLocation(CONST)
                 .setRhs(this.myAddress.intValue()));
         toSink.addWindow(fromString("P.TYP == 3"));
         toSink.addAction(new ForwardUnicastAction(myAddress));
@@ -532,13 +525,8 @@ public abstract class AbstractCore {
      * @return a Beacon packet
      */
     private BeaconPacket prepareBeacon() {
-        BeaconPacket bp = new BeaconPacket(
-                myNet,
-                myAddress,
-                getActualSinkAddress(),
-                sinkDistance,
-                battery.getByteLevel());
-        return bp;
+        return new BeaconPacket(myNet, myAddress,
+                getActualSinkAddress(), sinkDistance, battery.getByteLevel());
     }
 
     /**
@@ -548,15 +536,10 @@ public abstract class AbstractCore {
      */
     private ReportPacket prepareReport() {
 
-        ReportPacket rp = new ReportPacket(
-                myNet,
-                myAddress,
-                getActualSinkAddress(),
-                sinkDistance,
-                battery.getByteLevel());
+        ReportPacket rp = new ReportPacket(myNet, myAddress,
+                getActualSinkAddress(), sinkDistance, battery.getByteLevel());
 
-        rp.setNeighbors(this.neighborTable.size())
-                .setNxh(getNextHopVsSink());
+        rp.setNeighbors(this.neighborTable.size()).setNxh(getNextHopVsSink());
 
         int j = 0;
         synchronized (neighborTable) {
@@ -616,22 +599,14 @@ public abstract class AbstractCore {
                     FunctionInterface srvI = functions.get(ftac.getId());
                     if (srvI != null) {
                         log(Level.INFO, "Function called: " + myAddress);
-                        srvI.function(sensors,
-                                flowTable,
-                                neighborTable,
-                                statusRegister,
-                                acceptedId,
-                                ftQueue,
-                                txQueue,
-                                ftac.getArgs(),
-                                np
-                        );
+                        srvI.function(sensors, flowTable, neighborTable,
+                                statusRegister, acceptedId, ftQueue, txQueue,
+                                ftac.getArgs(), np);
                     }
                     break;
                 case ASK:
                     RequestPacket[] rps = RequestPacket.createPackets(
-                            (byte) myNet, myAddress,
-                            getActualSinkAddress(),
+                            (byte) myNet, myAddress, getActualSinkAddress(),
                             requestId++, np.toByteArray());
 
                     for (RequestPacket rp : rps) {
@@ -1004,8 +979,7 @@ public abstract class AbstractCore {
 
         if (!packet.isSdnWise()) {
             runFlowMatch(packet);
-        } else if (packet.getLen() > DFLT_HDR_LEN
-                && packet.getNet() == myNet
+        } else if (packet.getLen() > DFLT_HDR_LEN && packet.getNet() == myNet
                 && packet.getTtl() != 0) {
 
             switch (packet.getTyp()) {
@@ -1058,13 +1032,9 @@ public abstract class AbstractCore {
 
             if (i > 0) {
                 FlowTableEntry rule = new FlowTableEntry();
-                rule.addWindow(new Window()
-                        .setOperator(EQUAL)
-                        .setSize(W_SIZE_2)
-                        .setLhsLocation(PACKET)
-                        .setLhs(DST_INDEX)
-                        .setRhsLocation(CONST)
-                        .setRhs(path.get(0).intValue()));
+                rule.addWindow(new Window().setOperator(EQUAL).setSize(W_SIZE_2)
+                        .setLhsLocation(PACKET).setLhs(DST_INDEX)
+                        .setRhsLocation(CONST).setRhs(path.get(0).intValue()));
 
                 rule.getWindows().addAll(opp.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i - 1)));
@@ -1073,19 +1043,15 @@ public abstract class AbstractCore {
 
             if (i < (path.size() - 1)) {
                 FlowTableEntry rule = new FlowTableEntry();
-                rule.addWindow(new Window()
-                        .setOperator(EQUAL)
-                        .setSize(W_SIZE_2)
-                        .setLhsLocation(PACKET)
-                        .setLhs(DST_INDEX)
+                rule.addWindow(new Window().setOperator(EQUAL).setSize(W_SIZE_2)
+                        .setLhsLocation(PACKET).setLhs(DST_INDEX)
                         .setRhsLocation(CONST)
                         .setRhs(path.get(path.size() - 1).intValue()));
 
                 rule.getWindows().addAll(opp.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i + 1)));
                 insertRule(rule);
-                opp.setDst(path.get(i + 1));
-                opp.setNxh(path.get(i + 1));
+                opp.setDst(path.get(i + 1)).setNxh(path.get(i + 1));
                 radioTX(opp);
             }
 
