@@ -511,7 +511,13 @@ public abstract class AbstractCore {
         return (actual == target);
     }
 
-    // Check if a windows is true or not
+    /**
+     * Checks if a window matches or not.
+     *
+     * @param w the window that will be used
+     * @param packet the packet to be matched
+     * @return true if the window matches false otherwise
+     */
     private boolean matchWindow(final Window w, final NetworkPacket packet) {
         int operator = w.getOperator();
         int size = w.getSize();
@@ -520,6 +526,11 @@ public abstract class AbstractCore {
         return compare(operator, lhs, rhs);
     }
 
+    /**
+     * Creates a Beacon packet.
+     *
+     * @return a Beacon packet
+     */
     private BeaconPacket prepareBeacon() {
         BeaconPacket bp = new BeaconPacket(
                 myNet,
@@ -530,6 +541,11 @@ public abstract class AbstractCore {
         return bp;
     }
 
+    /**
+     * Creates a Report packet.
+     *
+     * @return a Report packet
+     */
     private ReportPacket prepareReport() {
 
         ReportPacket rp = new ReportPacket(
@@ -554,21 +570,28 @@ public abstract class AbstractCore {
         return rp;
     }
 
-    // Run the corresponding action
-    private void runAction(AbstractAction action, NetworkPacket np) {
+    /**
+     * Runs the corresponding action.
+     *
+     * @param act the Action to be executed.
+     * @param np the matched NetworkPacket
+     */
+    private void runAction(final AbstractAction act, final NetworkPacket np) {
         try {
-            switch (action.getType()) {
+            switch (act.getType()) {
 
                 case FORWARD_U:
                 case FORWARD_B:
-                    np.setNxh(((AbstractForwardAction) action).getNextHop());
+                    np.setNxh(((AbstractForwardAction) act).getNextHop());
                     radioTX(np);
                     break;
                 case SET:
-                    SetAction ftam = (SetAction) action;
+                    SetAction ftam = (SetAction) act;
                     int operator = ftam.getOperator();
-                    int lhs = getOperand(np, W_SIZE_1, ftam.getLhsLocation(), ftam.getLhs());
-                    int rhs = getOperand(np, W_SIZE_1, ftam.getRhsLocation(), ftam.getRhs());
+                    int lhs = getOperand(np, W_SIZE_1, ftam.getLhsLocation(),
+                            ftam.getLhs());
+                    int rhs = getOperand(np, W_SIZE_1, ftam.getRhsLocation(),
+                            ftam.getRhs());
                     if (lhs == -1 || rhs == -1) {
                         throw new IllegalArgumentException("Operators out of bound");
                     }
@@ -586,7 +609,7 @@ public abstract class AbstractCore {
                     }
                     break;
                 case FUNCTION:
-                    FunctionAction ftac = (FunctionAction) action;
+                    FunctionAction ftac = (FunctionAction) act;
                     FunctionInterface srvI = functions.get(ftac.getId());
                     if (srvI != null) {
                         log(Level.INFO, "Function called: " + myAddress);
