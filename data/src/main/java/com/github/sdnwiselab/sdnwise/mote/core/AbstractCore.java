@@ -744,7 +744,10 @@ public abstract class AbstractCore {
         this.sinkRssi = rssi;
     }
 
-    protected void initSdnWise() {
+    /**
+     * Sets the default values to the configuration parameters of the node.
+     */
+    protected final void initSdnWise() {
         cntBeaconMax = SDN_WISE_DFLT_CNT_BEACON_MAX;
         cntReportMax = SDN_WISE_DFLT_CNT_REPORT_MAX;
         cntUpdtableMax = SDN_WISE_DFLT_CNT_UPDTABLE_MAX;
@@ -753,9 +756,18 @@ public abstract class AbstractCore {
         initSdnWiseSpecific();
     }
 
+    /**
+     * Used by the extending classes to implement device specific
+     * initializations.
+     */
     protected abstract void initSdnWiseSpecific();
 
-    protected void insertRule(FlowTableEntry rule) {
+    /**
+     * Insert a FlowTableEntry in the FlowTable.
+     *
+     * @param rule the FlowTableEntry to add
+     */
+    protected final void insertRule(final FlowTableEntry rule) {
         int i = searchRule(rule);
         if (i != -1) {
             flowTable.set(i, rule);
