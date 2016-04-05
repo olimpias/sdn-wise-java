@@ -714,15 +714,30 @@ public abstract class AbstractCore {
         this.isActive = active;
     }
 
+    /**
+     * Gets the NodeAddress of the actual Sink for the node.
+     *
+     * @return the NodeAddress of the Sink
+     */
     protected NodeAddress getActualSinkAddress() {
         return new NodeAddress(flowTable.get(0).getWindows().get(0).getRhs());
     }
 
+    /**
+     * Gets the NodeAddress of the next best hop toward the actual Sink.
+     *
+     * @return the NodeAddress of the next best hop
+     */
     protected final NodeAddress getNextHopVsSink() {
         return ((AbstractForwardAction) (flowTable.get(0).getActions().get(0)))
                 .getNextHop();
     }
 
+    /**
+     * Gets the distance from the Sink in number of hops.
+     *
+     * @return the distance from the Sink
+     */
     protected final int getSinkDistance() {
         return sinkDistance;
     }
