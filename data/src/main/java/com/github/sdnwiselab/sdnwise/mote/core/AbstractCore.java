@@ -781,13 +781,13 @@ public abstract class AbstractCore {
 
     }
 
-    protected boolean isAcceptedIdAddress(NodeAddress addrP) {
+    protected final boolean isAcceptedIdAddress(final NodeAddress addrP) {
         return (addrP.equals(myAddress)
                 || addrP.isBroadcast()
                 || acceptedId.contains(addrP));
     }
 
-    protected boolean isAcceptedIdPacket(NetworkPacket packet) {
+    protected final boolean isAcceptedIdPacket(final NetworkPacket packet) {
         return isAcceptedIdAddress(packet.getDst());
     }
 
