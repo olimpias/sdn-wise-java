@@ -18,9 +18,11 @@ package com.github.sdnwiselab.sdnwise.mote.core;
 
 import com.github.sdnwiselab.sdnwise.packet.RegProxyPacket;
 import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
+import com.github.sdnwiselab.sdnwise.packet.BeaconPacket;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket;
 import com.github.sdnwiselab.sdnwise.packet.DataPacket;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
+import com.github.sdnwiselab.sdnwise.util.Neighbor;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -140,5 +142,11 @@ public class SinkCore extends AbstractCore {
     @Override
     protected final void reset() {
         // Nothing to do here
+    }
+
+    @Override
+    protected final void rxBeacon(final BeaconPacket bp, final int rssi) {
+        Neighbor nb = new Neighbor(bp.getSrc(), rssi, bp.getBattery());
+        getNeighborTable().add(nb);
     }
 }

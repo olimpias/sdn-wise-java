@@ -29,7 +29,9 @@ import com.github.sdnwiselab.sdnwise.packet.BeaconPacket;
 import com.github.sdnwiselab.sdnwise.packet.ConfigPacket;
 import com.github.sdnwiselab.sdnwise.packet.DataPacket;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
+import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DFLT_TTL_MAX;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DST_INDEX;
+import com.github.sdnwiselab.sdnwise.util.Neighbor;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
@@ -59,29 +61,29 @@ public class MoteCore extends AbstractCore {
 
     @Override
     public final void dataCallback(final DataPacket dp) {
-        if (functions.get(1) == null) {
+        if (getFunctions().get(1) == null) {
             log(Level.INFO, new String(dp.getData(),
                     Charset.forName("UTF-8")));
             dp.setSrc(getMyAddress())
                     .setDst(getActualSinkAddress())
-                    .setTtl((byte) ruleTtl);
+                    .setTtl((byte) getRuleTtl());
             runFlowMatch(dp);
         } else {
-            functions.get(1).function(sensors,
-                    flowTable,
-                    neighborTable,
-                    statusRegister,
-                    acceptedId,
-                    ftQueue,
-                    txQueue,
+            getFunctions().get(1).function(getSensors(),
+                    getFlowTable(),
+                    getNeighborTable(),
+                    getStatusRegister(),
+                    getAcceptedId(),
+                    getFtQueue(),
+                    getTxQueue(),
                     new byte[0],
                     dp);
         }
     }
 
     @Override
-    public final void rxBeacon(final BeaconPacket bp, final int rssi) {
-        if (rssi > rssiMin) {
+    protected final void rxBeacon(final BeaconPacket bp, final int rssi) {
+        if (rssi > getRssiMin()) {
             if (bp.getDistance() < getSinkDistance()
                     && (rssi > getSinkRssi())) {
                 setActive(true);
@@ -95,31 +97,38 @@ public class MoteCore extends AbstractCore {
                         .setRhs(bp.getSinkAddress().intValue()));
                 toSink.addWindow(fromString("P.TYP == 3"));
                 toSink.addAction(new ForwardUnicastAction(bp.getSrc()));
-                flowTable.set(0, toSink);
+                getFlowTable().set(0, toSink);
 
                 setSinkDistance(bp.getDistance() + 1);
                 setSinkRssi(rssi);
             } else if ((bp.getDistance() + 1) == getSinkDistance()
                     && getNextHopVsSink().equals(bp.getSrc())) {
-                flowTable.get(0).getStats().restoreTtl();
-                flowTable.get(0).getWindows().get(0)
+                getFlowTable().get(0).getStats().restoreTtl();
+                getFlowTable().get(0).getWindows().get(0)
                         .setRhs(bp.getSinkAddress().intValue());
             }
-            super.rxBeacon(bp, rssi);
+            Neighbor nb = new Neighbor(bp.getSrc(), rssi, bp.getBattery());
+            getNeighborTable().add(nb);
         }
     }
 
     @Override
-    public final void rxConfig(final ConfigPacket cp) {
+    protected final void rxConfig(final ConfigPacket cp) {
         NodeAddress dest = cp.getDst();
         if (!dest.equals(getMyAddress())) {
             runFlowMatch(cp);
         } else if (execConfigPacket(cp)) {
             cp.setSrc(getMyAddress());
             cp.setDst(getActualSinkAddress());
-            cp.setTtl((byte) ruleTtl);
+            cp.setTtl((byte) getRuleTtl());
             runFlowMatch(cp);
         }
+    }
+
+    @Override
+    protected final NodeAddress getActualSinkAddress() {
+        return new NodeAddress(getFlowTable().get(0).getWindows()
+                .get(0).getRhs());
     }
 
     @Override
@@ -129,7 +138,7 @@ public class MoteCore extends AbstractCore {
 
     @Override
     protected final void reset() {
-        setSinkDistance(ruleTtl + 1);
+        setSinkDistance(DFLT_TTL_MAX + 1);
         setSinkRssi(0);
         setActive(false);
     }

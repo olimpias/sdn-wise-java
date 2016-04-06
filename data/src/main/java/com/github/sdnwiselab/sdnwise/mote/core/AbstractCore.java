@@ -97,7 +97,14 @@ import java.util.logging.Logger;
  * @author Sebastiano Milardo
  */
 public abstract class AbstractCore {
-
+    /**
+     * Lenght of the function subheader.
+     */
+    private static final int FUNCTION_HEADER = 3;
+    /**
+     * Max RSSI value.
+     */
+    private static final int MAX_RSSI = 255;
     /**
      * Queue size.
      */
@@ -122,15 +129,15 @@ public abstract class AbstractCore {
     /**
      * Accepted IDs.
      */
-    protected List<NodeAddress> acceptedId = new LinkedList<>();
+    private final List<NodeAddress> acceptedId = new LinkedList<>();
     /**
      * WISE Flow Table.
      */
-    protected final List<FlowTableEntry> flowTable = new LinkedList<>();
+    private final List<FlowTableEntry> flowTable = new LinkedList<>();
     /**
      * Contains the NetworkPacket that will be processed by the WISE Flow Table.
      */
-    protected final ArrayBlockingQueue<NetworkPacket> ftQueue
+    private final ArrayBlockingQueue<NetworkPacket> ftQueue
             = new ArrayBlockingQueue<>(100);
     /**
      * Function Buffer.
@@ -140,7 +147,7 @@ public abstract class AbstractCore {
     /**
      * Function Array.
      */
-    protected final HashMap<Integer, FunctionInterface> functions
+    private final HashMap<Integer, FunctionInterface> functions
             = new HashMap<>();
     /**
      * A Mote becomes active after it receives a beacon. A Sink is always
@@ -163,32 +170,33 @@ public abstract class AbstractCore {
     /**
      * Contains the NodeAddress, RSSI, and battery of the Neigbors of the node.
      */
-    protected final Set<Neighbor> neighborTable;
+    private final Set<Neighbor> neighborTable =
+            Collections.synchronizedSet(new HashSet<>());;
     /**
      * A packet having an RSSI less than this value is dropped.
      */
-    protected int rssiMin;
+    private int rssiMin;
     /**
      * A rule in the flowtable is deleted after ruleTtl seconds.
      */
-    protected int ruleTtl;
+    private int ruleTtl;
     /**
      * Contains the NetworkPacket and the RSSI coming from the radio/controller.
      */
     private final ArrayBlockingQueue<Pair<NetworkPacket, Integer>> rxQueue
             = new ArrayBlockingQueue<>(QUEUE_SIZE);
     /**
-     * Sensors.
+     * Simulates sensor readings.
      */
-    protected HashMap<String, Object> sensors = new HashMap<>();
+    private final HashMap<String, Object> sensors = new HashMap<>();
     /**
-     * Status Register.
+     * Status Registers.
      */
-    protected ArrayList<Integer> statusRegister = new ArrayList<>();
+    private final ArrayList<Integer> statusRegister = new ArrayList<>();
     /**
      * Contains the NetworkPacket that will be sent over the radio.
      */
-    protected final ArrayBlockingQueue<NetworkPacket> txQueue
+    private final ArrayBlockingQueue<NetworkPacket> txQueue
             = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     /**
@@ -200,7 +208,6 @@ public abstract class AbstractCore {
      */
     AbstractCore(final byte net, final NodeAddress address,
             final Dischargeable bat) {
-        neighborTable = Collections.synchronizedSet(new HashSet<>());
         myAddress = address;
         myNet = net;
         battery = bat;
@@ -292,8 +299,8 @@ public abstract class AbstractCore {
         initFlowTable();
         initStatusRegister();
         initSdnWise();
-        new Thread(new rxPacketManager()).start();
-        new Thread(new ftPacketManager()).start();
+        new Thread(new IncomingQueuePacketManager()).start();
+        new Thread(new FlowTableQueuePacketManager()).start();
     }
 
     /**
@@ -363,7 +370,7 @@ public abstract class AbstractCore {
     private FunctionInterface createServiceInterface(final byte[] classFile) {
         CustomClassLoader cl = new CustomClassLoader();
         FunctionInterface srvI = null;
-        Class service = cl.defClass(classFile, classFile.length);
+        Class service = cl.defClass(classFile);
         try {
             srvI = (FunctionInterface) service.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
@@ -494,14 +501,8 @@ public abstract class AbstractCore {
         }
 
         int target = rule.getWindows().size();
-        int actual = 0;
-
-        for (Window w : rule.getWindows()) {
-            if (matchWindow(w, packet)) {
-                actual++;
-            }
-        }
-        return (actual == target);
+        return (rule.getWindows().stream().filter(w -> matchWindow(w, packet))
+                .count() == target);
     }
 
     /**
@@ -694,9 +695,7 @@ public abstract class AbstractCore {
      *
      * @return the NodeAddress of the Sink
      */
-    protected NodeAddress getActualSinkAddress() {
-        return new NodeAddress(flowTable.get(0).getWindows().get(0).getRhs());
-    }
+    protected abstract NodeAddress getActualSinkAddress();
 
     /**
      * Gets the NodeAddress of the next best hop toward the actual Sink.
@@ -781,16 +780,40 @@ public abstract class AbstractCore {
 
     }
 
-    protected final boolean isAcceptedIdAddress(final NodeAddress addrP) {
-        return (addrP.equals(myAddress)
-                || addrP.isBroadcast()
-                || acceptedId.contains(addrP));
+    /**
+     * Checks if a NodeAddress is accepted by the node. A node will process
+     * all the packets that have a NextHop address contained in the
+     * accepetedId data structure, or equal to the NodeAddress of the the node
+     * itself, or broadcast.
+     *
+     * @param address the NodeAddress to check
+     * @return true if it is accepted, false otherwise
+     */
+    private boolean isAcceptedIdAddress(final NodeAddress address) {
+        return (address.equals(myAddress)
+                || address.isBroadcast()
+                || acceptedId.contains(address));
     }
 
-    protected final boolean isAcceptedIdPacket(final NetworkPacket packet) {
+    /**
+     * Checks if a NodeAddress is accepted by the node. A node will process
+     * all the packets that have a NextHop address contained in the
+     * accepetedId data structure, or equal to the NodeAddress of the the node
+     * itself, or broadcast.
+     *
+     * @param packet the incoming packet
+     * @return true if it is accepted, false otherwise
+     */
+    private boolean isAcceptedIdPacket(final NetworkPacket packet) {
         return isAcceptedIdAddress(packet.getDst());
     }
 
+    /**
+     * Adds a message in the log queue of the node.
+     *
+     * @param level the level of the log message
+     * @param logMessage the text of the log message
+     */
     protected final void log(final Level level, final String logMessage) {
         try {
             logQueue.put(new Pair<>(level, logMessage));
@@ -841,7 +864,7 @@ public abstract class AbstractCore {
                 }
                 break;
             case ADD_RULE:
-                // TODO we need to decide what to do with response  packets
+                // TODO we need to decide what to do with response packets
                 break;
             case RESET:
                 reset();
@@ -850,7 +873,8 @@ public abstract class AbstractCore {
                 if (functionBuffer.get(idValue) == null) {
                     functionBuffer.put(idValue, new LinkedList<>());
                 }
-                byte[] function = Arrays.copyOfRange(value, 3, value.length);
+                byte[] function = Arrays.copyOfRange(value, FUNCTION_HEADER,
+                        value.length);
                 int totalParts = Byte.toUnsignedInt(value[2]);
                 functionBuffer.get(idValue).add(function);
                 if (functionBuffer.get(idValue).size() == totalParts) {
@@ -938,6 +962,13 @@ public abstract class AbstractCore {
         return true;
     }
 
+    /**
+     * Executes the commands of a ConfigPacket.
+     *
+     * @param packet the incoming config packet.
+     * @return true if the config packets has to be sent back to the controller,
+     * false otherwise
+     */
     protected final boolean execConfigPacket(final ConfigPacket packet) {
         boolean toBeSent = false;
         try {
@@ -952,14 +983,27 @@ public abstract class AbstractCore {
         return toBeSent;
     }
 
+    /**
+     * Sends a NetworkPacket and decreases its TTL.
+     *
+     * @param np the NetworkPacket to be sent
+     */
     protected final void radioTX(final NetworkPacket np) {
         np.decrementTtl();
         txQueue.add(np);
     }
 
+    /**
+     * Resets a node to its initial condition.
+     */
     protected abstract void reset();
 
-    protected final void runFlowMatch(NetworkPacket packet) {
+    /**
+     * Checks if a packet has a match in the FlowTable.
+     *
+     * @param packet the packet to be mached
+     */
+    protected final void runFlowMatch(final NetworkPacket packet) {
         int i = 0;
         boolean matched = false;
         for (FlowTableEntry fte : flowTable) {
@@ -987,14 +1031,24 @@ public abstract class AbstractCore {
         }
     }
 
-    protected void rxBeacon(BeaconPacket bp, int rssi) {
-        Neighbor nb = new Neighbor(bp.getSrc(), rssi, bp.getBattery());
-        this.neighborTable.add(nb);
-    }
+    /**
+     * Adds the Source address of a Beacon packet to the neighbor table.
+     * @param bp the incoming beacon packet
+     * @param rssi the rssi of the incoming beacon packet
+     */
+    protected abstract void rxBeacon(final BeaconPacket bp, final int rssi);
 
+    /**
+     * Processes an incoming ConfigPacket.
+     * @param packet the incoming config packet
+     */
     protected abstract void rxConfig(ConfigPacket packet);
 
-    protected final void rxData(DataPacket packet) {
+    /**
+     * Processes an incoming DataPacket.
+     * @param packet the incoming data packet
+     */
+    protected final void rxData(final DataPacket packet) {
         if (isAcceptedIdPacket(packet)) {
             dataCallback(packet);
         } else if (isAcceptedIdAddress(packet.getNxh())) {
@@ -1002,7 +1056,13 @@ public abstract class AbstractCore {
         }
     }
 
-    protected void rxHandler(NetworkPacket packet, int rssi) {
+    /**
+     * Gives each incoming packet to its processing.
+     *
+     * @param packet the incoming NetworkPacket
+     * @param rssi the rssi of the incoming NetworkPacket
+     */
+    protected final void rxHandler(final NetworkPacket packet, final int rssi) {
 
         if (!packet.isSdnWise()) {
             runFlowMatch(packet);
@@ -1046,9 +1106,13 @@ public abstract class AbstractCore {
         }
     }
 
-    protected void rxOpenPath(OpenPathPacket opp) {
-        if (isAcceptedIdPacket(opp)) {
-            List<NodeAddress> path = opp.getPath();
+    /**
+     * Processes an incoming OpenPathPacket.
+     * @param packet the incoming OpenPath packet
+     */
+    protected final void rxOpenPath(final OpenPathPacket packet) {
+        if (isAcceptedIdPacket(packet)) {
+            List<NodeAddress> path = packet.getPath();
             int i;
             for (i = 0; i < path.size(); i++) {
                 NodeAddress actual = path.get(i);
@@ -1063,7 +1127,7 @@ public abstract class AbstractCore {
                         .setLhsLocation(PACKET).setLhs(DST_INDEX)
                         .setRhsLocation(CONST).setRhs(path.get(0).intValue()));
 
-                rule.getWindows().addAll(opp.getWindows());
+                rule.getWindows().addAll(packet.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i - 1)));
                 insertRule(rule);
             }
@@ -1075,50 +1139,74 @@ public abstract class AbstractCore {
                         .setRhsLocation(CONST)
                         .setRhs(path.get(path.size() - 1).intValue()));
 
-                rule.getWindows().addAll(opp.getWindows());
+                rule.getWindows().addAll(packet.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i + 1)));
                 insertRule(rule);
-                opp.setDst(path.get(i + 1)).setNxh(path.get(i + 1));
-                radioTX(opp);
+                packet.setDst(path.get(i + 1)).setNxh(path.get(i + 1));
+                radioTX(packet);
             }
 
         } else {
-            runFlowMatch(opp);
+            runFlowMatch(packet);
         }
     }
 
-    protected void rxReport(ReportPacket packet) {
+    /**
+     * Processes an incoming ReportPacket.
+     * @param packet the incoming report packet
+     */
+    protected final void rxReport(final ReportPacket packet) {
         controllerTX(packet);
     }
 
-    protected void rxRequest(RequestPacket packet) {
+    /**
+     * Processes an incoming RequestPacket.
+     * @param packet the incoming request packet
+     */
+    protected final void rxRequest(final RequestPacket packet) {
         controllerTX(packet);
     }
 
-    protected void rxResponse(ResponsePacket rp) {
-        if (isAcceptedIdPacket(rp)) {
-            rp.getRule().setStats(new Stats());
-            insertRule(rp.getRule());
+    /**
+     * Processes an incoming ResponsePacket.
+     * @param packet the incoming request packet
+     */
+    protected final void rxResponse(final ResponsePacket packet) {
+        if (isAcceptedIdPacket(packet)) {
+            packet.getRule().setStats(new Stats());
+            insertRule(packet.getRule());
         } else {
-            runFlowMatch(rp);
+            runFlowMatch(packet);
         }
     }
 
+    /**
+     * Models a Class loader.
+     */
     private class CustomClassLoader extends ClassLoader {
-
-        public Class defClass(byte[] data, int len) {
-            return defineClass(null, data, 0, len);
+        /**
+         * Converts an array of bytes into an instance of class Class.
+         * Before the Class can be used it must be resolved.
+         *
+         * @param data the byte array containing the Class
+         * @return a Class object
+         */
+        public Class defClass(final byte[] data) {
+            return defineClass(null, data, 0, data.length);
         }
     }
 
-    private class ftPacketManager implements Runnable {
-
+    /**
+     * Models a thread reading from the FlowTable queue and adding to the
+     * incoming queue.
+     */
+    private class FlowTableQueuePacketManager implements Runnable {
         @Override
         public void run() {
             try {
                 while (true) {
                     NetworkPacket np = ftQueue.take();
-                    rxQueue.put(new Pair<>(np, 255));
+                    rxQueue.put(new Pair<>(np, MAX_RSSI));
                 }
             } catch (InterruptedException ex) {
                 log(Level.SEVERE, ex.toString());
@@ -1126,8 +1214,11 @@ public abstract class AbstractCore {
         }
     }
 
-    private class rxPacketManager implements Runnable {
-
+    /**
+     * Models a thread reading from the incoming queue that passes the
+     * NetworkPackets to the rxHandler.
+     */
+    private class IncomingQueuePacketManager implements Runnable {
         @Override
         public void run() {
             try {
@@ -1140,4 +1231,45 @@ public abstract class AbstractCore {
             }
         }
     }
+
+    public final List<NodeAddress> getAcceptedId() {
+        return acceptedId;
+    }
+
+    public final List<FlowTableEntry> getFlowTable() {
+        return flowTable;
+    }
+
+    public final ArrayBlockingQueue<NetworkPacket> getFtQueue() {
+        return ftQueue;
+    }
+
+    public final HashMap<Integer, FunctionInterface> getFunctions() {
+        return functions;
+    }
+
+    public final Set<Neighbor> getNeighborTable() {
+        return neighborTable;
+    }
+
+    public final int getRssiMin() {
+        return rssiMin;
+    }
+
+    public final int getRuleTtl() {
+        return ruleTtl;
+    }
+
+    public final HashMap<String, Object> getSensors() {
+        return sensors;
+    }
+
+    public final ArrayBlockingQueue<NetworkPacket> getTxQueue() {
+        return txQueue;
+    }
+
+    public final ArrayList<Integer> getStatusRegister() {
+        return statusRegister;
+    }
+
 }
