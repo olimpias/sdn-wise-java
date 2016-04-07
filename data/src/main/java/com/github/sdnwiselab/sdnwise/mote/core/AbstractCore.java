@@ -1232,26 +1232,51 @@ public abstract class AbstractCore {
         }
     }
 
+    /**
+     * Gets the list of the accepted Network Addresses.
+     * @return the list of the accepted Network Addresses
+     */
     public final List<NodeAddress> getAcceptedId() {
         return acceptedId;
     }
 
+    /**
+     * Gets the FlowTable of the Node.
+     * @return the flow table of the node
+     */
     public final List<FlowTableEntry> getFlowTable() {
         return flowTable;
     }
 
+    /**
+     * Gets the FlowTable incoming packets queue.
+     * @return the FlowTable incoming packets queue
+     */
     public final ArrayBlockingQueue<NetworkPacket> getFtQueue() {
         return ftQueue;
     }
 
+    /**
+     * Gets an HashMap containing the installed Functions.
+     * @return an HashMap containing the installed Functions
+     */
     public final HashMap<Integer, FunctionInterface> getFunctions() {
         return functions;
     }
 
+    /**
+     * Gets the set of the NodeAddresses of the nodes at 1-hop distance from the
+     * node itself.
+     * @return the list of neighbors
+     */
     public final Set<Neighbor> getNeighborTable() {
         return neighborTable;
     }
 
+    /**
+     * Gets the minimum value of RSSI accepted by a node.
+     * @return the minimum value of RSSI accepted by a node
+     */
     public final int getRssiMin() {
         return rssiMin;
     }
