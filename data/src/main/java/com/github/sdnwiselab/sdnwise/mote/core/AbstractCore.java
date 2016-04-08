@@ -1281,18 +1281,37 @@ public abstract class AbstractCore {
         return rssiMin;
     }
 
+    /**
+     * Gets the maximum TTL of a FlowTable entry.
+     * @return the maximum TTL of a FlowTable entry
+     */
     public final int getRuleTtl() {
         return ruleTtl;
     }
 
+    /**
+     * Gets an HashMap that can be used to simulate the behaviour of a set of
+     * sensors.
+     * @return an HashMap containing the measured values
+     */
     public final HashMap<String, Object> getSensors() {
         return sensors;
     }
 
+    /**
+     * Gets the queue of the outgoing packets.
+     *
+     * @return the queue of the outgoing packets
+     */
     public final ArrayBlockingQueue<NetworkPacket> getTxQueue() {
         return txQueue;
     }
 
+    /**
+     * Gets the status register of the node.
+     *
+     * @return the status register of the node.
+     */
     public final ArrayList<Integer> getStatusRegister() {
         return statusRegister;
     }
