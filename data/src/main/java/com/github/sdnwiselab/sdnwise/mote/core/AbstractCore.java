@@ -104,7 +104,7 @@ public abstract class AbstractCore {
     /**
      * Max RSSI value.
      */
-    private static final int MAX_RSSI = 255;
+    public static final int MAX_RSSI = 255;
     /**
      * Queue size.
      */

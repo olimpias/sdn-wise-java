@@ -18,6 +18,7 @@ package com.github.sdnwiselab.sdnwise.mote.standalone;
 
 import com.github.sdnwiselab.sdnwise.mote.battery.Dischargeable;
 import com.github.sdnwiselab.sdnwise.mote.battery.SinkBattery;
+import static com.github.sdnwiselab.sdnwise.mote.core.AbstractCore.MAX_RSSI;
 import com.github.sdnwiselab.sdnwise.mote.core.SinkCore;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
@@ -74,7 +75,7 @@ public class Sink extends AbstractMote {
                 riceviOBJ = new DataInputStream(tcpSocket.getInputStream());
                 while (true) {
                     NetworkPacket np = new NetworkPacket(riceviOBJ);
-                    core.rxRadioPacket(np, 255);
+                    core.rxRadioPacket(np, MAX_RSSI);
                 }
             } catch (IOException ex) {
                 Logger.getGlobal().log(Level.SEVERE, null, ex);
@@ -89,7 +90,8 @@ public class Sink extends AbstractMote {
             try {
                 inviaOBJ = new DataOutputStream(tcpSocket.getOutputStream());
                 while (true) {
-                    NetworkPacket np = ((SinkCore) core).getControllerPacketTobeSend();
+                    NetworkPacket np = ((SinkCore) core)
+                            .getControllerPacketTobeSend();
                     inviaOBJ.write(np.toByteArray());
                 }
             } catch (IOException | InterruptedException ex) {

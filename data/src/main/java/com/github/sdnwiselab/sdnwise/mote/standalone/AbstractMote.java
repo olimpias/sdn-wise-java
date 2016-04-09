@@ -16,33 +16,47 @@
  */
 package com.github.sdnwiselab.sdnwise.mote.standalone;
 
-import com.github.sdnwiselab.sdnwise.mote.core.*;
-import com.github.sdnwiselab.sdnwise.mote.logger.*;
+import com.github.sdnwiselab.sdnwise.mote.core.AbstractCore;
+import com.github.sdnwiselab.sdnwise.mote.core.Pair;
+import com.github.sdnwiselab.sdnwise.mote.logger.MoteFormatter;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import com.github.sdnwiselab.sdnwise.util.SimplerFormatter;
-import java.io.*;
-import java.net.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
-import java.util.stream.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Sebastiano Milardo
  */
 public abstract class AbstractMote implements Runnable {
 
-    private final byte[] buf;
-    private Level level;
-    private Logger logger;
-    private Logger measureLogger;
-    private String neighborFilePath;
+    private final byte[] buf = new byte[NetworkPacket.MAX_PACKET_LENGTH];
+    private final Level level;
+    private Logger logger, measureLogger;
+    private final String neighborFilePath;
     private Map<NodeAddress, FakeInfo> neighbourList;
-
-    private int port;
+    private final int port;
     /**
      * Statistics.
      */
@@ -56,8 +70,6 @@ public abstract class AbstractMote implements Runnable {
             int port,
             String neighborFilePath,
             String level) {
-        buf = new byte[NetworkPacket.MAX_PACKET_LENGTH];
-
         this.neighborFilePath = neighborFilePath;
         this.neighbourList = new HashMap<>();
         this.port = port;
@@ -93,7 +105,8 @@ public abstract class AbstractMote implements Runnable {
 
         if (tmpDst.isBroadcast() || tmpNxHop.isBroadcast()) {
 
-            neighbourList.entrySet().stream().map((isa) -> new DatagramPacket(np.toByteArray(),
+            neighbourList.entrySet().stream()
+                    .map((isa) -> new DatagramPacket(np.toByteArray(),
                     np.getLen(), isa.getValue().inetAddress)).forEach((pck) -> {
                 try {
                     socket.send(pck);
@@ -121,10 +134,10 @@ public abstract class AbstractMote implements Runnable {
         try {
 
             measureLogger = initLogger(Level.FINEST, "M_" + core.getMyAddress()
-                    + ".log", new MoteFormatter());
+                + ".log", new MoteFormatter());
 
             logger = initLogger(level, core.getMyAddress()
-                    + ".log", new SimplerFormatter(core.getMyAddress().toString()));
+                + ".log", new SimplerFormatter(core.getMyAddress().toString()));
 
             Path path = Paths.get(neighborFilePath);
             BufferedReader reader;
@@ -132,10 +145,12 @@ public abstract class AbstractMote implements Runnable {
             if (!Files.exists(path)) {
                 logger.log(Level.INFO, "External Config file not found. "
                         + "Loading default values.");
-                InputStream in = getClass().getResourceAsStream("/" + neighborFilePath);
+                InputStream in = getClass()
+                        .getResourceAsStream("/" + neighborFilePath);
                 reader = new BufferedReader(new InputStreamReader(in));
             } else {
-                reader = new BufferedReader(new FileReader("/" + neighborFilePath));
+                reader = new BufferedReader(new FileReader("/"
+                        + neighborFilePath));
             }
 
             try (Stream<String> lines = reader.lines()) {
