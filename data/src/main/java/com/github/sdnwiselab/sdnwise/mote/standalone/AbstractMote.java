@@ -51,29 +51,58 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractMote implements Runnable {
 
+    /**
+     * Buffer for incoming packets.
+     */
     private final byte[] buf = new byte[NetworkPacket.MAX_PACKET_LENGTH];
+    /**
+     * Logging level.
+     */
     private final Level level;
+    /**
+     * Loggers.
+     */
     private Logger logger, measureLogger;
+    /**
+     * The path to the file containing info on the neighbors.
+     */
     private final String neighborFilePath;
+    /**
+     * The list of neighbors.
+     */
     private Map<NodeAddress, FakeInfo> neighbourList;
+    /**
+     * Listening UDP port.
+     */
     private final int port;
     /**
      * Statistics.
      */
     private int receivedBytes, receivedDataBytes, sentBytes, sentDataBytes;
-
+    /**
+     * Node Socket. Models the wireless connection.
+     */
     private DatagramSocket socket;
+    /**
+     * The Core of the Node.
+     */
+    private AbstractCore core;
 
-    protected AbstractCore core;
-
+    /**
+     * Creates a new AbstractMote.
+     *
+     * @param p the UDP listening port
+     * @param nfp the path to the neighbor file
+     * @param lvl the logging level of the node
+     */
     public AbstractMote(
-            int port,
-            String neighborFilePath,
-            String level) {
-        this.neighborFilePath = neighborFilePath;
+            final int p,
+            final String nfp,
+            final String lvl) {
+        this.neighborFilePath = nfp;
         this.neighbourList = new HashMap<>();
-        this.port = port;
-        this.level = Level.parse(level);
+        this.port = p;
+        this.level = Level.parse(lvl);
     }
 
     public void logger() {
