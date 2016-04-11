@@ -37,10 +37,22 @@ import java.util.logging.Logger;
  */
 public class Sink extends AbstractMote {
 
+    /**
+     * Address of the Control Plane.
+     */
     private final InetSocketAddress ctrl;
+    /**
+     * Receiver Stream.
+     */
+    private DataInputStream dis;
+    /**
+     * Sender Stream.
+     */
+    private DataOutputStream dos;
+    /**
+     * Socket to the Contro Plane.
+     */
     private Socket tcpSocket;
-    private DataOutputStream inviaOBJ;
-    private DataInputStream riceviOBJ;
 
     /**
      * Creates and starts a new Sink application.
@@ -61,43 +73,10 @@ public class Sink extends AbstractMote {
             final String dpid, final String mac, final long sPort) {
 
         super(port, neighboursPath, logLevel);
-        this.ctrl = controller;
+        ctrl = controller;
         Dischargeable battery = new SinkBattery();
-        core = new SinkCore(net, myAddress, battery, dpid, mac, sPort, ctrl);
-        core.start();
-    }
-
-    private class TcpListener implements Runnable {
-
-        @Override
-        public void run() {
-            try {
-                riceviOBJ = new DataInputStream(tcpSocket.getInputStream());
-                while (true) {
-                    NetworkPacket np = new NetworkPacket(riceviOBJ);
-                    core.rxRadioPacket(np, MAX_RSSI);
-                }
-            } catch (IOException ex) {
-                Logger.getGlobal().log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    private final class TcpSender implements Runnable {
-
-        @Override
-        public void run() {
-            try {
-                inviaOBJ = new DataOutputStream(tcpSocket.getOutputStream());
-                while (true) {
-                    NetworkPacket np = ((SinkCore) core)
-                            .getControllerPacketTobeSend();
-                    inviaOBJ.write(np.toByteArray());
-                }
-            } catch (IOException | InterruptedException ex) {
-                Logger.getGlobal().log(Level.SEVERE, null, ex);
-            }
-        }
+        setCore(new SinkCore(net, myAddress, battery, dpid, mac, sPort, ctrl))
+                .start();
     }
 
     @Override
@@ -112,4 +91,45 @@ public class Sink extends AbstractMote {
         }
 
     }
+
+    /**
+     * Models a thread listening for messages from the Control Plane.
+     */
+    private class TcpListener implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                dis = new DataInputStream(tcpSocket.getInputStream());
+                while (true) {
+                    NetworkPacket np = new NetworkPacket(dis);
+                    getCore().rxRadioPacket(np, MAX_RSSI);
+                }
+            } catch (IOException ex) {
+                Logger.getGlobal().log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    /**
+     * Model a thread that takes packets from the core and send them to the
+     * Control Plane.
+     */
+    private final class TcpSender implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                dos = new DataOutputStream(tcpSocket.getOutputStream());
+                while (true) {
+                    NetworkPacket np = ((SinkCore) getCore())
+                            .getControllerPacketTobeSend();
+                    dos.write(np.toByteArray());
+                }
+            } catch (IOException | InterruptedException ex) {
+                Logger.getGlobal().log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
 }

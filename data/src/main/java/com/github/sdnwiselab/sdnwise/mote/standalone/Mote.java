@@ -44,7 +44,6 @@ public class Mote extends AbstractMote {
             final String logLevel) {
         super(port, neighboursPath, logLevel);
         Dischargeable battery = new Battery();
-        core = new MoteCore(net, myAddress, battery);
-        core.start();
+        setCore(new MoteCore(net, myAddress, battery)).start();
     }
 }

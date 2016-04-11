@@ -17,6 +17,7 @@
 package com.github.sdnwiselab.sdnwise.mote.standalone;
 
 import com.github.sdnwiselab.sdnwise.mote.core.AbstractCore;
+import static com.github.sdnwiselab.sdnwise.mote.core.AbstractCore.MAX_RSSI;
 import com.github.sdnwiselab.sdnwise.mote.core.Pair;
 import com.github.sdnwiselab.sdnwise.mote.logger.MoteFormatter;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
@@ -105,7 +106,11 @@ public abstract class AbstractMote implements Runnable {
         this.level = Level.parse(lvl);
     }
 
-    public void logger() {
+    /**
+     * Logs information regarding the address, the battery level, number of
+     * FlowTable entries, byte sent/received.
+     */
+    public final void logger() {
         measureLogger.log(Level.FINEST,
                 "{0};{1};{2};{3};{4};{5};{6};{7};",
                 new Object[]{core.getMyAddress(),
@@ -116,7 +121,12 @@ public abstract class AbstractMote implements Runnable {
                     sentDataBytes, receivedDataBytes});
     }
 
-    public final void radioTX(NetworkPacket np) {
+    /**
+     * Sends a NetworkPacket.
+     *
+     * @param np the NetworkPacket to be sent
+     */
+    public final void radioTX(final NetworkPacket np) {
 
         if (np.isSdnWise()) {
             sentBytes += np.getLen();
@@ -188,13 +198,16 @@ public abstract class AbstractMote implements Runnable {
                         .filter(line -> !line.isEmpty())
                         .map(line -> line.split(","))
                         .map(e -> new Object() {
-                            NodeAddress addr = new NodeAddress(e[0]);
-                            FakeInfo fk = new FakeInfo(
-                                    new InetSocketAddress(e[1], Integer.parseInt(e[2])
+                            private final NodeAddress addr =
+                                    new NodeAddress(e[0]);
+                            private final FakeInfo fk = new FakeInfo(
+                                    new InetSocketAddress(e[1],
+                                            Integer.parseInt(e[2])
                                     ), Integer.parseInt(e[3])
                             );
                         }
-                        ).collect(Collectors.toConcurrentMap(e -> e.addr, e -> e.fk));
+                        ).collect(Collectors
+                                .toConcurrentMap(e -> e.addr, e -> e.fk));
             }
 
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -206,14 +219,14 @@ public abstract class AbstractMote implements Runnable {
             while (core.getBattery().getByteLevel() > 0) {
                 socket.receive(packet);
                 NetworkPacket np = new NetworkPacket(packet.getData());
-                int rssi = 255;
+                int rssi = MAX_RSSI;
                 if (np.isSdnWise()) {
                     logger.log(Level.FINE, "RRX {0}", np);
                     FakeInfo fk = neighbourList.get(np.getSrc());
                     if (fk != null) {
                         rssi = fk.rssi;
                     } else {
-                        rssi = 255;
+                        rssi = MAX_RSSI;
                     }
 
                     if (DATA == np.getTyp()) {
@@ -227,9 +240,20 @@ public abstract class AbstractMote implements Runnable {
         }
     }
 
-    private Logger initLogger(Level level, String file, Formatter formatter) {
+    /**
+     * Initialize the loggers.
+     *
+     * @param lvl logging level
+     * @param file file name for the logs
+     * @param formatter log formatter
+     * @return the logger itself
+     */
+    private Logger initLogger(
+            final Level lvl,
+            final String file,
+            final Formatter formatter) {
         Logger log = Logger.getLogger(file);
-        log.setLevel(level);
+        log.setLevel(lvl);
         try {
             FileHandler fh;
             File dir = new File("logs");
@@ -244,22 +268,43 @@ public abstract class AbstractMote implements Runnable {
         return log;
     }
 
+    /**
+     * Starts the threads of the Node.
+     */
     protected void startThreads() {
         new Thread(new SenderRunnable()).start();
         new Thread(new LoggerRunnable()).start();
     }
 
+    /**
+     * Simulates neighbors info.
+     */
     private class FakeInfo {
 
+        /**
+         * The socket address of the neighbor.
+         */
         private InetSocketAddress inetAddress;
+        /**
+         * The rssi of the neighbor.
+         */
         private int rssi;
 
-        FakeInfo(InetSocketAddress inetAddress, int rssi) {
-            this.inetAddress = inetAddress;
-            this.rssi = rssi;
+        /**
+         * Creates a new FakeInfo object.
+         *
+         * @param ia the InetAddress of the neighbor
+         * @param fakeRssi the rssi of the neighbor
+         */
+        FakeInfo(final InetSocketAddress ia, final int fakeRssi) {
+            this.inetAddress = ia;
+            this.rssi = fakeRssi;
         }
     }
 
+    /**
+     * Models a thread that logs the messages coming from the core.
+     */
     private class LoggerRunnable implements Runnable {
 
         @Override
@@ -275,6 +320,9 @@ public abstract class AbstractMote implements Runnable {
         }
     }
 
+    /**
+     * Models a thread that sends the messages coming from the core.
+     */
     private class SenderRunnable implements Runnable {
 
         @Override
@@ -289,6 +337,9 @@ public abstract class AbstractMote implements Runnable {
         }
     }
 
+    /**
+     * Model a thread that simulates the clock of the node.
+     */
     private class TaskTimer extends TimerTask {
 
         @Override
@@ -299,5 +350,23 @@ public abstract class AbstractMote implements Runnable {
             }
             logger();
         }
+    }
+
+    /**
+     * Gets the core of the node.
+     * @return the core of the node
+     */
+    public final AbstractCore getCore() {
+        return core;
+    }
+
+    /**
+     * Sets the core of the node.
+     * @param cr the core of the node
+     * @return the core itself
+     */
+    public final AbstractCore setCore(final AbstractCore cr) {
+        core = cr;
+        return core;
     }
 }
