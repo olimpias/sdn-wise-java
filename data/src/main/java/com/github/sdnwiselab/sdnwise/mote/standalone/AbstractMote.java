@@ -53,6 +53,10 @@ import java.util.stream.Stream;
 public abstract class AbstractMote implements Runnable {
 
     /**
+     * A second in milliseconds.
+     */
+    private final int SECOND_IN_MILLIS = 1000;
+    /**
      * Buffer for incoming packets.
      */
     private final byte[] buf = new byte[NetworkPacket.MAX_PACKET_LENGTH];
@@ -213,7 +217,8 @@ public abstract class AbstractMote implements Runnable {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             socket = new DatagramSocket(port);
 
-            new Timer().schedule(new TaskTimer(), 1000, 1000);
+            new Timer().schedule(new TaskTimer(), SECOND_IN_MILLIS,
+                    SECOND_IN_MILLIS);
             startThreads();
 
             while (core.getBattery().getByteLevel() > 0) {
