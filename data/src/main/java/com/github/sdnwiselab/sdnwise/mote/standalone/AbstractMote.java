@@ -55,7 +55,7 @@ public abstract class AbstractMote implements Runnable {
     /**
      * A second in milliseconds.
      */
-    private final int SECOND_IN_MILLIS = 1000;
+    private static final int SECOND_IN_MILLIS = 1000;
     /**
      * Buffer for incoming packets.
      */
