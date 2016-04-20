@@ -173,7 +173,7 @@ public class AdapterTcp extends AbstractAdapter {
                     notifyObservers(data);
                 }
             } catch (IOException ex) {
-                log(Level.SEVERE, "+++++" + ex.toString());
+                log(Level.SEVERE, ex.toString());
             }
 
         }
