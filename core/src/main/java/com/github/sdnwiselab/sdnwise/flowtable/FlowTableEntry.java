@@ -160,7 +160,7 @@ public final class FlowTableEntry implements FlowTableInterface {
      * Adds a window to the list of the windows in the FlowTable entry.
      *
      * @param w element to be appended
-     * @return <tt>true</tt> (as specified by {@link Collection#add})
+     * @return true
      */
     public boolean addWindow(final Window w) {
         return windows.add(w);
@@ -189,7 +189,7 @@ public final class FlowTableEntry implements FlowTableInterface {
      * Adds an action to the FlowTable entry.
      *
      * @param a element to be appended
-     * @return <tt>true</tt> (as specified by {@link Collection#add})
+     * @return true
      */
     public boolean addAction(final AbstractAction a) {
         return actions.add(a);
