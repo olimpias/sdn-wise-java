@@ -32,7 +32,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,7 +54,7 @@ public final class SdnWise {
     /**
      * Emulation constants.
      */
-    private static final int NO_OF_NODES = 11, NO_OF_MOTES = 10,
+    private static final int NO_OF_MOTES = 10,
             ADA_PORT = 9990, BASE_NODE_PORT = 7770, SETUP_TIME = 60000,
             TIMEOUT = 100;
 
