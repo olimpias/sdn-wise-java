@@ -21,6 +21,9 @@ import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
 import com.github.sdnwiselab.sdnwise.configuration.ConfigFlowVisor;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * FlowVisorFactory creates an FlowVisor object given the specifications
@@ -46,41 +49,49 @@ public final class FlowVisorFactory {
      */
     public static FlowVisor getFlowvisor(final Configurator c) {
         conf = c.getFlowvisor();
-        return new FlowVisor(getLower(), getUpper());
+        return new FlowVisor(
+                getAdapters(conf.getLowers()),
+                getAdapters(conf.getLowers())
+        );
     }
 
     /**
-     * Gets the lower adapter.
+     * Returns an adapter depending on the options specified. The supported
+     * types at the moment are "UDP/TCP" for udp/tcp communication and "COM" for
+     * serial port communication. "OMNET" adapter is still under development.
+     * Details regarding the adapters are contained in the c map.
      *
-     * @return the lower adapter
+     * @param c the type of adapter that will be instantiated.
+     * @return an adapter object
      */
-    private static AbstractAdapter getLower() {
-        String type = conf.getLower().get("TYPE");
-        switch (type) {
+    private static AbstractAdapter getAdapter(final Map<String, String> c) {
+        switch (c.get("TYPE")) {
             case "UDP":
-                return new AdapterUdp(conf.getLower());
+                return new AdapterUdp(c);
             case "TCP":
-                return new AdapterTcp(conf.getLower());
+                return new AdapterTcp(c);
             default:
                 throw new UnsupportedOperationException(
-                        "Error in Configuration file");
+                        "Error in configuration file: "
+                        + "Unsupported Adapter of type "
+                        + c.get("TYPE"));
         }
     }
 
+
     /**
-     * Gets the upper adapter.
+     * Returns a list of adapters depending on the options specified.
      *
-     * @return the upper adapter
+     * @param c a list of maps conteining the parameters for each of the adapter
+     * @return a list of Abstract Adapters
      */
-    private static AdapterUdp getUpper() {
-        String type = conf.getUpper().get("TYPE");
-        switch (type) {
-            case "UDP":
-                return new AdapterUdp(conf.getUpper());
-            default:
-                throw new UnsupportedOperationException(
-                        "Error in Configuration file");
-        }
+    private static List<AbstractAdapter> getAdapters(
+            final List<Map<String, String>> c) {
+        List listAdapters = new LinkedList<>();
+        c.stream().forEach((map) -> {
+            listAdapters.add(getAdapter(map));
+        });
+        return listAdapters;
     }
 
     /**

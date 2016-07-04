@@ -22,6 +22,8 @@ import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
 import com.github.sdnwiselab.sdnwise.configuration.ConfigAdaptation;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,8 +54,8 @@ public final class AdaptationFactory {
      */
     public static Adaptation getAdaptation(final Configurator c) {
         conf = c.getAdaptation();
-        AbstractAdapter lower = getAdapter(conf.getLower());
-        AbstractAdapter upper = getAdapter(conf.getUpper());
+        List<AbstractAdapter> lower = getAdapters(conf.getLowers());
+        List<AbstractAdapter> upper = getAdapters(conf.getUppers());
         return new Adaptation(lower, upper);
     }
 
@@ -80,6 +82,22 @@ public final class AdaptationFactory {
                         + "Unsupported Adapter of type "
                         + c.get("TYPE"));
         }
+    }
+
+
+    /**
+     * Returns a list of adapters depending on the options specified.
+     *
+     * @param c a list of maps conteining the parameters for each of the adapter
+     * @return a list of Abstract Adapters
+     */
+    private static List<AbstractAdapter> getAdapters(
+            final List<Map<String, String>> c) {
+        List listAdapters = new LinkedList<>();
+        c.stream().forEach((map) -> {
+            listAdapters.add(getAdapter(map));
+        });
+        return listAdapters;
     }
 
     /**

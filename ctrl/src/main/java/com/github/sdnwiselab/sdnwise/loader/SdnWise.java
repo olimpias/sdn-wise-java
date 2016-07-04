@@ -135,30 +135,36 @@ public final class SdnWise {
     public static void startExemplaryControlPlane(final Configurator conf) {
 
         // Start the elements of the Control Plane
-        // TODO depending on the oder of execution the different control plane
-        // may be stated in different order thus the connection refused
+        // TODO depending on the order of execution the different control plane
+        // may be started in different order thus the connection refused
         AbstractController controller = startController(conf);
         try {
             Thread.sleep(TIMEOUT);
         } catch (InterruptedException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
-        FlowVisor flowVisor = startFlowVisor(conf);
+
+        //startFlowVisor(conf);
+        /*
+        InetSocketAddress onos = new InetSocketAddress("192.168.1.108", 9999);
+
+        // Add the nodes IDs that will be managed
+        HashSet<NodeAddress> nodeSetAll = new HashSet<>();
+        for (int i = 0; i <= 128; i++) {
+            nodeSetAll.add(new NodeAddress(i));
+        }
+        
+        // Register the Controllers
+        flowVisor.addController(controller.getId(), nodeSetAll);
+        flowVisor.addController(onos, nodeSetAll);
+        */
+        
         try {
             Thread.sleep(TIMEOUT);
         } catch (InterruptedException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         startAdaptation(conf);
-
-        // Add the nodes IDs that will be managed
-        HashSet<NodeAddress> nodeSetAll = new HashSet<>();
-        for (int i = 0; i <= NO_OF_NODES; i++) {
-            nodeSetAll.add(new NodeAddress(i));
-        }
-
-        // Register the Controller
-        flowVisor.addController(controller.getId(), nodeSetAll);
 
         if (EMULATED) {
             startVirtualNetwork();
@@ -238,7 +244,7 @@ public final class SdnWise {
                 // neigh file
                 "Node1.txt",
                 "FINEST",
-                "000000001",
+                "00000001",
                 "00:01:02:03:04:05",
                 1)
         );

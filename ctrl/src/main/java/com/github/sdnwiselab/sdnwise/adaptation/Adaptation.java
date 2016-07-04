@@ -20,6 +20,7 @@ import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLayer;
 import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLogger;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,7 +49,8 @@ public class Adaptation extends ControlPlaneLayer {
      * @param lower the adapter that receives messages from the sensor network
      * @param upper the adapter that receives messages from the controller
      */
-    Adaptation(final AbstractAdapter lower, final AbstractAdapter upper) {
+    Adaptation(final List<AbstractAdapter> lower,
+            final List<AbstractAdapter> upper) {
         super("ADA", lower, upper);
         ControlPlaneLogger.setupLogger(getLayerShortName());
     }
@@ -67,12 +69,30 @@ public class Adaptation extends ControlPlaneLayer {
      */
     @Override
     public final void update(final Observable o, final Object arg) {
-        if (o.equals(getLower())) {
-            log(Level.INFO, "\u2191" + Arrays.toString((byte[]) arg));
-            getUpper().send((byte[]) arg);
-        } else if (o.equals(getUpper())) {
-            log(Level.INFO, "\u2193" + Arrays.toString((byte[]) arg));
-            getLower().send((byte[]) arg);
+        boolean found = false;
+        
+        for (AbstractAdapter adapter: getLower()) {
+            if (o.equals(adapter)) {
+                log(Level.INFO, "\u2191" + Arrays.toString((byte[]) arg));
+                for (AbstractAdapter ad : getUpper()) {
+                    
+                    ad.send((byte[]) arg);
+                }
+                found = true;
+                break;
+            }
         }
+        
+        if (found == false) {
+            for (AbstractAdapter adapter: getUpper()) {
+                if (o.equals(adapter)) {
+                    log(Level.INFO, "\u2193" + Arrays.toString((byte[]) arg));
+                    for (AbstractAdapter ad : getLower()) {
+                        ad.send((byte[]) arg);
+                    }
+                    break;
+                }
+            }
+        }    
     }
 }

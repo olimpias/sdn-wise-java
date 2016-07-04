@@ -17,7 +17,8 @@
 package com.github.sdnwiselab.sdnwise.configuration;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,8 +32,8 @@ public class ConfigAdaptation {
     /**
      * Contain the lower and upper adapter configurations.
      */
-    private final Map<String, String> lower = new HashMap<>(),
-            upper = new HashMap<>();
+    private final List<Map<String, String>> lower = new LinkedList<>(),
+            upper = new LinkedList<>();
 
     /**
      * Returns an unmodifiableMap containing the configurations for the lower
@@ -42,8 +43,8 @@ public class ConfigAdaptation {
      * the lower Adapter
      * @see com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter
      */
-    public final Map<String, String> getLower() {
-        return Collections.unmodifiableMap(lower);
+    public final List<Map<String, String>> getLowers() {
+        return Collections.unmodifiableList(lower);
     }
 
     /**
@@ -54,8 +55,8 @@ public class ConfigAdaptation {
      * the upper Adapter
      * @see com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter
      */
-    public final Map<String, String> getUpper() {
-        return Collections.unmodifiableMap(upper);
+    public final List<Map<String, String>> getUppers() {
+        return Collections.unmodifiableList(upper);
     }
 
 }

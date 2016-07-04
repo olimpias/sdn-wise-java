@@ -228,7 +228,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      * @param network NetworkGraph object.
      */
     AbstractController(final InetSocketAddress id,
-            final AbstractAdapter lower,
+            final List<AbstractAdapter> lower,
             final NetworkGraph network) {
         super("CTRL", lower, null);
         sinkAddress = new NodeAddress("0.1");
@@ -575,14 +575,16 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      */
     @Override
     public final void update(final Observable o, final Object arg) {
-        if (o.equals(getLower())) {
-            try {
-                bQ.put(new NetworkPacket((byte[]) arg));
-            } catch (InterruptedException ex) {
-                log(Level.SEVERE, ex.toString());
+        for (AbstractAdapter adapter : getLower()) {
+            if (o.equals(adapter)) {
+                try {
+                    bQ.put(new NetworkPacket((byte[]) arg));
+                } catch (InterruptedException ex) {
+                    log(Level.SEVERE, ex.toString());
+                }
+            } else if (o.equals(networkGraph)) {
+                graphUpdate();
             }
-        } else if (o.equals(networkGraph)) {
-            graphUpdate();
         }
     }
 
@@ -685,7 +687,9 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      */
     protected final void sendNetworkPacket(final NetworkPacket packet) {
         packet.setNxh(sinkAddress);
-        getLower().send(packet.toByteArray());
+        for (AbstractAdapter adapter : getLower()){
+            adapter.send(packet.toByteArray());
+        }   
     }
 
     /**

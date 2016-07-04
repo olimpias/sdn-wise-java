@@ -18,6 +18,7 @@ package com.github.sdnwiselab.sdnwise.controlplane;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Observer;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -48,7 +49,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
     /**
      * Adapters.
      */
-    private final AbstractAdapter lower, upper;
+    private final List<AbstractAdapter> lower, upper;
     /**
      * Scanner. Reads incoming commands.
      */
@@ -62,8 +63,8 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
      * @param up upper adapter
      */
     public ControlPlaneLayer(final String name,
-            final AbstractAdapter low,
-            final AbstractAdapter up) {
+            final List<AbstractAdapter> low,
+            final List<AbstractAdapter> up) {
         layerShortName = name;
         lower = low;
         upper = up;
@@ -84,7 +85,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
      *
      * @return the lower adapter
      */
-    public final AbstractAdapter getLower() {
+    public final List<AbstractAdapter> getLower() {
         return lower;
     }
 
@@ -93,7 +94,7 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
      *
      * @return the upper adapter
      */
-    public final AbstractAdapter getUpper() {
+    public final List<AbstractAdapter> getUpper() {
         return upper;
     }
 
@@ -108,16 +109,20 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
         int total = 0;
 
         if (lower != null) {
-            total++;
-            if (setupAdapter(lower)) {
-                started++;
+            total += lower.size();
+            for (AbstractAdapter adapter : lower) {
+                if (setupAdapter(adapter)) {
+                    started++;
+                }
             }
         }
 
         if (upper != null) {
-            total++;
-            if (setupAdapter(upper)) {
-                started++;
+            total += upper.size();
+            for (AbstractAdapter adapter : upper) {
+                if (setupAdapter(adapter)) {
+                    started++;
+                }
             }
         }
 
@@ -128,12 +133,12 @@ public abstract class ControlPlaneLayer implements Observer, Runnable {
                     isStopped = true;
                 }
             }
-            if (lower != null) {
-                closeAdapter(lower);
-            }
-            if (upper != null) {
-                closeAdapter(upper);
-            }
+            lower.stream().forEach((adapter) -> {
+                closeAdapter(adapter);
+            });
+            upper.stream().forEach((adapter) -> {
+                closeAdapter(adapter);
+            });
         }
     }
 

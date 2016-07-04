@@ -24,6 +24,9 @@ import com.github.sdnwiselab.sdnwise.configuration.Configurator;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.topology.VisualNetworkGraph;
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Builder of AbstractController objects given the specifications contained in a
@@ -47,7 +50,7 @@ public class ControllerFactory {
      * @return an AbstractController object.
      */
     public final AbstractController getController(final Configurator config) {
-        AbstractAdapter adapt = getLower(config.getController());
+        List<AbstractAdapter> adapt = getLower(config.getController());
         NetworkGraph ng = getNetworkGraph(config.getController());
         return getControllerType(config.getController(), id, adapt, ng);
     }
@@ -66,7 +69,7 @@ public class ControllerFactory {
     public final AbstractController getControllerType(
             final ConfigController conf,
             final InetSocketAddress newId,
-            final AbstractAdapter adapt,
+            final List<AbstractAdapter> adapt,
             final NetworkGraph ng) {
         String type = conf.getAlgorithm().get("TYPE");
 
@@ -86,18 +89,26 @@ public class ControllerFactory {
      * the controller
      * @return the lower adapter
      */
-    private AbstractAdapter getLower(final ConfigController conf) {
-        String type = conf.getLower().get("TYPE");
-        id = new InetSocketAddress(conf.getLower().get("IP"),
-                Integer.parseInt(conf.getLower().get("PORT")));
-        switch (type) {
-            case "TCP":
-                return new AdapterTcp(conf.getLower());
-            case "UDP":
-                return new AdapterUdp(conf.getLower());
-            default:
-                throw new UnsupportedOperationException("Error in config file");
+    private List<AbstractAdapter> getLower(final ConfigController conf) {
+        List<AbstractAdapter> low = new LinkedList<>();
+
+        for (Map<String, String> map : conf.getLower()) {
+            String type = map.get("TYPE");
+            id = new InetSocketAddress(map.get("IP"),
+                Integer.parseInt(map.get("PORT")));
+            switch (type) {
+                case "TCP":
+                    low.add(new AdapterTcp(map));
+                    break;
+                case "UDP":
+                    low.add(new AdapterUdp(map));
+                    break;
+                default:
+                    throw new UnsupportedOperationException(
+                            "Error in config file");
+            }
         }
+        return low;
     }
 
     /**

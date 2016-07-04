@@ -112,6 +112,7 @@ public class AdapterCom extends AbstractAdapter {
         try {
             comPort.close();
             in.close();
+            setActive(false);
             return true;
         } catch (IOException ex) {
             log(Level.SEVERE, ex.toString());
@@ -139,15 +140,21 @@ public class AdapterCom extends AbstractAdapter {
                 }
             }
 
-            in = comPort.getInputStream();
-            out = new BufferedOutputStream(comPort.getOutputStream());
-            InternalSerialListener sl = new InternalSerialListener(in);
-            sl.addObserver(this);
-            comPort.setSerialPortParams(baudRate, dataBits, stopBits, parity);
-            comPort.addEventListener(sl);
-            comPort.notifyOnDataAvailable(true);
-            return true;
-        } catch (PortInUseException | IOException | UnsupportedCommOperationException | TooManyListenersException ex) {
+            if (comPort != null){
+                in = comPort.getInputStream();
+                out = new BufferedOutputStream(comPort.getOutputStream());
+                InternalSerialListener sl = new InternalSerialListener(in);
+                sl.addObserver(this);
+                comPort.setSerialPortParams(baudRate, dataBits, stopBits, parity);
+                comPort.addEventListener(sl);
+                comPort.notifyOnDataAvailable(true);
+                setActive(true);
+                return true;
+            } else {
+                log(Level.SEVERE, "No serial port connected");
+                return false;
+            }
+        } catch (PortInUseException | IOException | UnsupportedCommOperationException | NullPointerException | TooManyListenersException ex ) {
             log(Level.SEVERE, "Unable to open Serial Port" + ex.toString());
             return false;
         }
@@ -155,16 +162,18 @@ public class AdapterCom extends AbstractAdapter {
 
     @Override
     public final void send(final byte[] data) {
+        if (isActive()){
         try {
             int len = Byte.toUnsignedInt(data[0]);
             if (len <= NetworkPacket.MAX_PACKET_LENGTH) {
-                out.write(startByte);
+                //out.write(startByte);
                 out.write(data);
-                out.write(stopByte);
+                //out.write(stopByte);
                 out.flush();
             }
         } catch (IOException ex) {
             log(Level.SEVERE, ex.toString());
+        }
         }
     }
 
@@ -216,6 +225,7 @@ public class AdapterCom extends AbstractAdapter {
                 try {
                     for (int i = 0; i < in.available(); i++) {
                         b = in.read();
+                        System.out.print((char) b);
                         if (b > -1) {
                             receivedBytes.add((byte) b);
                         }

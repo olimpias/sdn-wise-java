@@ -17,6 +17,7 @@
 package com.github.sdnwiselab.sdnwise.flowvisor;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
+import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
 import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLayer;
 import com.github.sdnwiselab.sdnwise.controlplane.ControlPlaneLogger;
@@ -29,6 +30,7 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Observable;
 import java.util.Set;
 import java.util.logging.Level;
@@ -67,10 +69,11 @@ public class FlowVisor extends ControlPlaneLayer {
      * @param lower the lower adapter
      * @param upper the upper adapter
      */
-    FlowVisor(final AbstractAdapter lower, final AdapterUdp upper) {
+    FlowVisor(final List<AbstractAdapter> lower,
+            final List<AbstractAdapter> upper) {
         super("FLW", lower, upper);
         ControlPlaneLogger.setupLogger(getLayerShortName());
-
+        
         controllerMapping = new HashMap<>();
         applicationMapping = new HashMap<>();
     }
@@ -168,10 +171,8 @@ public class FlowVisor extends ControlPlaneLayer {
                 if (mod) {
                     pkt.setNeighbors(map);
                 }
-
-                ((AdapterUdp) getUpper()).send(pkt.toByteArray(), set.getKey()
-                        .getAddress().getHostAddress(),
-                        set.getKey().getPort());
+                ((AdapterTcp) getUpper()).open();
+                ((AdapterTcp) getUpper()).send(pkt.toByteArray());
             }
         });
     }
@@ -224,7 +225,6 @@ public class FlowVisor extends ControlPlaneLayer {
      */
     private void manageResponses(final byte[] data) {
         log(Level.INFO, "Receiving " + Arrays.toString(data));
-        getLower().send(data);
+        getLower().stream().forEach(adp -> { adp.send(data); });
     }
-
 }

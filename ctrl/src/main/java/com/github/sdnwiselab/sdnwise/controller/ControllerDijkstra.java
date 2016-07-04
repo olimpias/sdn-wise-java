@@ -24,6 +24,7 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.Node;
@@ -59,7 +60,7 @@ public final class ControllerDijkstra extends AbstractController {
      * @param networkGraph NetworkGraph object.
      */
     public ControllerDijkstra(final InetSocketAddress id,
-            final AbstractAdapter lower,
+            final List<AbstractAdapter> lower,
             final NetworkGraph networkGraph) {
         super(id, lower, networkGraph);
         dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");

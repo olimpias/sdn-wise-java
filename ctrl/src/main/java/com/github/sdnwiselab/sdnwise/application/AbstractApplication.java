@@ -25,6 +25,7 @@ import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import static com.github.sdnwiselab.sdnwise.packet.NetworkPacket.DATA;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
@@ -67,7 +68,7 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
      * @param lower the adapter to be used
      */
     public AbstractApplication(final AbstractController ctrl,
-            final AbstractAdapter lower) {
+            final List<AbstractAdapter> lower) {
         super("APP", lower, null);
         ControlPlaneLogger.setupLogger(getLayerShortName());
         controller = ctrl;
@@ -112,7 +113,9 @@ public abstract class AbstractApplication extends ControlPlaneLayer {
             DataPacket dp = new DataPacket(net, controller.getSinkAddress(),
                     dst, message);
             dp.setNxh(controller.getSinkAddress());
-            getLower().send(dp.toByteArray());
+            getLower().stream().forEach((adapter) -> {
+                adapter.send(dp.toByteArray());
+            });
         }
     }
 

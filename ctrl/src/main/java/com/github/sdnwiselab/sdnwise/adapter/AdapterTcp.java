@@ -79,24 +79,30 @@ public class AdapterTcp extends AbstractAdapter {
     @Override
     public final boolean close() {
         tcpElement.stop();
+        setActive(false);
         return true;
     }
 
     @Override
     public final boolean open() {
-        if (isServer) {
-            tcpElement = new InternalTcpElementServer();
-        } else {
-            tcpElement = new InternalTcpElementClient();
+        if (!isActive()) {
+            if (isServer) {
+                tcpElement = new InternalTcpElementServer();
+            } else {
+                tcpElement = new InternalTcpElementClient();
+            }
+            tcpElement.addObserver(this);
+            new Thread(tcpElement).start();
+            setActive(true);
         }
-        tcpElement.addObserver(this);
-        new Thread(tcpElement).start();
         return true;
     }
 
     @Override
     public final void send(final byte[] data) {
-        tcpElement.send(data);
+        if (isActive()){
+            tcpElement.send(data);
+        }
     }
 
     /**
@@ -204,7 +210,8 @@ public class AdapterTcp extends AbstractAdapter {
             try {
                 serverSocket = new ServerSocket(port);
             } catch (IOException e) {
-                throw new UnsupportedOperationException("Cannot open port", e);
+                throw new UnsupportedOperationException("Cannot open port "
+                        + port, e);
             }
             Socket clientSocket;
             while (!isStopped()) {

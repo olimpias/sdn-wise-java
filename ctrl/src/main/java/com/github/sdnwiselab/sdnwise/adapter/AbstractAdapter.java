@@ -36,11 +36,34 @@ public abstract class AbstractAdapter extends Observable implements Observer {
      */
     protected static final Logger LOGGER = Logger.getLogger("ADP");
 
+    private boolean active;
+
     /**
      * Creates an AbstractAdapter.
      */
     AbstractAdapter() {
+        this.active = false;
         ControlPlaneLogger.setupLogger("ADP");
+    }
+
+    /**
+     * Returns the state of the adapter.
+     *
+     * @return a boolean indicating if the adapter is open or not
+     */
+    public final boolean isActive() {
+        return active;
+    }
+
+    /**
+     * Returns the state of the adapter.
+     *
+     * @param act the state of the adapter
+     * @return a boolean indicating if the adapter is active or not
+     */
+    protected final boolean setActive(final boolean act) {
+        active = act;
+        return active;
     }
 
     /**
