@@ -70,21 +70,21 @@ public class Adaptation extends ControlPlaneLayer {
     @Override
     public final void update(final Observable o, final Object arg) {
         boolean found = false;
-        
-        for (AbstractAdapter adapter: getLower()) {
+
+        for (AbstractAdapter adapter : getLower()) {
             if (o.equals(adapter)) {
                 log(Level.INFO, "\u2191" + Arrays.toString((byte[]) arg));
                 for (AbstractAdapter ad : getUpper()) {
-                    
+
                     ad.send((byte[]) arg);
                 }
                 found = true;
                 break;
             }
         }
-        
-        if (found == false) {
-            for (AbstractAdapter adapter: getUpper()) {
+
+        if (!found) {
+            for (AbstractAdapter adapter : getUpper()) {
                 if (o.equals(adapter)) {
                     log(Level.INFO, "\u2193" + Arrays.toString((byte[]) arg));
                     for (AbstractAdapter ad : getLower()) {
@@ -93,6 +93,6 @@ public class Adaptation extends ControlPlaneLayer {
                     break;
                 }
             }
-        }    
+        }
     }
 }

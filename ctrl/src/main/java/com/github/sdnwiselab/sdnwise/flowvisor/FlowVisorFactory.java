@@ -78,7 +78,6 @@ public final class FlowVisorFactory {
         }
     }
 
-
     /**
      * Returns a list of adapters depending on the options specified.
      *

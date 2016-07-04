@@ -140,12 +140,13 @@ public class AdapterCom extends AbstractAdapter {
                 }
             }
 
-            if (comPort != null){
+            if (comPort != null) {
                 in = comPort.getInputStream();
                 out = new BufferedOutputStream(comPort.getOutputStream());
                 InternalSerialListener sl = new InternalSerialListener(in);
                 sl.addObserver(this);
-                comPort.setSerialPortParams(baudRate, dataBits, stopBits, parity);
+                comPort.setSerialPortParams(baudRate, dataBits, stopBits,
+                        parity);
                 comPort.addEventListener(sl);
                 comPort.notifyOnDataAvailable(true);
                 setActive(true);
@@ -154,7 +155,7 @@ public class AdapterCom extends AbstractAdapter {
                 log(Level.SEVERE, "No serial port connected");
                 return false;
             }
-        } catch (PortInUseException | IOException | UnsupportedCommOperationException | NullPointerException | TooManyListenersException ex ) {
+        } catch (PortInUseException | IOException | UnsupportedCommOperationException | NullPointerException | TooManyListenersException ex) {
             log(Level.SEVERE, "Unable to open Serial Port" + ex.toString());
             return false;
         }
@@ -162,18 +163,18 @@ public class AdapterCom extends AbstractAdapter {
 
     @Override
     public final void send(final byte[] data) {
-        if (isActive()){
-        try {
-            int len = Byte.toUnsignedInt(data[0]);
-            if (len <= NetworkPacket.MAX_PACKET_LENGTH) {
-                //out.write(startByte);
-                out.write(data);
-                //out.write(stopByte);
-                out.flush();
+        if (isActive()) {
+            try {
+                int len = Byte.toUnsignedInt(data[0]);
+                if (len <= NetworkPacket.MAX_PACKET_LENGTH) {
+                    //out.write(startByte);
+                    out.write(data);
+                    //out.write(stopByte);
+                    out.flush();
+                }
+            } catch (IOException ex) {
+                log(Level.SEVERE, ex.toString());
             }
-        } catch (IOException ex) {
-            log(Level.SEVERE, ex.toString());
-        }
         }
     }
 

@@ -95,7 +95,7 @@ public class ControllerFactory {
         for (Map<String, String> map : conf.getLower()) {
             String type = map.get("TYPE");
             id = new InetSocketAddress(map.get("IP"),
-                Integer.parseInt(map.get("PORT")));
+                    Integer.parseInt(map.get("PORT")));
             switch (type) {
                 case "TCP":
                     low.add(new AdapterTcp(map));

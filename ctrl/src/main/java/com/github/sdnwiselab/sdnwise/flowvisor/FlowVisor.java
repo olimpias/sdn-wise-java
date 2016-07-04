@@ -54,13 +54,11 @@ public class FlowVisor extends ControlPlaneLayer {
     /**
      * Maps each controller to a set of nodes.
      */
-    private final HashMap<InetSocketAddress, Set<NodeAddress>>
-            controllerMapping;
+    private final HashMap<InetSocketAddress, Set<NodeAddress>> controllerMapping;
     /**
      * Maps each application to a controller.
      */
-    private final HashMap<InetSocketAddress, InetSocketAddress>
-            applicationMapping;
+    private final HashMap<InetSocketAddress, InetSocketAddress> applicationMapping;
 
     /**
      * Constructor for the FlowVisor. It defines Lower and Upper
@@ -73,7 +71,7 @@ public class FlowVisor extends ControlPlaneLayer {
             final List<AbstractAdapter> upper) {
         super("FLW", lower, upper);
         ControlPlaneLogger.setupLogger(getLayerShortName());
-        
+
         controllerMapping = new HashMap<>();
         applicationMapping = new HashMap<>();
     }
@@ -225,6 +223,8 @@ public class FlowVisor extends ControlPlaneLayer {
      */
     private void manageResponses(final byte[] data) {
         log(Level.INFO, "Receiving " + Arrays.toString(data));
-        getLower().stream().forEach(adp -> { adp.send(data); });
+        getLower().stream().forEach(adp -> {
+            adp.send(data);
+        });
     }
 }

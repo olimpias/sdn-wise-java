@@ -84,7 +84,6 @@ public final class AdaptationFactory {
         }
     }
 
-
     /**
      * Returns a list of adapters depending on the options specified.
      *

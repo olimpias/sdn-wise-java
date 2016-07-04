@@ -100,7 +100,7 @@ public class AdapterTcp extends AbstractAdapter {
 
     @Override
     public final void send(final byte[] data) {
-        if (isActive()){
+        if (isActive()) {
             tcpElement.send(data);
         }
     }

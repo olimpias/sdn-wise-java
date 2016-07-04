@@ -55,10 +55,7 @@ public final class ControllerGui extends javax.swing.JFrame {
     public ControllerGui(final AbstractController ctrl) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException
-                | InstantiationException
-                | IllegalAccessException
-                | UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
 

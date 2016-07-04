@@ -157,8 +157,7 @@ public final class SdnWise {
         // Register the Controllers
         flowVisor.addController(controller.getId(), nodeSetAll);
         flowVisor.addController(onos, nodeSetAll);
-        */
-        
+         */
         try {
             Thread.sleep(TIMEOUT);
         } catch (InterruptedException ex) {
