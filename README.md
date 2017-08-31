@@ -16,7 +16,7 @@ git clone https://github.com/sdnwiselab/sdn-wise-java.git
 cd sdn-wise-java
 mvn clean install
 cd ctrl/build
-java -jar sdn-wise-ctrl-4.0.1-SNAPSHOT-jar-with-dependenciesar 
+java -jar sdn-wise-ctrl-X.X.X-jar-with-dependencies.jar 
 ```
 
 When the network discovery is complete the SDN-WISE Java Control Plane interface will popup. 
