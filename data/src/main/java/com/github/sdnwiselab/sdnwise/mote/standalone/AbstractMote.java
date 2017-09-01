@@ -192,8 +192,7 @@ public abstract class AbstractMote implements Runnable {
                         .getResourceAsStream("/" + neighborFilePath);
                 reader = new BufferedReader(new InputStreamReader(in));
             } else {
-                reader = new BufferedReader(new FileReader("/"
-                        + neighborFilePath));
+                reader = new BufferedReader(new FileReader(neighborFilePath));
             }
 
             try (Stream<String> lines = reader.lines()) {
