@@ -9,7 +9,14 @@ The stateful Software Defined Networking solution for the Internet of Things. Th
 
 ### Installation
 
-Clone the GitHub repository and use Maven to compile sdn-wise-java:
+Install Java, Maven and [RXTX](http://rxtx.qbang.org/wiki/index.php/Installation). On Ubuntu: 
+
+```
+sudo apt-get install openjdk-8-jdk maven librxtx-java  
+
+```
+
+Clone the GitHub repository and use Maven to build `sdn-wise-java`:
 
 ```shell
 git clone https://github.com/sdnwiselab/sdn-wise-java.git
