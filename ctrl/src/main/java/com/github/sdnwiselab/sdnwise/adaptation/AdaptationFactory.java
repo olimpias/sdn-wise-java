@@ -16,10 +16,7 @@
  */
 package com.github.sdnwiselab.sdnwise.adaptation;
 
-import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
-import com.github.sdnwiselab.sdnwise.adapter.AdapterCom;
-import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
-import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
+import com.github.sdnwiselab.sdnwise.adapter.*;
 import com.github.sdnwiselab.sdnwise.configuration.ConfigAdaptation;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
 import java.util.LinkedList;
@@ -62,7 +59,7 @@ public final class AdaptationFactory {
     /**
      * Returns an adapter depending on the options specified. The supported
      * types at the moment are "UDP/TCP" for udp/tcp communication and "COM" for
-     * serial port communication. "OMNET" adapter is still under development.
+     * serial port communication. "COOJA" adapter is still under development.
      * Details regarding the adapters are contained in the c map.
      *
      * @param c the type of adapter that will be instantiated.
@@ -76,6 +73,8 @@ public final class AdaptationFactory {
                 return new AdapterCom(c);
             case "TCP":
                 return new AdapterTcp(c);
+            case "COOJA":
+                return new AdapterCooja(c);
             default:
                 throw new UnsupportedOperationException(
                         "Error in configuration file: "

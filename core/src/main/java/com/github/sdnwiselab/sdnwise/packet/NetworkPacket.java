@@ -17,9 +17,12 @@
 package com.github.sdnwiselab.sdnwise.packet;
 
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -162,7 +165,7 @@ public class NetworkPacket implements Cloneable {
      * @param dst destination address of the packet
      */
     public NetworkPacket(final int net, final NodeAddress src,
-            final NodeAddress dst) {
+                         final NodeAddress dst) {
         data = new byte[MAX_PACKET_LENGTH];
         setNet((byte) net);
         setSrc(src);
@@ -188,22 +191,79 @@ public class NetworkPacket implements Cloneable {
      *
      * @param dis the DataInputStreamt
      */
-    public NetworkPacket(final DataInputStream dis) {
+    public NetworkPacket(final DataInputStream dis) throws IOException {
         data = new byte[MAX_PACKET_LENGTH];
         byte[] tmpData = new byte[MAX_PACKET_LENGTH];
-        try {
-            int net = Byte.toUnsignedInt(dis.readByte());
-            int len = Byte.toUnsignedInt(dis.readByte());
-            if (len > 0) {
-                tmpData[NET_INDEX] = (byte) net;
-                tmpData[LEN_INDEX] = (byte) len;
-                dis.readFully(tmpData, LEN_INDEX + 1, len - 2);
+        int net = Byte.toUnsignedInt(dis.readByte());
+        int len = Byte.toUnsignedInt(dis.readByte());
+        if (len > 0) {
+            tmpData[NET_INDEX] = (byte) net;
+            tmpData[LEN_INDEX] = (byte) len;
+            dis.readFully(tmpData, LEN_INDEX + 1, len - 2);
 
-            }
-        } catch (IOException ex) {
-            Logger.getGlobal().log(Level.SEVERE, null, ex);
         }
         setArray(tmpData);
+    }
+
+    /**
+     * Returns a NetworkPacket given a BufferedInputStream. It supports
+     * streams where there could be bytes not belonging to a packet or
+     * malformed packets.
+     *
+     * @param bis the BufferedInputStream
+     */
+    public NetworkPacket(final BufferedInputStream bis) throws IOException {
+        data = new byte[MAX_PACKET_LENGTH];
+        boolean startFlag = false, idFlag = false, found = false;
+        int expected = 0, b = -1;
+        byte a;
+        final LinkedList<Byte> receivedBytes = new LinkedList<>();
+        final LinkedList<Byte> packet = new LinkedList<>();
+        byte startByte = 0x7A;
+        byte stopByte = 0x7E;
+
+
+        while (!found && (b = bis.read()) != -1) {
+            receivedBytes.add((byte) b);
+            while (!receivedBytes.isEmpty()) {
+                a = receivedBytes.poll();
+                if (!startFlag && a == startByte) {
+                    startFlag = true;
+                    packet.add(a);
+                } else if (startFlag && !idFlag) {
+                    packet.add(a);
+                    idFlag = true;
+                } else if (startFlag && idFlag && expected == 0) {
+                    expected = Byte.toUnsignedInt(a);
+                    packet.add(a);
+                } else if (startFlag && idFlag && expected > 0
+                        && packet.size() < expected + 1) {
+                    packet.add(a);
+                } else if (startFlag && idFlag && expected > 0
+                        && packet.size() == expected + 1) {
+                    packet.add(a);
+                    if (a == stopByte) {
+                        packet.removeFirst();
+                        packet.removeLast();
+                        byte[] tmpData = new byte[packet.size()];
+                        for (int i = 0; i < tmpData.length; i++) {
+                            tmpData[i] = packet.poll();
+                        }
+                        setArray(tmpData);
+                        found = true;
+                        break;
+                    } else {
+                        while (!packet.isEmpty()) {
+                            receivedBytes.addFirst(packet.removeLast());
+                        }
+                        receivedBytes.poll();
+                    }
+                    startFlag = false;
+                    idFlag = false;
+                    expected = 0;
+                }
+            }
+        }
     }
 
     /**
@@ -594,16 +654,16 @@ public class NetworkPacket implements Cloneable {
      * Sets a part of the payload of the NetworkPacket. Differently from
      * copyPayload this method updates also the length of the packet
      *
-     * @param src the new data to be set.
-     * @param srcPos starting from this byte of src.
+     * @param src        the new data to be set.
+     * @param srcPos     starting from this byte of src.
      * @param payloadPos copying to this byte of payload.
-     * @param length this many bytes.
+     * @param length     this many bytes.
      * @return the packet itself
      */
     protected final NetworkPacket setPayload(final byte[] src,
-            final int srcPos,
-            final int payloadPos,
-            final int length) {
+                                             final int srcPos,
+                                             final int payloadPos,
+                                             final int length) {
 
         if (srcPos < 0 || payloadPos < 0 || length < 0) {
             throw new IllegalArgumentException("Negative index");
@@ -618,16 +678,16 @@ public class NetworkPacket implements Cloneable {
      * Copy a part of the payload of the NetworkPacket. Differently from
      * copyPayload this method does not update the length of the packet
      *
-     * @param src the new data to be set.
-     * @param srcPos starting from this byte of src.
+     * @param src        the new data to be set.
+     * @param srcPos     starting from this byte of src.
      * @param payloadPos copying to this byte of payload.
-     * @param length this many bytes.
+     * @param length     this many bytes.
      * @return the packet itself
      */
     protected final NetworkPacket copyPayload(final byte[] src,
-            final int srcPos,
-            final int payloadPos,
-            final int length) {
+                                              final int srcPos,
+                                              final int payloadPos,
+                                              final int length) {
         for (int i = 0; i < length; i++) {
             setPayloadAt(src[i + srcPos], i + payloadPos);
         }
@@ -654,7 +714,7 @@ public class NetworkPacket implements Cloneable {
      * position end.
      *
      * @param start starting index inclusive.
-     * @param stop stop index exclusive.
+     * @param stop  stop index exclusive.
      * @return the byte of the payload.
      */
     protected final byte[] getPayloadFromTo(final int start, final int stop) {
@@ -679,7 +739,7 @@ public class NetworkPacket implements Cloneable {
      * end.
      *
      * @param start start the copy from this byte.
-     * @param end to this byte.
+     * @param end   to this byte.
      * @return a byte[] part of the payload.
      */
     protected final byte[] copyPayloadOfRange(final int start, final int end) {

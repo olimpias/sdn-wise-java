@@ -125,7 +125,6 @@ public class AdapterCom extends AbstractAdapter {
         try {
             CommPortIdentifier portId;
             Enumeration portList = CommPortIdentifier.getPortIdentifiers();
-
             while (portList.hasMoreElements()) {
                 portId = (CommPortIdentifier) portList.nextElement();
                 if (portId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
@@ -167,9 +166,9 @@ public class AdapterCom extends AbstractAdapter {
             try {
                 int len = Byte.toUnsignedInt(data[0]);
                 if (len <= NetworkPacket.MAX_PACKET_LENGTH) {
-                    //out.write(startByte);
+                    out.write(startByte);
                     out.write(data);
-                    //out.write(stopByte);
+                    out.write(stopByte);
                     out.flush();
                 }
             } catch (IOException ex) {
@@ -226,7 +225,6 @@ public class AdapterCom extends AbstractAdapter {
                 try {
                     for (int i = 0; i < in.available(); i++) {
                         b = in.read();
-                        System.out.print((char) b);
                         if (b > -1) {
                             receivedBytes.add((byte) b);
                         }
