@@ -23,8 +23,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class represents a generic SDN-WISE packet.
@@ -214,8 +212,11 @@ public class NetworkPacket implements Cloneable {
      */
     public NetworkPacket(final BufferedInputStream bis) throws IOException {
         data = new byte[MAX_PACKET_LENGTH];
-        boolean startFlag = false, idFlag = false, found = false;
-        int expected = 0, b = -1;
+        boolean startFlag = false;
+        boolean idFlag = false;
+        boolean found = false;
+        int expected = 0;
+        int b;
         byte a;
         final LinkedList<Byte> receivedBytes = new LinkedList<>();
         final LinkedList<Byte> packet = new LinkedList<>();

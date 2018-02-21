@@ -206,45 +206,49 @@ public class ConfigPacket extends NetworkPacket {
          */
         REPORT_PERIOD(6, 2),
         /**
+         * Reports between resets. Can be read/written.
+         */
+        RESET_PERIOD(7, 2),
+        /**
          * TTL of a FlowTableEntry. Can be read/written.
          */
-        RULE_TTL(7, 1),
+        RULE_TTL(8, 1),
         /**
          * Adds an alias to the list of aliases of the node. write only.
          */
-        ADD_ALIAS(8, 2),
+        ADD_ALIAS(9, 2),
         /**
          * Removes an alias from the list of aliases of the node. write only.
          */
-        REM_ALIAS(9, 1),
+        REM_ALIAS(10, 1),
         /**
          * Gets an alias from the list of aliases of the node. read only.
          */
-        GET_ALIAS(10, 1),
+        GET_ALIAS(11, 1),
         /**
          * Adds a rule to the FlowTable of the node. write only.
          */
-        ADD_RULE(11, -1),
+        ADD_RULE(12, -1),
         /**
          * Removes a rule from the FlowTable of the node. write only.
          */
-        REM_RULE(12, 1),
+        REM_RULE(13, 1),
         /**
          * Gets a rule from the FlowTable of the node. read only.
          */
-        GET_RULE(13, 1),
+        GET_RULE(14, 1),
         /**
          * Adds a function to the node. write only.
          */
-        ADD_FUNCTION(14, -1),
+        ADD_FUNCTION(15, -1),
         /**
          * Removes a function from the node. write only.
          */
-        REM_FUNCTION(15, 1),
+        REM_FUNCTION(16, 1),
         /**
          * Gets a function from the node. read only.
          */
-        GET_FUNCTION(16, 1);
+        GET_FUNCTION(17, 1);
 
         /**
          * The id of the configguration parameter.
