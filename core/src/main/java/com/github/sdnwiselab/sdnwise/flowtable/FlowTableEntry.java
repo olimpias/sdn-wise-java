@@ -105,7 +105,7 @@ public final class FlowTableEntry implements FlowTableInterface {
 
         stats = new Stats(
                 Arrays.copyOfRange(
-                        entry, entry.length - (Stats.SIZE + 1), entry.length)
+                        entry, entry.length - Stats.SIZE, entry.length)
         );
 
     }
