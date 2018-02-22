@@ -78,6 +78,8 @@ public class ControllerFactory {
         switch (type) {
             case "DIJKSTRA":
                 return new ControllerDijkstra(newId, adapt, ng, sink);
+            case "STATIC":
+                return new ControllerStatic(newId, adapt, ng, sink);
             default:
                 throw new UnsupportedOperationException(
                         "Error in Configuration file");
