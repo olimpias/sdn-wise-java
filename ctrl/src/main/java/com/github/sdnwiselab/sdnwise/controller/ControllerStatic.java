@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import org.graphstream.algorithm.Dijkstra;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 /**
@@ -38,7 +39,9 @@ import org.graphstream.graph.Node;
  *
  * @author Sebastiano Milardo
  */
-public final class ControllerDijkstra extends AbstractController {
+public final class ControllerStatic extends AbstractController {
+
+
 
     /**
      * Used to calculate a path according to Dijkstra's algorithm.
@@ -52,6 +55,14 @@ public final class ControllerDijkstra extends AbstractController {
      * Last Node address for which there are calculated paths.
      */
     private String lastSource = "";
+    /**
+     * Contains the paths to reach the mobile node
+     */
+    private HashMap<String, LinkedList<NodeAddress>> buffer = new HashMap<>();
+    /**
+     * Current best edge between the mobile node and the fixed nodes
+     */
+    private String currentBestEdge;
 
     /**
      * Creates a ControllerDijkstra object.
@@ -60,21 +71,70 @@ public final class ControllerDijkstra extends AbstractController {
      * @param lower Lower Adpater object.
      * @param networkGraph NetworkGraph object.
      */
-    public ControllerDijkstra(final InetSocketAddress id,
-            final List<AbstractAdapter> lower,
-            final NetworkGraph networkGraph) {
+    public ControllerStatic(final InetSocketAddress id,
+                              final List<AbstractAdapter> lower,
+                              final NetworkGraph networkGraph) {
         super(id, lower, networkGraph);
         dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
+
+        NodeAddress[] n = new NodeAddress[5];
+
+        for (int i = 0 ; i<n.length;i++){
+            n[i] = new NodeAddress(i+1);
+        }
+
+        LinkedList<NodeAddress> p1 = new LinkedList<>();
+        LinkedList<NodeAddress> p2 = new LinkedList<>();
+        LinkedList<NodeAddress> p3 = new LinkedList<>();
+
+        p1.add(n[4]);
+        p1.add(n[1]);
+        p1.add(n[0]);
+        p1.add(n[3]);
+
+        p2.add(n[4]);
+        p2.add(n[1]);
+        p2.add(n[3]);
+
+        p3.add(n[4]);
+        p3.add(n[1]);
+        p3.add(n[2]);
+        p3.add(n[3]);
+
+        buffer.put("1.0.4-1.0.1",p1);
+        buffer.put("1.0.4-1.0.2",p2);
+        buffer.put("1.0.4-1.0.3",p3);
+
     }
 
     @Override
     public void graphUpdate() {
-        // Nothing to do here
+        NetworkGraph network = getNetworkGraph();
+        Node srcNode = network.getNode("1.0.4");
+        String bestEdge = null;
+        if (srcNode != null) {
+            int rssi = 255;
+            for (Edge e : srcNode.getLeavingEdgeSet()) {
+                // Find the edge with the best rssi
+                int newRssi = (int) e.getAttribute("length");
+                if (newRssi <= rssi) {
+                    rssi = newRssi;
+                    bestEdge = e.getId();
+                }
+            }
+            if (bestEdge != null) {
+                if (!bestEdge.equals(currentBestEdge)){
+                    currentBestEdge = bestEdge;
+                    sendPath((byte) 1, getSinkAddress(), buffer.get(currentBestEdge));
+                    log(Level.INFO, "Best Edge: " + bestEdge + ", Sending new path");
+                }
+            }
+        }
     }
 
     @Override
     public void manageRoutingRequest(final RequestPacket req,
-            final NetworkPacket data) {
+                                     final NetworkPacket data) {
 
         log(Level.INFO, data.toString());
         NetworkGraph network = getNetworkGraph();
@@ -90,7 +150,6 @@ public final class ControllerDijkstra extends AbstractController {
             LinkedList<NodeAddress> p = null;
 
             if (srcNode != null && dstNode != null) {
-
                 if (!lastSource.equals(src) || lastModification
                         != network.getLastModification()) {
                     results.clear();
@@ -106,8 +165,7 @@ public final class ControllerDijkstra extends AbstractController {
                     p = new LinkedList<>();
                     for (Node node : dijkstra.getPathNodes(network
                             .getNode(dst))) {
-                        p.push(node.getAttribute("nodeAddress"));
-
+                        p.add(node.getAttribute("nodeAddress"));
                     }
                     log(Level.INFO, "Path: " + p);
                     results.put(data.getDst(), p);
