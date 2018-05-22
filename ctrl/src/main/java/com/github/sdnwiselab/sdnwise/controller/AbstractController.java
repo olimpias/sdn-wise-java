@@ -229,9 +229,10 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      */
     AbstractController(final InetSocketAddress id,
             final List<AbstractAdapter> lower,
-            final NetworkGraph network) {
+            final NetworkGraph network,
+            final NodeAddress sinkAddress) {
         super("CTRL", lower, null);
-        sinkAddress = new NodeAddress("0.1");
+        this.sinkAddress = sinkAddress;
         ControlPlaneLogger.setupLogger(getLayerShortName());
         myId = id;
         networkGraph = network;
@@ -686,7 +687,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      * @param packet the packet to be sent.
      */
     protected final void sendNetworkPacket(final NetworkPacket packet) {
-        packet.setNxh(sinkAddress);
+        packet.setNxh(getSinkAddress());
         for (AbstractAdapter adapter : getLower()) {
             adapter.send(packet.toByteArray());
         }

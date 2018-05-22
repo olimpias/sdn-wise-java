@@ -50,7 +50,7 @@ public final class SdnWise {
     /**
      * Set to true to start an emulated network.
      */
-    private static final boolean EMULATED = true;
+    private static final boolean EMULATED = false;
     /**
      * Emulation constants.
      */

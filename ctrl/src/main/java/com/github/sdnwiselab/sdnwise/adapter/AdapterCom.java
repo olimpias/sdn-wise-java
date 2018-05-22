@@ -169,6 +169,7 @@ public class AdapterCom extends AbstractAdapter {
                     out.write(startByte);
                     out.write(data);
                     out.write(stopByte);
+                    out.write('\n');
                     out.flush();
                 }
             } catch (IOException ex) {
@@ -225,6 +226,7 @@ public class AdapterCom extends AbstractAdapter {
                 try {
                     for (int i = 0; i < in.available(); i++) {
                         b = in.read();
+                        //System.out.print((char)b); // DEBUG ONLY
                         if (b > -1) {
                             receivedBytes.add((byte) b);
                         }

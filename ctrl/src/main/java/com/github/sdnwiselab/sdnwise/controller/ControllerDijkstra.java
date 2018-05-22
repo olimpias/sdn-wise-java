@@ -22,6 +22,7 @@ import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,8 +62,9 @@ public final class ControllerDijkstra extends AbstractController {
      */
     public ControllerDijkstra(final InetSocketAddress id,
             final List<AbstractAdapter> lower,
-            final NetworkGraph networkGraph) {
-        super(id, lower, networkGraph);
+            final NetworkGraph networkGraph,
+            final NodeAddress sinkAddress) {
+        super(id, lower, networkGraph, sinkAddress);
         dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
     }
 
@@ -111,6 +113,8 @@ public final class ControllerDijkstra extends AbstractController {
                     results.put(data.getDst(), p);
                 }
                 if (p.size() > 1) {
+                    sendPath((byte) data.getNet(), p.getFirst(), p);
+                    Collections.reverse(p);
                     sendPath((byte) data.getNet(), p.getFirst(), p);
                     data.setSrc(req.getSrc());
                     data.setNxh(getSinkAddress());
