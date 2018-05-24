@@ -129,8 +129,10 @@ public final class ControllerStatic extends AbstractController {
             if (bestEdge != null) {
                 if (!bestEdge.equals(currentBestEdge)){
                     currentBestEdge = bestEdge;
-                    sendPath((byte) 1, getSinkAddress(), buffer.get(currentBestEdge));
-                    log(Level.INFO, "Best Edge: " + bestEdge + ", Sending new path");
+                    if (buffer.get(currentBestEdge) != null) {
+                        sendPath((byte) 1, getSinkAddress(), buffer.get(currentBestEdge));
+                        log(Level.INFO, "Best Edge: " + bestEdge + ", Sending new path");
+                    }
                 }
             }
         }

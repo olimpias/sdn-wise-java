@@ -97,7 +97,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
                 - MIN_RSSI) * N), MAX_BYTE);
         edge.changeAttribute("ui.style", "fill-color: rgba(0,0,0," + w + ");");
         edge.changeAttribute("ui.style", "arrow-shape: arrow;");
-        edge.changeAttribute("ui.style", "arrow-size: 5px,2px;");
+        edge.changeAttribute("ui.style", "arrow-size: 10px,5px;");
     }
 
     @Override
