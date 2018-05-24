@@ -108,6 +108,7 @@ public final class ControllerDijkstra extends AbstractController {
                     for (Node node : dijkstra.getPathNodes(network
                             .getNode(dst))) {
                         p.push(node.getAttribute("nodeAddress"));
+
                     }
                     log(Level.INFO, "Path: " + p);
                     results.put(data.getDst(), p);
