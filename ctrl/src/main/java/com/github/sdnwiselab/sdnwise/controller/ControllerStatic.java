@@ -81,9 +81,11 @@ public final class ControllerStatic extends AbstractController {
 
         NodeAddress[] n = new NodeAddress[5];
 
-        for (int i = 0 ; i<n.length;i++){
-            n[i] = new NodeAddress(i+1);
-        }
+        n[0] = new NodeAddress("131.165");
+        n[1] = new NodeAddress("177.165");
+        n[2] = new NodeAddress("173.165");
+        n[3] = new NodeAddress("143.165");
+        n[4] = new NodeAddress("135.165");
 
         LinkedList<NodeAddress> p1 = new LinkedList<>();
         LinkedList<NodeAddress> p2 = new LinkedList<>();
@@ -103,9 +105,9 @@ public final class ControllerStatic extends AbstractController {
         p3.add(n[2]);
         p3.add(n[3]);
 
-        buffer.put("1.0.4-1.0.1",p1);
-        buffer.put("1.0.4-1.0.2",p2);
-        buffer.put("1.0.4-1.0.3",p3);
+        buffer.put("1.143.165-1.131.165",p1);
+        buffer.put("1.143.165-1.177.165",p2);
+        buffer.put("1.143.165-1.173.165",p3);
 
     }
 
