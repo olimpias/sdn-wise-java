@@ -20,6 +20,9 @@ import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
+import org.graphstream.ui.view.Viewer;
+
+import javax.swing.border.TitledBorder;
 
 /**
  * Holder of the {@code org.graphstream.graph.Graph} object which represent the
@@ -52,7 +55,9 @@ public final class VisualNetworkGraph extends NetworkGraph {
         graph.addAttribute("ui.antialias");
         graph.addAttribute("ui.stylesheet",
                 "url(" + getClass().getResource("/style.css") + ")");
-        graph.display(true);
+        Viewer viewer = graph.display(true);
+        TitledBorder tb = new TitledBorder("SDN-WISE Controller");
+        viewer.getDefaultView().setBorder(tb);
     }
 
     @Override

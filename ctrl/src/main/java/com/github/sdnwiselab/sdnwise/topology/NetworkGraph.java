@@ -245,7 +245,8 @@ public class NetworkGraph extends Observable {
                     setupNode(tmp, 0, now, net, otheraddr);
                 }
 
-                int newLen = MAX_BYTE - packet.getLinkQuality(i);
+                int newLen = packet.getLinkQuality(i);
+                System.out.println("il nuovo link: " + newLen);
                 String edgeId = other + "-" + fullNodeId;
                 Edge edge = addEdge(edgeId, other, node.getId(), true);
                 setupEdge(edge, newLen);
@@ -265,7 +266,7 @@ public class NetworkGraph extends Observable {
                     setupNode(tmp, 0, now, net, otheraddr);
                 }
 
-                int newLen = MAX_BYTE - packet.getLinkQuality(i);
+                int newLen = packet.getLinkQuality(i);
 
                 String edgeId = other + "-" + fullNodeId;
                 Edge edge = getEdge(edgeId);
