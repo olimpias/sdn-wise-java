@@ -114,7 +114,7 @@ public final class ControllerStatic extends AbstractController {
     @Override
     public void graphUpdate() {
         NetworkGraph network = getNetworkGraph();
-        Node srcNode = network.getNode("1.0.4");
+        Node srcNode = network.getNode("1.143.165");
         String bestEdge = null;
         if (srcNode != null) {
             int rssi = 255;
