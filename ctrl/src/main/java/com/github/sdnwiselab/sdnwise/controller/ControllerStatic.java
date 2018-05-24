@@ -117,12 +117,14 @@ public final class ControllerStatic extends AbstractController {
             for (Edge e : srcNode.getLeavingEdgeSet()) {
                 // Find the edge with the best rssi
                 int newRssi = (int) e.getAttribute("length");
+                System.out.println(e.getId() + " " + newRssi);
                 if (newRssi <= rssi) {
                     rssi = newRssi;
                     bestEdge = e.getId();
                 }
             }
             if (bestEdge != null) {
+                System.out.println("Best: " + bestEdge);
                 if (!bestEdge.equals(currentBestEdge)){
                     currentBestEdge = bestEdge;
                     sendPath((byte) 1, getSinkAddress(), buffer.get(currentBestEdge));
