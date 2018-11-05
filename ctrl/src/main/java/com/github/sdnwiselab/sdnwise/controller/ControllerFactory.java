@@ -23,6 +23,8 @@ import com.github.sdnwiselab.sdnwise.configuration.ConfigController;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.topology.VisualNetworkGraph;
+import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,10 +74,10 @@ public class ControllerFactory {
             final List<AbstractAdapter> adapt,
             final NetworkGraph ng) {
         String type = conf.getAlgorithm().get("TYPE");
-
+        NodeAddress sink = new NodeAddress(conf.getAlgorithm().get("SINK"));
         switch (type) {
             case "DIJKSTRA":
-                return new ControllerDijkstra(newId, adapt, ng);
+                return new ControllerDijkstra(newId, adapt, ng, sink);
             default:
                 throw new UnsupportedOperationException(
                         "Error in Configuration file");

@@ -70,12 +70,24 @@ public class Adaptation extends ControlPlaneLayer {
     @Override
     public final void update(final Observable o, final Object arg) {
         boolean found = false;
+        byte[] data = (byte[]) arg;
+        String dataString = "";
+
+        if (data != null && data.length>0){
+            StringBuilder b = new StringBuilder();
+            b.append('[');
+            for (byte a : data){
+                b.append(a & 0xFF).append(", ");
+            }
+            b.append(']');
+            dataString = b.toString();
+        }
+
 
         for (AbstractAdapter adapter : getLower()) {
             if (o.equals(adapter)) {
-                log(Level.INFO, "\u2191" + Arrays.toString((byte[]) arg));
+                log(Level.INFO, "\u2191" + dataString);
                 for (AbstractAdapter ad : getUpper()) {
-
                     ad.send((byte[]) arg);
                 }
                 found = true;
@@ -86,7 +98,7 @@ public class Adaptation extends ControlPlaneLayer {
         if (!found) {
             for (AbstractAdapter adapter : getUpper()) {
                 if (o.equals(adapter)) {
-                    log(Level.INFO, "\u2193" + Arrays.toString((byte[]) arg));
+                    log(Level.INFO, "\u2193" + dataString);
                     for (AbstractAdapter ad : getLower()) {
                         ad.send((byte[]) arg);
                     }
