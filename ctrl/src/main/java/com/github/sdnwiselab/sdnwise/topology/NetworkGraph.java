@@ -18,10 +18,15 @@ package com.github.sdnwiselab.sdnwise.topology;
 
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
+import com.github.sdnwiselab.sdnwise.stats.BatteryStatus;
+import com.github.sdnwiselab.sdnwise.stats.StatCollector;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -47,6 +52,11 @@ public class NetworkGraph extends Observable {
     /**
      * Timers.
      */
+    /**
+     * To avoid garbage collection of the logger.
+     */
+    protected static final Logger LOGGER = Logger.getLogger("GRAPH");
+
     private long lastCheck, lastModification;
     /**
      * TTL of a node. If a node is not sending a message for timeout seconds it
@@ -64,6 +74,8 @@ public class NetworkGraph extends Observable {
      */
     protected final int rssiResolution;
 
+    private StatCollector statCollector;
+
     /**
      * Creates the NetworkGraph object. It requires a time to live for each node
      * in the network and a value representing the RSSI resolution in order to
@@ -80,6 +92,7 @@ public class NetworkGraph extends Observable {
         lastCheck = System.currentTimeMillis();
         graph.setAutoCreate(true);
         graph.setStrict(false);
+        statCollector = new StatCollector();
     }
 
     /**
@@ -221,7 +234,6 @@ public class NetworkGraph extends Observable {
      * @param packet the NetworkPacket received
      */
     public final synchronized void updateMap(final ReportPacket packet) {
-
         long now = System.currentTimeMillis();
         boolean modified = checkConsistency(now);
 
@@ -232,7 +244,8 @@ public class NetworkGraph extends Observable {
         NodeAddress addr = packet.getSrc();
 
         Node node = getNode(fullNodeId);
-
+        LOGGER.log(Level.INFO, "Src: "+fullNodeId + " battery: "+batt);
+        statCollector.addBatteryStat(fullNodeId,new BatteryStatus(batt,now));
         if (node == null) {
             node = addNode(fullNodeId);
             setupNode(node, batt, now, net, addr);
@@ -326,6 +339,7 @@ public class NetworkGraph extends Observable {
                         && n.getAttribute("lastSeen", Long.class) != null
                         && !isAlive(timeout, (long) n.getNumber("lastSeen"),
                                 now)) {
+                    statCollector.exportNodeStats(n.getId());
                     removeNode(n);
                     modified = true;
                 }
