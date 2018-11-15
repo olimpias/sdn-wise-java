@@ -18,8 +18,8 @@ package com.github.sdnwiselab.sdnwise.topology;
 
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
-import com.github.sdnwiselab.sdnwise.stats.BatteryStatus;
-import com.github.sdnwiselab.sdnwise.stats.StatCollector;
+import com.github.sdnwiselab.sdnwise.stats.BatteryInfoNode;
+import com.github.sdnwiselab.sdnwise.stats.StatManager;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.HashSet;
 import java.util.Observable;
@@ -74,7 +74,7 @@ public class NetworkGraph extends Observable {
      */
     protected final int rssiResolution;
 
-    private StatCollector statCollector;
+    private StatManager statManager;
 
     /**
      * Creates the NetworkGraph object. It requires a time to live for each node
@@ -92,7 +92,7 @@ public class NetworkGraph extends Observable {
         lastCheck = System.currentTimeMillis();
         graph.setAutoCreate(true);
         graph.setStrict(false);
-        statCollector = new StatCollector();
+        statManager = new StatManager();
     }
 
     /**
@@ -245,7 +245,7 @@ public class NetworkGraph extends Observable {
 
         Node node = getNode(fullNodeId);
         LOGGER.log(Level.INFO, "Src: "+fullNodeId + " battery: "+batt);
-        statCollector.addBatteryStat(fullNodeId,new BatteryStatus(batt,now));
+        statManager.addBatteryStat(fullNodeId,new BatteryInfoNode(fullNodeId,batt));
         if (node == null) {
             node = addNode(fullNodeId);
             setupNode(node, batt, now, net, addr);
@@ -339,7 +339,7 @@ public class NetworkGraph extends Observable {
                         && n.getAttribute("lastSeen", Long.class) != null
                         && !isAlive(timeout, (long) n.getNumber("lastSeen"),
                                 now)) {
-                    statCollector.exportNodeStats(n.getId());
+                    statManager.exportNodeStats(n.getId());
                     removeNode(n);
                     modified = true;
                 }

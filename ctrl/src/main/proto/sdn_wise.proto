@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package sdn.wise;
+option go_package = "pb";
+option java_package = "com.github.sdnwiselab.sdnwise.stats";
+
+import "google/protobuf/empty.proto";
+
+message StatSaveRequest {
+    string nodeID = 1;
+    int64 currentBattery = 2;
+}
+
+message StatSaveResponse {
+    string nodeID = 1;
+}
+
+message ForecastResponse {
+    repeated ForecastNode nodes = 1;
+}
+
+message ForecastNode {
+    string nodeID = 1;
+    int64 estimatedBattery = 2;
+    int64 time = 3;
+}
+
+service Monitor {
+    rpc SaveBattery(StatSaveRequest) returns (StatSaveResponse){}
+    rpc ForecastBatteries(google.protobuf.Empty) returns (stream ForecastResponse) {}
+}
