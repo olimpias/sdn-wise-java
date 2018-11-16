@@ -5,9 +5,9 @@ package com.github.sdnwiselab.sdnwise.stats;
  */
 public class BatteryInfoNode {
     protected String id;
-    protected int level;
+    protected long level;
 
-    public BatteryInfoNode(String id, int level) {
+    public BatteryInfoNode(String id, long level) {
         this.id = id;
         this.level = level;
     }
@@ -16,7 +16,7 @@ public class BatteryInfoNode {
         return id;
     }
 
-    public int getLevel() {
+    public long getLevel() {
         return level;
     }
 

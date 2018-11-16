@@ -6,7 +6,7 @@ package com.github.sdnwiselab.sdnwise.stats;
 public class ForecastNode extends BatteryInfoNode {
 
     private long forecastTime;
-    public ForecastNode(String id, int level, long time) {
+    public ForecastNode(String id, long level, long time) {
         super(id, level);
         this.forecastTime = time;
     }
