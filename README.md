@@ -77,3 +77,9 @@ Our approach is detailed in three scientific contributions:
   url       = {http://ieeexplore.ieee.org/document/7218418/},
 }
 ```
+
+(forecasted battery)*0.2 + 0.5 * RSSI + depth * 0.3
+
+Depth is the dinstance between sink and nodes like
+
+sink -> node -> node for last node depth is 2..
