@@ -20,6 +20,7 @@ import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
 import com.github.sdnwiselab.sdnwise.stats.BatteryInfoNode;
 import com.github.sdnwiselab.sdnwise.stats.StatManager;
+import com.github.sdnwiselab.sdnwise.stats.StatService;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.HashSet;
 import java.util.Observable;
@@ -49,6 +50,7 @@ public class NetworkGraph extends Observable {
      * Milliseconds in a second.
      */
     private static final long MILLIS_IN_SECOND = 1000L;
+
     /**
      * Timers.
      */
@@ -74,7 +76,10 @@ public class NetworkGraph extends Observable {
      */
     protected final int rssiResolution;
 
-    private StatManager statManager;
+    /**
+     * Collects the stats and sends to grpc server and observes the forecasted batteries from server.
+     */
+    private StatService statService;
 
     /**
      * Creates the NetworkGraph object. It requires a time to live for each node
@@ -83,8 +88,10 @@ public class NetworkGraph extends Observable {
      *
      * @param ttl the time to live for a node in seconds
      * @param rssiRes the RSSI resolution
+     * @param address grpc server ip address
+     * @param port grpc server port
      */
-    public NetworkGraph(final int ttl, final int rssiRes) {
+    public NetworkGraph(final int ttl, final int rssiRes, final String address, final int port) {
         graph = new MultiGraph("SDN-WISE Network");
         lastModification = Long.MIN_VALUE;
         rssiResolution = rssiRes;
@@ -92,7 +99,8 @@ public class NetworkGraph extends Observable {
         lastCheck = System.currentTimeMillis();
         graph.setAutoCreate(true);
         graph.setStrict(false);
-        statManager = new StatManager();
+        this.statService = new StatManager(address,port);
+        this.statService.initialize();
     }
 
     /**
@@ -196,6 +204,7 @@ public class NetworkGraph extends Observable {
      * @param newLen the weight of the edge
      */
     public void setupEdge(final Edge edge, final int newLen) {
+        LOGGER.log(Level.INFO,"Length between "+edge.getNode0().getId()+" and "+edge.getNode1().getId()+" is "+newLen);
         edge.addAttribute("length", newLen);
     }
 
@@ -223,6 +232,7 @@ public class NetworkGraph extends Observable {
      * @param newLen the weight of the edge
      */
     public void updateEdge(final Edge edge, final int newLen) {
+        LOGGER.log(Level.INFO,"Length between "+edge.getNode0().getId()+" and "+edge.getNode1().getId()+" is "+newLen);
         edge.addAttribute("length", newLen);
     }
 
@@ -245,7 +255,7 @@ public class NetworkGraph extends Observable {
 
         Node node = getNode(fullNodeId);
         LOGGER.log(Level.INFO, "Src: "+fullNodeId + " battery: "+batt);
-        statManager.addBatteryStat(fullNodeId,new BatteryInfoNode(fullNodeId,batt));
+        statService.add(new BatteryInfoNode(fullNodeId,batt));
         if (node == null) {
             node = addNode(fullNodeId);
             setupNode(node, batt, now, net, addr);
@@ -339,7 +349,6 @@ public class NetworkGraph extends Observable {
                         && n.getAttribute("lastSeen", Long.class) != null
                         && !isAlive(timeout, (long) n.getNumber("lastSeen"),
                                 now)) {
-                    statManager.exportNodeStats(n.getId());
                     removeNode(n);
                     modified = true;
                 }

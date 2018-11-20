@@ -6,5 +6,5 @@ import java.util.List;
  * Created by cemturker on 15.11.2018.
  */
 public interface ForecastServiceCallback {
-    void predictedBattery(List<ForecastNode> forecastNode);
+    void predictedBatteries(List<ForecastNode> forecastNodes);
 }

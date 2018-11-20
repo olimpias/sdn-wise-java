@@ -126,12 +126,14 @@ public class ControllerFactory {
         int timeout = Integer.parseInt(conf.getMap().get("TIMEOUT"));
         int rssiResolution = Integer.parseInt(conf.getMap()
                 .get("RSSI_RESOLUTION"));
+        int grpcPort = Integer.parseInt(conf.getMap().get("GRPCPORT"));
+        String grpcAddress = conf.getMap().get("GRPCADDRESS");
 
         switch (graph) {
             case "GUI":
-                return new VisualNetworkGraph(timeout, rssiResolution);
+                return new VisualNetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort);
             case "CLI":
-                return new NetworkGraph(timeout, rssiResolution);
+                return new NetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort);
             default:
                 throw new UnsupportedOperationException(
                         "Error in Configuration file");

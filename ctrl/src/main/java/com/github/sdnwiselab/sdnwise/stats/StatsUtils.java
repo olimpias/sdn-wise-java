@@ -20,6 +20,9 @@ public final class StatsUtils {
     }
 
     public static ForecastNode  forecastNodeGrpcToLocal(@Nonnull SdnWise.ForecastNode gForecastNode) {
+        if (gForecastNode.getEstimatedBattery() < 0) {
+            return new ForecastNode(gForecastNode.getNodeID(),0,gForecastNode.getTime());
+        }
         return new ForecastNode(gForecastNode.getNodeID(),gForecastNode.getEstimatedBattery(),gForecastNode.getTime());
     }
 

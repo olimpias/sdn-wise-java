@@ -23,8 +23,6 @@ public class MonitorServiceClient {
 
     public MonitorServiceClient(String host, int port) {
         this(ManagedChannelBuilder.forAddress(host, port)
-                // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
-                // needing certificates.
                 .usePlaintext(false)
                 .build());
     }
@@ -84,7 +82,7 @@ public class MonitorServiceClient {
                 for (;responseIterator.hasNext();) {
                     SdnWise.ForecastResponse response = responseIterator.next();
                     List<ForecastNode> nodes = StatsUtils.forecastNodesGrpcToLocal(response);
-                    this.callback.predictedBattery(nodes);
+                    this.callback.predictedBatteries(nodes);
                     logger.info(response+" is received");
                 }
             }catch (StatusRuntimeException e) {

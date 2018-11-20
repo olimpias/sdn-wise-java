@@ -43,8 +43,8 @@ public final class VisualNetworkGraph extends NetworkGraph {
      * @param timeout the time to live for a node in seconds
      * @param rssiResolution the RSSI resolution
      */
-    public VisualNetworkGraph(final int timeout, final int rssiResolution) {
-        super(timeout, rssiResolution);
+    public VisualNetworkGraph(final int timeout, final int rssiResolution,final String address, final int port) {
+        super(timeout, rssiResolution, address,port);
 
         System.setProperty("org.graphstream.ui.renderer",
                 "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
