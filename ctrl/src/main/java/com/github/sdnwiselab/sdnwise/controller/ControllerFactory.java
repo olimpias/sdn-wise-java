@@ -128,12 +128,16 @@ public class ControllerFactory {
                 .get("RSSI_RESOLUTION"));
         int grpcPort = Integer.parseInt(conf.getMap().get("GRPCPORT"));
         String grpcAddress = conf.getMap().get("GRPCADDRESS");
+        float batteryWeight = Float.parseFloat(conf.getMap().get("BATTERY_WEIGHT"));
+        float rssiWeight = Float.parseFloat(conf.getMap().get("RSSI_WEIGHT"));
 
         switch (graph) {
             case "GUI":
-                return new VisualNetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort);
+                return new VisualNetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort,
+                        batteryWeight, rssiWeight);
             case "CLI":
-                return new NetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort);
+                return new NetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort,
+                        batteryWeight,rssiWeight);
             default:
                 throw new UnsupportedOperationException(
                         "Error in Configuration file");

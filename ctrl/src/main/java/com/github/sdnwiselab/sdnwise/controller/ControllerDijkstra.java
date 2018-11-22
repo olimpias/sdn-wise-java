@@ -17,6 +17,9 @@
 package com.github.sdnwiselab.sdnwise.controller;
 
 import com.github.sdnwiselab.sdnwise.adapter.AbstractAdapter;
+import com.github.sdnwiselab.sdnwise.flow.FlowPathManager;
+import com.github.sdnwiselab.sdnwise.flow.FlowPathService;
+import com.github.sdnwiselab.sdnwise.flow.SrcDstPair;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
@@ -44,6 +47,9 @@ public final class ControllerDijkstra extends AbstractController {
      * Used to calculate a path according to Dijkstra's algorithm.
      */
     private final Dijkstra dijkstra;
+
+    private final Dijkstra dijkstraCal;
+
     /**
      * Last modification time of the networkGraph object.
      */
@@ -66,16 +72,41 @@ public final class ControllerDijkstra extends AbstractController {
             final NodeAddress sinkAddress) {
         super(id, lower, networkGraph, sinkAddress);
         dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
+        dijkstraCal = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
     }
 
     @Override
     public void graphUpdate() {
-        // Nothing to do here
+        log(Level.INFO, "Graph update is received");
+        NetworkGraph network = getNetworkGraph();
+        FlowPathService service = FlowPathManager.SingletonInstance();
+        LinkedList<NodeAddress> nodeAddresses = new LinkedList<>();
+        for (SrcDstPair pair : service.getPairs()) {
+            nodeAddresses.clear();
+            dijkstraCal.init(network.getGraph());
+            dijkstraCal.setSource(network.getNode(pair.getSrc()));
+            dijkstraCal.compute();
+            dijkstraCal.getPathNodes(network
+                    .getNode(pair.getDst()));
+            for (Node node : dijkstraCal.getPathNodes(network
+                    .getNode(pair.getDst()))) {
+                nodeAddresses.push(node.getAttribute("nodeAddress"));
+            }
+            if (nodeAddresses.isEmpty()) {
+                continue;
+            }
+            if(!service.getPath(pair).equals(nodeAddresses)) {
+                updatePath(pair, nodeAddresses);
+                service.addPath(pair, nodeAddresses);
+                getResults().put(nodeAddresses.getLast(),nodeAddresses);
+            }
+        }
     }
 
     @Override
     public void manageRoutingRequest(final RequestPacket req,
             final NetworkPacket data) {
+        log(Level.INFO, "Manage Routing Req");
 
         log(Level.INFO, data.toString());
         NetworkGraph network = getNetworkGraph();
@@ -83,45 +114,52 @@ public final class ControllerDijkstra extends AbstractController {
 
         String dst = data.getNet() + "." + data.getDst();
         String src = data.getNet() + "." + req.getSrc();
-
-        if (!src.equals(dst)) {
-
-            Node srcNode = network.getNode(src);
-            Node dstNode = network.getNode(dst);
-            LinkedList<NodeAddress> p = null;
-
-            if (srcNode != null && dstNode != null) {
-
-                if (!lastSource.equals(src) || lastModification
-                        != network.getLastModification()) {
-                    results.clear();
-                    dijkstra.init(network.getGraph());
-                    dijkstra.setSource(network.getNode(src));
-                    dijkstra.compute();
-                    lastSource = src;
-                    lastModification = network.getLastModification();
-                } else {
-                    p = results.get(data.getDst());
-                }
-                if (p == null) {
-                    p = new LinkedList<>();
-                    for (Node node : dijkstra.getPathNodes(network
-                            .getNode(dst))) {
-                        p.push(node.getAttribute("nodeAddress"));
-                    }
-                    log(Level.INFO, "Path: " + p);
-                    results.put(data.getDst(), p);
-                }
-                if (p.size() > 1) {
-                    sendPath((byte) data.getNet(), p.getFirst(), p);
-                    Collections.reverse(p);
-                    sendPath((byte) data.getNet(), p.getFirst(), p);
-                    data.setSrc(req.getSrc());
-                    data.setNxh(getSinkAddress());
-                    sendNetworkPacket(data);
-                }
-            }
+        SrcDstPair pair = new SrcDstPair(src,dst, data.getNet());
+        if (src.equals(dst)) {
+            return;
         }
+        Node srcNode = network.getNode(src);
+        Node dstNode = network.getNode(dst);
+
+        LinkedList<NodeAddress> p = null;
+
+        if (srcNode == null || dstNode == null) {
+            return;
+        }
+        if (!lastSource.equals(src) || lastModification
+                != network.getLastModification()) {
+            results.clear();
+            dijkstra.init(network.getGraph());
+            dijkstra.setSource(network.getNode(src));
+            dijkstra.compute();
+            lastSource = src;
+            lastModification = network.getLastModification();
+        } else {
+            p = results.get(data.getDst());
+        }
+        if (p == null) {
+            p = new LinkedList<>();
+            for (Node node : dijkstra.getPathNodes(network
+                    .getNode(dst))) {
+                p.push(node.getAttribute("nodeAddress"));
+            }
+            log(Level.INFO, "Path: " + p);
+            results.put(data.getDst(), p);
+        }
+        if (p.size() > 1) {
+            updatePath(pair, p);
+            data.setSrc(req.getSrc());
+            data.setNxh(getSinkAddress());
+            sendNetworkPacket(data);
+        }
+    }
+
+    private void updatePath(SrcDstPair pair,LinkedList<NodeAddress> path) {
+        FlowPathService service = FlowPathManager.SingletonInstance();
+        service.addPath(pair, path);
+        sendPath((byte) pair.getNetworkId(), path.getFirst(), path);
+        Collections.reverse(path);
+        sendPath((byte) pair.getNetworkId(), path.getFirst(), path);
     }
 
     @Override

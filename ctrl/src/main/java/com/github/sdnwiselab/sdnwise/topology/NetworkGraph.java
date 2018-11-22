@@ -50,6 +50,8 @@ public class NetworkGraph extends Observable {
      * Milliseconds in a second.
      */
     private static final long MILLIS_IN_SECOND = 1000L;
+    private final float batteryWeight;
+    private final float rssiWeight;
 
     /**
      * Timers.
@@ -91,7 +93,12 @@ public class NetworkGraph extends Observable {
      * @param address grpc server ip address
      * @param port grpc server port
      */
-    public NetworkGraph(final int ttl, final int rssiRes, final String address, final int port) {
+    public NetworkGraph(final int ttl,
+                        final int rssiRes,
+                        final String address,
+                        final int port,
+                        final float batteryWeight,
+                        final float rssiWeight) {
         graph = new MultiGraph("SDN-WISE Network");
         lastModification = Long.MIN_VALUE;
         rssiResolution = rssiRes;
@@ -99,8 +106,10 @@ public class NetworkGraph extends Observable {
         lastCheck = System.currentTimeMillis();
         graph.setAutoCreate(true);
         graph.setStrict(false);
+        this.batteryWeight = batteryWeight;
+        this.rssiWeight = rssiWeight;
         this.statService = new StatManager(address,port);
-        this.statService.initialize();
+        //this.statService.initialize();
     }
 
     /**
@@ -271,7 +280,7 @@ public class NetworkGraph extends Observable {
                 int newLen = MAX_BYTE - packet.getLinkQuality(i);
                 String edgeId = other + "-" + fullNodeId;
                 Edge edge = addEdge(edgeId, other, node.getId(), true);
-                setupEdge(edge, newLen);
+                setupEdge(edge, edgeLength(batt,newLen));
             }
             modified = true;
 
@@ -294,14 +303,20 @@ public class NetworkGraph extends Observable {
                 Edge edge = getEdge(edgeId);
                 if (edge != null) {
                     oldEdges.remove(edge);
-                    int oldLen = edge.getAttribute("length");
-                    if (Math.abs(oldLen - newLen) > rssiResolution) {
-                        updateEdge(edge, newLen);
+                    if ((int)rssiWeight == 0) {
+                        int oldLen = edge.getAttribute("length");
+                        if (Math.abs(oldLen - newLen) > rssiResolution) {
+                            updateEdge(edge, newLen);
+                            modified = true;
+                        }
+                    } else{
+                        updateEdge(edge, edgeLength(batt,newLen));
                         modified = true;
                     }
+
                 } else {
                     Edge tmp = addEdge(edgeId, other, node.getId(), true);
-                    setupEdge(tmp, newLen);
+                    setupEdge(tmp, edgeLength(batt,newLen));
                     modified = true;
                 }
             }
@@ -319,6 +334,10 @@ public class NetworkGraph extends Observable {
             setChanged();
             notifyObservers();
         }
+    }
+
+    public int edgeLength(int battery, int rssi) {
+        return (int)((battery/batteryWeight) + (rssi/rssiWeight));
     }
 
     /**
