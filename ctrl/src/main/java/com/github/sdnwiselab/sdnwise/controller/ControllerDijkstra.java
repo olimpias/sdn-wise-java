@@ -81,10 +81,16 @@ public final class ControllerDijkstra extends AbstractController {
         NetworkGraph network = getNetworkGraph();
         FlowPathService service = FlowPathManager.SingletonInstance();
         LinkedList<NodeAddress> nodeAddresses = new LinkedList<>();
+        Node source;
         for (SrcDstPair pair : service.getPairs()) {
             nodeAddresses.clear();
+            source = network.getNode(pair.getSrc());
+            if (source == null) {
+                log(Level.WARNING,"Source is not found +"+pair.getSrc());
+                continue;
+            }
             dijkstraCal.init(network.getGraph());
-            dijkstraCal.setSource(network.getNode(pair.getSrc()));
+            dijkstraCal.setSource(source);
             dijkstraCal.compute();
             dijkstraCal.getPathNodes(network
                     .getNode(pair.getDst()));
