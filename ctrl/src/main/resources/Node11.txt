@@ -1,3 +1,2 @@
-0.2,localhost,7772,230
-0.8,localhost,7778,201
-0.10,localhost,7780,200
+0.8,localhost,7778,200
+0.9,localhost,7779,201

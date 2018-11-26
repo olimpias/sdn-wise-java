@@ -22,16 +22,21 @@ import com.github.sdnwiselab.sdnwise.configuration.Configurator;
 import com.github.sdnwiselab.sdnwise.controller.AbstractController;
 import com.github.sdnwiselab.sdnwise.controller.ControllerFactory;
 import com.github.sdnwiselab.sdnwise.controller.ControllerGui;
-import com.github.sdnwiselab.sdnwise.flowtable.FlowTableEntry;
 import com.github.sdnwiselab.sdnwise.flowvisor.FlowVisor;
 import com.github.sdnwiselab.sdnwise.flowvisor.FlowVisorFactory;
 import com.github.sdnwiselab.sdnwise.mote.standalone.Mote;
 import com.github.sdnwiselab.sdnwise.mote.standalone.Sink;
+import com.github.sdnwiselab.sdnwise.packet.DataPacket;
+import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,9 +59,14 @@ public final class SdnWise {
     /**
      * Emulation constants.
      */
-    private static final int NO_OF_MOTES = 10,
+    private static final int NO_OF_MOTES = 12,
             ADA_PORT = 9990, BASE_NODE_PORT = 7770, SETUP_TIME = 60000,
             TIMEOUT = 100;
+
+    private static final String RANDOM_TEXT = "asdadaasdasdasdaqwewqeqasdasdasdasdasdasdasdasdasdasdasdasdasdasda";
+    private static ScheduledExecutorService executorService;
+
+    private final static int[] MONITOR_NODES = {10,11,12};
 
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
@@ -173,36 +183,51 @@ public final class SdnWise {
             } catch (InterruptedException ex) {
                 Logger.getGlobal().log(Level.SEVERE, null, ex);
             }
-
-            // Some examples
-            /**
-             * Send an "Hello, World!" function to nodes 8 and 3 add a rule that
-             * tells node 3 to execute this function when it receives a packet
-             * directed to node 8.
-             */
-            controller.addNodeFunction(
-                    (byte) 1,
-                    new NodeAddress("0.8"),
-                    (byte) 1,
-                    "HelloWorld.class");
-
-            controller.addNodeFunction(
-                    (byte) 1,
-                    new NodeAddress("0.3"),
-                    (byte) 1,
-                    "HelloWorld.class");
-
-            FlowTableEntry e1 = FlowTableEntry.fromString(
-                    "if (P.DST == 8) {"
-                    + " FUNCTION 1 9 8 7 6 5 4;"
-                    + " FORWARD_U 8;"
-                    + "}");
-            controller.addNodeRule((byte) 1, new NodeAddress("0.3"), e1);
+            enterFlowRulesForMonitorNodes(controller);
+            startSendingMessages(controller);
         }
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {
             new ControllerGui(controller).setVisible(true);
         });
+    }
+
+    private static void startSendingMessages(AbstractController controller) {
+        executorService = Executors.newScheduledThreadPool(1);
+        executorService.scheduleAtFixedRate(new RequestSender(controller),
+                1,1, TimeUnit.SECONDS);
+    }
+
+    private static void enterFlowRulesForMonitorNodes(AbstractController controller){
+        for (int i = 0;i<MONITOR_NODES.length;i++) {
+            controller.addNodeFunction(
+                    (byte) 1,
+                    new NodeAddress(MONITOR_NODES[i]),
+                    (byte) 1,
+                    "HelloWorld.class");
+        }
+    }
+
+    private static class RequestSender implements Runnable {
+        private static int netId = 1;
+        private final AbstractController controller;
+
+        public RequestSender(AbstractController controller) {
+            this.controller = controller;
+        }
+
+        @Override
+        public void run() {
+            for (int i =0;i<MONITOR_NODES.length;i++) {
+                NodeAddress src = controller.getSinkAddress();
+                NodeAddress dst = new NodeAddress(MONITOR_NODES[i]);
+                NetworkPacket networkPacket = new NetworkPacket(netId,src,dst);
+                DataPacket p = new DataPacket(networkPacket);
+                p.setNxh(src);
+                p.setPayload((RANDOM_TEXT).getBytes(Charset.forName("UTF-8")));
+                controller.sendNetworkPacket(p);
+            }
+        }
     }
 
     /**

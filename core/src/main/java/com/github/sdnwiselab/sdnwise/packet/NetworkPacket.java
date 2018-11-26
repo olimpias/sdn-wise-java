@@ -605,7 +605,7 @@ public class NetworkPacket implements Cloneable {
      * @param p the p of the packet.
      * @return the p of the packet.
      */
-    protected final NetworkPacket setPayload(final byte[] p) {
+    public final NetworkPacket setPayload(final byte[] p) {
         if (p.length + DFLT_HDR_LEN <= MAX_PACKET_LENGTH) {
             System.arraycopy(p, 0, data, DFLT_HDR_LEN, p.length);
             setLen((byte) (p.length + DFLT_HDR_LEN));

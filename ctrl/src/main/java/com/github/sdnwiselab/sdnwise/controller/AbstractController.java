@@ -686,7 +686,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      *
      * @param packet the packet to be sent.
      */
-    protected final void sendNetworkPacket(final NetworkPacket packet) {
+    public final void sendNetworkPacket(final NetworkPacket packet) {
         packet.setNxh(getSinkAddress());
         for (AbstractAdapter adapter : getLower()) {
             adapter.send(packet.toByteArray());
