@@ -19,6 +19,7 @@ package com.github.sdnwiselab.sdnwise.topology;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
 import com.github.sdnwiselab.sdnwise.stats.BatteryInfoNode;
+import com.github.sdnwiselab.sdnwise.stats.LifeTimeMonitorController;
 import com.github.sdnwiselab.sdnwise.stats.StatManager;
 import com.github.sdnwiselab.sdnwise.stats.StatService;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
@@ -370,6 +371,7 @@ public class NetworkGraph extends Observable {
                                 now)) {
                     removeNode(n);
                     modified = true;
+                    LifeTimeMonitorController.Instance().end();
                 }
 
             }

@@ -28,6 +28,7 @@ import com.github.sdnwiselab.sdnwise.mote.standalone.Mote;
 import com.github.sdnwiselab.sdnwise.mote.standalone.Sink;
 import com.github.sdnwiselab.sdnwise.packet.DataPacket;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
+import com.github.sdnwiselab.sdnwise.stats.LifeTimeMonitorController;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -185,6 +186,7 @@ public final class SdnWise {
             }
             enterFlowRulesForMonitorNodes(controller);
             startSendingMessages(controller);
+            LifeTimeMonitorController.Instance().start();
         }
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {

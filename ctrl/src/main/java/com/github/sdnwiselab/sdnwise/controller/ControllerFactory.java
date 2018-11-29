@@ -21,6 +21,8 @@ import com.github.sdnwiselab.sdnwise.adapter.AdapterTcp;
 import com.github.sdnwiselab.sdnwise.adapter.AdapterUdp;
 import com.github.sdnwiselab.sdnwise.configuration.ConfigController;
 import com.github.sdnwiselab.sdnwise.configuration.Configurator;
+import com.github.sdnwiselab.sdnwise.stats.LifeTimeMonitorController;
+import com.github.sdnwiselab.sdnwise.stats.MonitorType;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.topology.VisualNetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
@@ -130,7 +132,9 @@ public class ControllerFactory {
         String grpcAddress = conf.getMap().get("GRPCADDRESS");
         float batteryWeight = Float.parseFloat(conf.getMap().get("BATTERY_WEIGHT"));
         float rssiWeight = Float.parseFloat(conf.getMap().get("RSSI_WEIGHT"));
-
+        if (batteryWeight > 0.) {
+            LifeTimeMonitorController.Instance().setMonitorType(MonitorType.FORECAST);
+        }
         switch (graph) {
             case "GUI":
                 return new VisualNetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort,
