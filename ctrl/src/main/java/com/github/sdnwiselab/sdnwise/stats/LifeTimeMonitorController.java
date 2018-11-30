@@ -55,19 +55,22 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
     private void dataExporter(){
         SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
         UUID uuid = UUID.randomUUID();
+        PrintWriter printWriter = null;
         try {
-            PrintWriter printWriter = new PrintWriter(uuid.toString()+".data", "UTF-8");
+            printWriter = new PrintWriter(uuid.toString()+".data", "UTF-8");
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("Type: "+type+"\n");
             stringBuffer.append("Test start time: "+ dt.format(startTime)+"\n");
             stringBuffer.append("Test end time: "+ dt.format(endTime)+"\n");
             stringBuffer.append("Spend time: "+(endTime.getTime() - startTime.getTime())/1000+"s\n");
             printWriter.write(stringBuffer.toString());
-            printWriter.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+        } finally {
+            if (printWriter != null)
+                printWriter.close();
         }
     }
 

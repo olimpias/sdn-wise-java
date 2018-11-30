@@ -110,7 +110,7 @@ public class NetworkGraph extends Observable {
         this.batteryWeight = batteryWeight;
         this.rssiWeight = rssiWeight;
         this.statService = new StatManager(address,port);
-        //this.statService.initialize();
+        this.statService.initialize();
     }
 
     /**
@@ -324,6 +324,7 @@ public class NetworkGraph extends Observable {
 
             if (!oldEdges.isEmpty()) {
                 oldEdges.stream().forEach((e) -> {
+                    LifeTimeMonitorController.Instance().end();
                     removeEdge(e);
                 });
                 modified = true;
@@ -369,9 +370,9 @@ public class NetworkGraph extends Observable {
                         && n.getAttribute("lastSeen", Long.class) != null
                         && !isAlive(timeout, (long) n.getNumber("lastSeen"),
                                 now)) {
+                    LifeTimeMonitorController.Instance().end();
                     removeNode(n);
                     modified = true;
-                    LifeTimeMonitorController.Instance().end();
                 }
 
             }
