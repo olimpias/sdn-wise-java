@@ -110,7 +110,7 @@ public class NetworkGraph extends Observable {
         this.batteryWeight = batteryWeight;
         this.rssiWeight = rssiWeight;
         this.statService = new StatManager(address,port);
-        this.statService.initialize();
+        //this.statService.initialize();
     }
 
     /**
@@ -304,7 +304,7 @@ public class NetworkGraph extends Observable {
                 Edge edge = getEdge(edgeId);
                 if (edge != null) {
                     oldEdges.remove(edge);
-                    if ((int)rssiWeight == 0) {
+                    if ((int)batteryWeight == 0) {
                         int oldLen = edge.getAttribute("length");
                         if (Math.abs(oldLen - newLen) > rssiResolution) {
                             updateEdge(edge, newLen);
