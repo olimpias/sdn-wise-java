@@ -306,15 +306,15 @@ public class NetworkGraph extends Observable {
                 Edge edge = getEdge(edgeId);
                 if (edge != null) {
                     oldEdges.remove(edge);
-                    if ((int)batteryWeight == 0) {
+                    if (batteryWeight > 0) {
+                        updateEdge(edge, edgeLength(batt,newLen));
+                        modified = true;
+                    } else{
                         int oldLen = edge.getAttribute("length");
                         if (Math.abs(oldLen - newLen) > rssiResolution) {
                             updateEdge(edge, newLen);
                             modified = true;
                         }
-                    } else{
-                        updateEdge(edge, edgeLength(batt,newLen));
-                        modified = true;
                     }
 
                 } else {
