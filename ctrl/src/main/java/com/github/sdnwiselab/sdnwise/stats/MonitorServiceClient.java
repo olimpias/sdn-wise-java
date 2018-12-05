@@ -7,6 +7,7 @@ import io.grpc.StatusRuntimeException;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -16,50 +17,47 @@ import java.util.logging.Logger;
  */
 public class MonitorServiceClient {
     private static final Logger logger = Logger.getLogger(MonitorServiceClient.class.getName());
-
+    private static final int QUEUE_SIZE = 20;
     private final ManagedChannel channel;
     private final MonitorGrpc.MonitorBlockingStub blockingStub;
-    private ExecutorService executor;
+    private ExecutorService forecastExecutor;
+    private ExecutorService producerExecutor;
+    private final ArrayBlockingQueue<BatteryInfoNode> bQ;
 
     public MonitorServiceClient(String host, int port) {
         this(ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext(false)
+                .usePlaintext(true)
                 .build());
     }
 
     private MonitorServiceClient(ManagedChannel channel) {
         this.channel = channel;
         blockingStub = MonitorGrpc.newBlockingStub(channel);
-        this.executor = Executors.newSingleThreadExecutor();
+        bQ = new ArrayBlockingQueue<>(QUEUE_SIZE);
+        this.forecastExecutor = Executors.newSingleThreadExecutor();
+        this.producerExecutor = Executors.newSingleThreadExecutor();
     }
 
     public void showdown() {
-        executor.shutdownNow();
+        forecastExecutor.shutdownNow();
+        producerExecutor.shutdownNow();
         channel.shutdownNow();
     }
 
     public void startForecastingObserver(ForecastServiceCallback callback){
         logger.info("Forecasting service has been started");
-        executor.execute(new ForecastStreamer(callback));
+        forecastExecutor.execute(new ForecastStreamer(callback));
+        logger.info("Battery producer has been added");
+        producerExecutor.execute(new BatteryProducer());
     }
 
     public void sendNode(BatteryInfoNode node) {
-        logger.info("Node "+node+" will be sent");
-        SdnWise.StatSaveRequest statSaveRequest = SdnWise.StatSaveRequest.newBuilder()
-                .setCurrentBattery(node.getLevel())
-                .setNodeID(node.getId())
-                .build();
-        SdnWise.StatSaveResponse response;
         try {
-            response = blockingStub.saveBattery(statSaveRequest);
-            if(!response.getNodeID().equals(node.getId())) {
-                throw new UnmatchedException();
-            }
-        }catch (StatusRuntimeException ex) {
-            logger.info("RPC failed: "+ex.getStatus());
-            return;
+            this.bQ.put(node);
+            logger.info("Node "+node+" is queued");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        logger.info(node.getId()+" has sent to Monitor service");
     }
 
     public class ForecastStreamer implements Runnable {
@@ -87,7 +85,56 @@ public class MonitorServiceClient {
                 }
             }catch (StatusRuntimeException e) {
                 logger.info("RPC failed: "+e.getStatus());
+                e.printStackTrace();
             }
+        }
+    }
+
+    public class BatteryProducer implements Runnable {
+
+        @Override
+        public void run() {
+            BatteryInfoNode infoNode;
+            logger.info("Deque has been started");
+            while (true) {
+                try {
+                    infoNode = bQ.take();
+                    logger.info("Deque node: "+infoNode);
+                    sendNode(infoNode);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    logger.warning(e.getMessage());
+                }
+
+            }
+
+        }
+
+        private void sendNode(BatteryInfoNode node) {
+            SdnWise.StatSaveRequest statSaveRequest = SdnWise.StatSaveRequest.newBuilder()
+                    .setCurrentBattery(node.getLevel())
+                    .setNodeID(node.getId())
+                    .build();
+            SdnWise.StatSaveResponse response = null;
+            try {
+                logger.info("Node "+node+" will be sent");
+                response = blockingStub.saveBattery(statSaveRequest);
+                if(!response.getNodeID().equals(node.getId())) {
+                    throw new UnmatchedException();
+                }
+            }catch (StatusRuntimeException ex) {
+                logger.info("RPC failed: "+ex.getStatus());
+                ex.printStackTrace();
+                return;
+            }catch (UnmatchedException ex) {
+                logger.warning(response == null ? "Response is null":
+                        "Miss match on nodes. Response node: "+response.getNodeID()+" node: "+node.getId());
+                return;
+            }catch (Exception ex) {
+                logger.warning("ERROR :"+ex.getMessage());
+                return;
+            }
+            logger.info(node.getId()+" has sent to Monitor service");
         }
     }
 

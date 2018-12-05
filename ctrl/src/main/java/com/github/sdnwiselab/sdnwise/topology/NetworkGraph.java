@@ -110,7 +110,9 @@ public class NetworkGraph extends Observable {
         this.batteryWeight = batteryWeight;
         this.rssiWeight = rssiWeight;
         this.statService = new StatManager(address,port);
-        //this.statService.initialize();
+        if(this.batteryWeight > 0) {
+            this.statService.initialize();
+        }
     }
 
     /**
