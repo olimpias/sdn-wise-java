@@ -80,6 +80,7 @@ public final class ControllerDijkstra extends AbstractController {
         log(Level.INFO, "Graph update is received");
         NetworkGraph network = getNetworkGraph();
         FlowPathService service = FlowPathManager.SingletonInstance();
+        HashMap<NodeAddress, LinkedList<NodeAddress>> results = getResults();
         LinkedList<NodeAddress> nodeAddresses = new LinkedList<>();
         Node source;
         for (SrcDstPair pair : service.getPairs()) {
@@ -98,13 +99,14 @@ public final class ControllerDijkstra extends AbstractController {
                     .getNode(pair.getDst()))) {
                 nodeAddresses.push(node.getAttribute("nodeAddress"));
             }
+            log(Level.INFO, "Path: " + nodeAddresses);
+            getResults().put(nodeAddresses.getLast(),nodeAddresses);
             if (nodeAddresses.isEmpty()) {
                 continue;
             }
             if(!service.getPath(pair).equals(nodeAddresses)) {
                 updatePath(pair, nodeAddresses);
                 service.addPath(pair, nodeAddresses);
-                getResults().put(nodeAddresses.getLast(),nodeAddresses);
             }
         }
     }
@@ -161,6 +163,7 @@ public final class ControllerDijkstra extends AbstractController {
     }
 
     private void updatePath(SrcDstPair pair,LinkedList<NodeAddress> path) {
+        log(Level.INFO, "Path for "+pair+ " is updated to "+path);
         FlowPathService service = FlowPathManager.SingletonInstance();
         service.addPath(pair, path);
         sendPath((byte) pair.getNetworkId(), path.getFirst(), path);

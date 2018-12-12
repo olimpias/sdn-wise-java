@@ -19,6 +19,7 @@ package com.github.sdnwiselab.sdnwise.topology;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
 import com.github.sdnwiselab.sdnwise.stats.BatteryInfoNode;
+import com.github.sdnwiselab.sdnwise.stats.ForecastNotFoundException;
 import com.github.sdnwiselab.sdnwise.stats.LifeTimeMonitorController;
 import com.github.sdnwiselab.sdnwise.stats.StatManager;
 import com.github.sdnwiselab.sdnwise.stats.StatService;
@@ -260,14 +261,22 @@ public class NetworkGraph extends Observable {
         boolean modified = checkConsistency(now);
 
         int net = packet.getNet();
-        int batt = packet.getBattery();
+        int currentBatt = packet.getBattery();
+        int batt = currentBatt;
         String nodeId = packet.getSrc().toString();
         String fullNodeId = net + "." + nodeId;
         NodeAddress addr = packet.getSrc();
-
+        try{
+            batt = (int)statService.forecastBattery(fullNodeId).getLevel();
+            if (batt <= 0 ) {
+                batt = 1;
+            }
+        }catch (ForecastNotFoundException ex) {
+            LOGGER.log(Level.WARNING, "Src: "+fullNodeId+" battery level is not forecasted");
+        }
         Node node = getNode(fullNodeId);
-        LOGGER.log(Level.INFO, "Src: "+fullNodeId + " battery: "+batt);
-        statService.add(new BatteryInfoNode(fullNodeId,batt));
+        LOGGER.log(Level.INFO, "Src: "+fullNodeId + " battery: "+currentBatt);
+        statService.add(new BatteryInfoNode(fullNodeId,currentBatt));
         if (node == null) {
             node = addNode(fullNodeId);
             setupNode(node, batt, now, net, addr);
@@ -306,7 +315,7 @@ public class NetworkGraph extends Observable {
                 Edge edge = getEdge(edgeId);
                 if (edge != null) {
                     oldEdges.remove(edge);
-                    if (batteryWeight > 0) {
+                    if (batteryWeight > 0.0) {
                         updateEdge(edge, edgeLength(batt,newLen));
                         modified = true;
                     } else{
@@ -341,7 +350,7 @@ public class NetworkGraph extends Observable {
     }
 
     public int edgeLength(int battery, int rssi) {
-        return (int)((battery/batteryWeight) + (rssi/rssiWeight));
+        return (int)((battery*batteryWeight) + (rssi*rssiWeight));
     }
 
     /**

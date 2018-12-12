@@ -6,6 +6,6 @@ package com.github.sdnwiselab.sdnwise.stats;
 public interface StatService {
     void initialize();
     void add(BatteryInfoNode batteryInfoNode);
-    ForecastNode forecastBattery(String id);
+    BatteryInfoNode forecastBattery(String id);
     void stop();
 }

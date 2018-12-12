@@ -64,7 +64,8 @@ public final class SdnWise {
             ADA_PORT = 9990, BASE_NODE_PORT = 7770, SETUP_TIME = 60000,
             TIMEOUT = 100;
 
-    private static final String RANDOM_TEXT = "asdadaasdasdasdaqwewqeqasdasdasdasdasdasdasdasdasdasdasdasdasdasda";
+    private static final String RANDOM_TEXT = "asdadaasdasdasdaqwewqeqasdasdasdasdasdasdasdasdasdasdasdasdasdasda" +
+            "asdasasdasdasdasdasdasdasd";
     private static ScheduledExecutorService executorService;
 
     private final static int[] MONITOR_NODES = {10,11,12};
