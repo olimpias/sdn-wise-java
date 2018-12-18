@@ -653,6 +653,7 @@ public abstract class AbstractCore {
             FlowTableEntry fte = it.next();
             int ttl = fte.getStats().getTtl();
             if (ttl != ENTRY_TTL_PERMANENT) {
+                log(Level.INFO,"Current ttl: "+ttl);
                 if (ttl >= ENTRY_TTL_DECR) {
                     fte.getStats().decrementTtl(ENTRY_TTL_DECR);
                 } else {
@@ -1129,6 +1130,7 @@ public abstract class AbstractCore {
 
                 rule.getWindows().addAll(packet.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i - 1)));
+                rule.getStats().setPermanent();
                 insertRule(rule);
             }
 
@@ -1141,6 +1143,7 @@ public abstract class AbstractCore {
 
                 rule.getWindows().addAll(packet.getWindows());
                 rule.addAction(new ForwardUnicastAction(path.get(i + 1)));
+                rule.getStats().setPermanent();
                 insertRule(rule);
                 packet.setDst(path.get(i + 1)).setNxh(path.get(i + 1));
                 radioTX(packet);

@@ -5,6 +5,8 @@ package com.github.sdnwiselab.sdnwise.stats;
  */
 public interface LifeTimeMonitorService {
     void setMonitorType(MonitorType type);
+    void setBatteryWeight(float bWeight);
+    void logPassedTime();
     void start();
     void end();
 }

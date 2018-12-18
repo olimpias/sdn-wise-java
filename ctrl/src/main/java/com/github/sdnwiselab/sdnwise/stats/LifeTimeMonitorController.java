@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -20,6 +21,8 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
     private Date startTime;
     private Date endTime;
     private boolean isEnded;
+    private float rssiWeight;
+    private float batteryWeight;
 
     public synchronized static LifeTimeMonitorService Instance(){
         if(service == null) {
@@ -31,6 +34,19 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
     @Override
     public void setMonitorType(MonitorType type) {
         this.type = type;
+    }
+
+    @Override
+    public void setBatteryWeight(float bWeight) {
+        this.batteryWeight = bWeight;
+        this.rssiWeight = 1 - bWeight;
+    }
+
+    @Override
+    public void logPassedTime() {
+        Date currentTime = new Date();
+        if(startTime != null)
+            logger.log(Level.INFO,"Passed time: "+(currentTime.getTime() - startTime.getTime())/1000);
     }
 
     @Override
@@ -60,6 +76,8 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
             printWriter = new PrintWriter(uuid.toString()+".data", "UTF-8");
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("Type: "+type+"\n");
+            stringBuffer.append("Battery Weight: " + batteryWeight + "\n");
+            stringBuffer.append("Rssi Weight: " + rssiWeight + "\n");
             stringBuffer.append("Test start time: "+ dt.format(startTime)+"\n");
             stringBuffer.append("Test end time: "+ dt.format(endTime)+"\n");
             stringBuffer.append("Spend time: "+(endTime.getTime() - startTime.getTime())/1000+"s\n");

@@ -80,7 +80,6 @@ public final class ControllerDijkstra extends AbstractController {
         log(Level.INFO, "Graph update is received");
         NetworkGraph network = getNetworkGraph();
         FlowPathService service = FlowPathManager.SingletonInstance();
-        HashMap<NodeAddress, LinkedList<NodeAddress>> results = getResults();
         LinkedList<NodeAddress> nodeAddresses = new LinkedList<>();
         Node source;
         for (SrcDstPair pair : service.getPairs()) {
@@ -93,20 +92,17 @@ public final class ControllerDijkstra extends AbstractController {
             dijkstraCal.init(network.getGraph());
             dijkstraCal.setSource(source);
             dijkstraCal.compute();
-            dijkstraCal.getPathNodes(network
-                    .getNode(pair.getDst()));
             for (Node node : dijkstraCal.getPathNodes(network
                     .getNode(pair.getDst()))) {
                 nodeAddresses.push(node.getAttribute("nodeAddress"));
             }
-            log(Level.INFO, "Path: " + nodeAddresses);
+            log(Level.INFO, "Graph Update Path: " + nodeAddresses);
             getResults().put(nodeAddresses.getLast(),nodeAddresses);
             if (nodeAddresses.isEmpty()) {
                 continue;
             }
-            if(!service.getPath(pair).equals(nodeAddresses)) {
+            if(!ControllerUtils.doNodeAddresslistsEqual(service.getPath(pair), nodeAddresses)) {
                 updatePath(pair, nodeAddresses);
-                service.addPath(pair, nodeAddresses);
             }
         }
     }
@@ -165,7 +161,7 @@ public final class ControllerDijkstra extends AbstractController {
     private void updatePath(SrcDstPair pair,LinkedList<NodeAddress> path) {
         log(Level.INFO, "Path for "+pair+ " is updated to "+path);
         FlowPathService service = FlowPathManager.SingletonInstance();
-        service.addPath(pair, path);
+        service.addPath(pair, new LinkedList<>(path));
         sendPath((byte) pair.getNetworkId(), path.getFirst(), path);
         Collections.reverse(path);
         sendPath((byte) pair.getNetworkId(), path.getFirst(), path);

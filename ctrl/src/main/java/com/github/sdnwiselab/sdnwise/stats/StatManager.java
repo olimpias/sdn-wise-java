@@ -57,11 +57,16 @@ public class StatManager implements StatService, ForecastServiceCallback {
 
     @Override
     public ForecastNode forecastBattery(String id) {
+        dumpMap();
         ForecastNode node = this.forecastNodeMap.get(id);
         if (node == null) {
             throw new ForecastNotFoundException();
         }
         return node;
+    }
+
+    private void dumpMap(){
+        logger.log(Level.INFO, this.forecastNodeMap.toString());
     }
 
     @Override

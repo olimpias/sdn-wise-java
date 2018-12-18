@@ -318,7 +318,7 @@ public class NetworkGraph extends Observable {
                     if (batteryWeight > 0.0) {
                         updateEdge(edge, edgeLength(batt,newLen));
                         modified = true;
-                    } else{
+                    } else {
                         int oldLen = edge.getAttribute("length");
                         if (Math.abs(oldLen - newLen) > rssiResolution) {
                             updateEdge(edge, newLen);
@@ -347,6 +347,7 @@ public class NetworkGraph extends Observable {
             setChanged();
             notifyObservers();
         }
+        LifeTimeMonitorController.Instance().logPassedTime();
     }
 
     public int edgeLength(int battery, int rssi) {

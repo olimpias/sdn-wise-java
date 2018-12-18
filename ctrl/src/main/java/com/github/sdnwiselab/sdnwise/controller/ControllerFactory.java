@@ -135,6 +135,7 @@ public class ControllerFactory {
         if (batteryWeight > 0.) {
             LifeTimeMonitorController.Instance().setMonitorType(MonitorType.FORECAST);
         }
+        LifeTimeMonitorController.Instance().setBatteryWeight(batteryWeight);
         switch (graph) {
             case "GUI":
                 return new VisualNetworkGraph(timeout, rssiResolution,grpcAddress, grpcPort,
