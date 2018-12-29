@@ -55,6 +55,10 @@ public class NetworkGraph extends Observable {
     private final float batteryWeight;
     private final float rssiWeight;
 
+    public boolean isForecastActive() {
+        return batteryWeight > 0.1;
+    }
+
     /**
      * Timers.
      */
@@ -233,6 +237,7 @@ public class NetworkGraph extends Observable {
     public void setupNode(final Node node, final int batt, final long now,
             final int net, final NodeAddress addr) {
         node.addAttribute("battery", batt);
+        node.addAttribute("length",(MAX_BYTE * batteryWeight) - batt * batteryWeight);
         node.addAttribute("lastSeen", now);
         node.addAttribute("net", net);
         node.addAttribute("nodeAddress", addr);
@@ -249,6 +254,19 @@ public class NetworkGraph extends Observable {
         edge.addAttribute("length", newLen);
     }
 
+    private final int getNodeBattery(String fullNodeId, int normalValue){
+        int batt = normalValue;
+        try{
+            batt = (int)statService.forecastBattery(fullNodeId).getLevel();
+            if (batt <= 0 ) {
+                batt = 1;
+            }
+        }catch (ForecastNotFoundException ex) {
+            LOGGER.log(Level.WARNING, "Src: "+fullNodeId+" battery level is not forecasted");
+        }
+        return batt;
+    }
+
     /**
      * Invoked when a message with topology updates is received by the
      * controller. It updates the network topology according to the message and
@@ -262,18 +280,10 @@ public class NetworkGraph extends Observable {
 
         int net = packet.getNet();
         int currentBatt = packet.getBattery();
-        int batt = currentBatt;
         String nodeId = packet.getSrc().toString();
         String fullNodeId = net + "." + nodeId;
         NodeAddress addr = packet.getSrc();
-        try{
-            batt = (int)statService.forecastBattery(fullNodeId).getLevel();
-            if (batt <= 0 ) {
-                batt = 1;
-            }
-        }catch (ForecastNotFoundException ex) {
-            LOGGER.log(Level.WARNING, "Src: "+fullNodeId+" battery level is not forecasted");
-        }
+        int batt = getNodeBattery(fullNodeId,currentBatt);
         Node node = getNode(fullNodeId);
         LOGGER.log(Level.INFO, "Src: "+fullNodeId + " battery: "+currentBatt);
         statService.add(new BatteryInfoNode(fullNodeId,currentBatt));
@@ -292,12 +302,14 @@ public class NetworkGraph extends Observable {
                 int newLen = MAX_BYTE - packet.getLinkQuality(i);
                 String edgeId = other + "-" + fullNodeId;
                 Edge edge = addEdge(edgeId, other, node.getId(), true);
-                setupEdge(edge, edgeLength(batt,newLen));
+                setupEdge(edge, edgeLength(newLen));
             }
             modified = true;
 
         } else {
-            updateNode(node, batt, now);
+            if (updateNode(node, batt, now)) {
+                modified = true;
+            }
             Set<Edge> oldEdges = new HashSet<>();
             oldEdges.addAll(node.getEnteringEdgeSet());
 
@@ -315,8 +327,8 @@ public class NetworkGraph extends Observable {
                 Edge edge = getEdge(edgeId);
                 if (edge != null) {
                     oldEdges.remove(edge);
-                    if (batteryWeight > 0.0) {
-                        updateEdge(edge, edgeLength(batt,newLen));
+                    if (isForecastActive()) {
+                        updateEdge(edge, edgeLength(newLen));
                         modified = true;
                     } else {
                         int oldLen = edge.getAttribute("length");
@@ -328,7 +340,7 @@ public class NetworkGraph extends Observable {
 
                 } else {
                     Edge tmp = addEdge(edgeId, other, node.getId(), true);
-                    setupEdge(tmp, edgeLength(batt,newLen));
+                    setupEdge(tmp, edgeLength(newLen));
                     modified = true;
                 }
             }
@@ -350,8 +362,11 @@ public class NetworkGraph extends Observable {
         LifeTimeMonitorController.Instance().logPassedTime();
     }
 
-    public int edgeLength(int battery, int rssi) {
-        return (int)((battery*batteryWeight) + (rssi*rssiWeight));
+    public int edgeLength(int rssi) {
+        if (isForecastActive()) {
+            return (int)(rssi*rssiWeight);
+        }
+        return rssi;
     }
 
     /**
@@ -361,9 +376,15 @@ public class NetworkGraph extends Observable {
      * @param batt residual charge of the node
      * @param now last time time the node was alive
      */
-    public void updateNode(final Node node, final int batt, final long now) {
+    public boolean updateNode(final Node node, final int batt, final long now) {
         node.addAttribute("battery", batt);
+        float previous = node.getAttribute("length");
+        node.addAttribute("length",(MAX_BYTE * batteryWeight) - batteryWeight*batt);
         node.addAttribute("lastSeen", now);
+        if (previous > batteryWeight*batt && isForecastActive()) {
+            return true;
+        }
+        return false;
     }
 
     /**

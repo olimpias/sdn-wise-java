@@ -75,7 +75,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
     }
 
     @Override
-    public void updateNode(final Node node, final int batt, final long now) {
+    public boolean updateNode(final Node node, final int batt, final long now) {
         super.updateNode(node, batt, now);
         if (node.getAttribute("net") != null) {
             int net = node.getAttribute("net");
@@ -88,6 +88,7 @@ public final class VisualNetworkGraph extends NetworkGraph {
                         + batt + ",0,0),rgb(0,0,0);");
             }
         }
+        return false;
     }
 
     @Override

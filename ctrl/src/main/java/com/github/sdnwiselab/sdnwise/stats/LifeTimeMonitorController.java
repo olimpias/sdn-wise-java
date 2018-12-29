@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,12 +24,17 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
     private boolean isEnded;
     private float rssiWeight;
     private float batteryWeight;
+    private AtomicInteger hopCount;
 
     public synchronized static LifeTimeMonitorService Instance(){
         if(service == null) {
             service = new LifeTimeMonitorController();
         }
         return service;
+    }
+
+    private LifeTimeMonitorController() {
+        hopCount = new AtomicInteger();
     }
 
     @Override
@@ -44,6 +50,9 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
 
     @Override
     public void logPassedTime() {
+        if (isEnded){
+            return;
+        }
         Date currentTime = new Date();
         if(startTime != null)
             logger.log(Level.INFO,"Passed time: "+(currentTime.getTime() - startTime.getTime())/1000);
@@ -66,6 +75,13 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
         isEnded = true;
         this.endTime = new Date();
         dataExporter();
+        logger.log(Level.INFO,"End time: "+(endTime.getTime() - startTime.getTime())/1000);
+        System.exit(0);
+    }
+
+    @Override
+    public void increaseHopCount() {
+        hopCount.incrementAndGet();
     }
 
     private void dataExporter(){
@@ -81,6 +97,7 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
             stringBuffer.append("Test start time: "+ dt.format(startTime)+"\n");
             stringBuffer.append("Test end time: "+ dt.format(endTime)+"\n");
             stringBuffer.append("Spend time: "+(endTime.getTime() - startTime.getTime())/1000+"s\n");
+            stringBuffer.append("Hop Count: "+hopCount.get());
             printWriter.write(stringBuffer.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();

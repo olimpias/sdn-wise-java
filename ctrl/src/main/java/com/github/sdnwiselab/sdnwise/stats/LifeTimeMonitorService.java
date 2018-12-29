@@ -9,4 +9,5 @@ public interface LifeTimeMonitorService {
     void logPassedTime();
     void start();
     void end();
+    void increaseHopCount();
 }

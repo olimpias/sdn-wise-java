@@ -22,6 +22,7 @@ import com.github.sdnwiselab.sdnwise.flow.FlowPathService;
 import com.github.sdnwiselab.sdnwise.flow.SrcDstPair;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
+import com.github.sdnwiselab.sdnwise.stats.LifeTimeMonitorController;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.net.InetSocketAddress;
@@ -71,8 +72,12 @@ public final class ControllerDijkstra extends AbstractController {
             final NetworkGraph networkGraph,
             final NodeAddress sinkAddress) {
         super(id, lower, networkGraph, sinkAddress);
-        dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
-        dijkstraCal = new Dijkstra(Dijkstra.Element.EDGE, null, "length");
+        Dijkstra.Element element = Dijkstra.Element.EDGE;
+        if (networkGraph.isForecastActive()) {
+            element = Dijkstra.Element.EDGE_AND_NODE;
+        }
+        dijkstra = new Dijkstra(element, null, "length");
+        dijkstraCal = new Dijkstra(element, null, "length");
     }
 
     @Override
@@ -102,6 +107,7 @@ public final class ControllerDijkstra extends AbstractController {
                 continue;
             }
             if(!ControllerUtils.doNodeAddresslistsEqual(service.getPath(pair), nodeAddresses)) {
+                LifeTimeMonitorController.Instance().increaseHopCount();
                 updatePath(pair, nodeAddresses);
             }
         }

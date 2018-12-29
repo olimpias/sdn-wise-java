@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -32,7 +33,9 @@ public class FlowPathManager implements FlowPathService{
 
     @Override
     public void addPath(SrcDstPair pair, LinkedList<NodeAddress> path) {
+        LinkedList<NodeAddress> oldPath = pathMap.get(pair);
         pathMap.put(pair, path);
+        LOGGER.log(Level.INFO,"Path For "+pair + "is updated to "+path+". Old path: "+oldPath);
     }
 
     @Override
