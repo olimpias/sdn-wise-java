@@ -83,3 +83,7 @@ Our approach is detailed in three scientific contributions:
 Depth is the dinstance between sink and nodes like
 
 sink -> node -> node for last node depth is 2..
+
+* Every second nodes are sending their battery stats to controller under REPORT packet
+
+* Everysecond sink sending message to critical nodes.

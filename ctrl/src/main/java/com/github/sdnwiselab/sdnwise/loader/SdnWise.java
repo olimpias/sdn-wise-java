@@ -56,7 +56,7 @@ public final class SdnWise {
     /**
      * Set to true to start an emulated network.
      */
-    private static final boolean EMULATED = true;
+    private static final boolean EMULATED = false;
     /**
      * Emulation constants.
      */
@@ -67,8 +67,6 @@ public final class SdnWise {
     private static final String RANDOM_TEXT = "asdadaasdasdasdaqwewqeqasdasdasdasdasdasdasdasdasdasdasdasdasdasda" +
             "asdasasdasdasdasdasdasdasd";
     private static ScheduledExecutorService executorService;
-
-    private final static int[] MONITOR_NODES = {10,11,12};
 
     /**
      * Starts the components of the SDN-WISE AbstractController. An SdnWise
@@ -185,27 +183,34 @@ public final class SdnWise {
             } catch (InterruptedException ex) {
                 Logger.getGlobal().log(Level.SEVERE, null, ex);
             }
-            enterFlowRulesForMonitorNodes(controller);
-            startSendingMessages(controller);
+        }
+        try {
+            int nOfNodes = Integer.parseInt(conf.getController().getMap().get("N_OF_NODES"));
+            int nOfCommandedNodes = Integer.parseInt(conf.getController().getMap().get("N_OF_COMMANDED_NODES"));
+            enterFlowRulesForMonitorNodes(controller, nOfNodes, nOfCommandedNodes);
+            startSendingMessages(controller, nOfNodes, nOfCommandedNodes);
             LifeTimeMonitorController.Instance().start();
+        }catch (Exception e) {
+            e.printStackTrace();
         }
         // You can verify the behaviour of the node  using the GUI
         java.awt.EventQueue.invokeLater(() -> {
             new ControllerGui(controller).setVisible(true);
         });
+
     }
 
-    private static void startSendingMessages(AbstractController controller) {
+    private static void startSendingMessages(AbstractController controller, int nOfNodes, int nOfCommandedNodes) {
         executorService = Executors.newScheduledThreadPool(1);
-        executorService.scheduleAtFixedRate(new RequestSender(controller),
+        executorService.scheduleAtFixedRate(new RequestSender(controller, nOfNodes, nOfCommandedNodes),
                 1,1, TimeUnit.SECONDS);
     }
 
-    private static void enterFlowRulesForMonitorNodes(AbstractController controller){
-        for (int i = 0;i<MONITOR_NODES.length;i++) {
+    private static void enterFlowRulesForMonitorNodes(AbstractController controller,  int nOfNodes, int nOfCommandedNodes){
+        for (int i = nOfNodes - nOfCommandedNodes + 1;i<=nOfNodes;i++) {
             controller.addNodeFunction(
                     (byte) 1,
-                    new NodeAddress(MONITOR_NODES[i]),
+                    new NodeAddress(i),
                     (byte) 1,
                     "HelloWorld.class");
         }
@@ -214,16 +219,20 @@ public final class SdnWise {
     private static class RequestSender implements Runnable {
         private static int netId = 1;
         private final AbstractController controller;
+        private final int nOfNodes;
+        private final int nOfCommandedNodes;
 
-        public RequestSender(AbstractController controller) {
+        public RequestSender(AbstractController controller, int nOfNodes, int nOfCommandedNodes) {
             this.controller = controller;
+            this.nOfNodes = nOfNodes;
+            this.nOfCommandedNodes = nOfCommandedNodes;
         }
 
         @Override
         public void run() {
-            for (int i =0;i<MONITOR_NODES.length;i++) {
+            for (int i =nOfNodes - nOfCommandedNodes + 1;i<=nOfNodes;i++) {
                 NodeAddress src = controller.getSinkAddress();
-                NodeAddress dst = new NodeAddress(MONITOR_NODES[i]);
+                NodeAddress dst = new NodeAddress(i);
                 NetworkPacket networkPacket = new NetworkPacket(netId,src,dst);
                 DataPacket p = new DataPacket(networkPacket);
                 p.setNxh(src);
