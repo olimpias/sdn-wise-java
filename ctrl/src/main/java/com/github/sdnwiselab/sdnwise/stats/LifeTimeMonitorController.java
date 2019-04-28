@@ -1,8 +1,8 @@
 package com.github.sdnwiselab.sdnwise.stats;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -25,6 +25,7 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
     private float rssiWeight;
     private float batteryWeight;
     private AtomicInteger hopCount;
+    private int numberOfNodes;
 
     public synchronized static LifeTimeMonitorService Instance(){
         if(service == null) {
@@ -35,6 +36,11 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
 
     private LifeTimeMonitorController() {
         hopCount = new AtomicInteger();
+    }
+
+    @Override
+    public void setNumberOfNodes(int numberOfNodes) {
+        this.numberOfNodes = numberOfNodes;
     }
 
     @Override
@@ -89,7 +95,9 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
         UUID uuid = UUID.randomUUID();
         PrintWriter printWriter = null;
         try {
-            printWriter = new PrintWriter(uuid.toString()+".data", "UTF-8");
+            File file = new File(String.format("%d/%s.data",this.numberOfNodes,uuid.toString()));
+            file.getParentFile().mkdirs();
+            printWriter = new PrintWriter(file);
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("Type: "+type+"\n");
             stringBuffer.append("Battery Weight: " + batteryWeight + "\n");
@@ -100,8 +108,6 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
             stringBuffer.append("Hop Count: "+hopCount.get());
             printWriter.write(stringBuffer.toString());
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } finally {
             if (printWriter != null)

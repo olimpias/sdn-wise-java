@@ -189,6 +189,7 @@ public final class SdnWise {
             int nOfCommandedNodes = Integer.parseInt(conf.getController().getMap().get("N_OF_COMMANDED_NODES"));
             enterFlowRulesForMonitorNodes(controller, nOfNodes, nOfCommandedNodes);
             startSendingMessages(controller, nOfNodes, nOfCommandedNodes);
+            LifeTimeMonitorController.Instance().setNumberOfNodes(nOfNodes);
             LifeTimeMonitorController.Instance().start();
         }catch (Exception e) {
             e.printStackTrace();
