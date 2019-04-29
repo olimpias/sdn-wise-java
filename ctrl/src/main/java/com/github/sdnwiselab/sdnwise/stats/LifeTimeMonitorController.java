@@ -95,7 +95,7 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
         UUID uuid = UUID.randomUUID();
         PrintWriter printWriter = null;
         try {
-            File file = new File(String.format("%d/%s.data",this.numberOfNodes,uuid.toString()));
+            File file = new File(String.format("%d/%.3f/%s.data",this.numberOfNodes,this.rssiWeight,uuid.toString()));
             file.getParentFile().mkdirs();
             printWriter = new PrintWriter(file);
             StringBuffer stringBuffer = new StringBuffer();
