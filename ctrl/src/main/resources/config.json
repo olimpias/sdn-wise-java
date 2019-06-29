@@ -1,0 +1,28 @@
+{
+  "controller": {
+    "lower": [
+      {
+        "IS_SERVER": "TRUE",
+        "TYPE": "TCP",
+        "PORT": "9999",
+        "IP": "localhost"
+      }
+    ],
+    "algorithm": {
+      "TYPE": "DIJKSTRA",
+      "SINK": "135.165"
+    },
+    "map": {
+      "LABEL": 3,
+      "RSSI_WEIGHT": "0.050",
+      "TIMEOUT": "45",
+      "GRAPH": "CLI",
+      "GRPCPORT": "50051",
+      "BATTERY_WEIGHT": "0",
+      "N_OF_COMMANDED_NODES": 3,
+      "GRPCADDRESS": "localhost",
+      "RSSI_RESOLUTION": "20",
+      "N_OF_NODES": "16"
+    }
+  }
+}

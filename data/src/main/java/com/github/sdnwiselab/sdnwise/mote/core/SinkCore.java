@@ -24,6 +24,8 @@ import com.github.sdnwiselab.sdnwise.packet.DataPacket;
 import com.github.sdnwiselab.sdnwise.packet.NetworkPacket;
 import com.github.sdnwiselab.sdnwise.util.Neighbor;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
+
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
@@ -82,6 +84,22 @@ public class SinkCore extends AbstractCore {
         this.switchMac = mac;
         this.switchPort = port;
         this.addrController = ctrl;
+    }
+
+    public SinkCore(
+            final byte net,
+            final NodeAddress address,
+            final Dischargeable battery,
+            final String dPid,
+            final String mac,
+            final long port,
+            final InetAddress addrController,
+            final Integer addrPort) {
+        super(net, address, battery);
+        this.switchDPid = dPid;
+        this.switchMac = mac;
+        this.switchPort = port;
+        this.addrController = new InetSocketAddress(addrController, addrPort);
     }
 
     @Override

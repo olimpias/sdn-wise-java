@@ -49,6 +49,7 @@ import com.github.sdnwiselab.sdnwise.packet.OpenPathPacket;
 import com.github.sdnwiselab.sdnwise.packet.ReportPacket;
 import com.github.sdnwiselab.sdnwise.packet.RequestPacket;
 import com.github.sdnwiselab.sdnwise.packet.ResponsePacket;
+import com.github.sdnwiselab.sdnwise.stats.LifeTimeMonitorController;
 import com.github.sdnwiselab.sdnwise.topology.NetworkGraph;
 import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import static com.github.sdnwiselab.sdnwise.util.Utils.mergeBytes;
@@ -426,7 +427,7 @@ public abstract class AbstractController extends ControlPlaneLayer implements
      * @param data an incoming NetworkPacket
      */
     public final void managePacket(final NetworkPacket data) {
-
+        LifeTimeMonitorController.Instance().start();
         switch (data.getTyp()) {
             case REPORT:
                 networkGraph.updateMap(new ReportPacket(data));

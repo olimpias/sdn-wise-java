@@ -554,6 +554,13 @@ public abstract class AbstractCore {
         return rp;
     }
 
+    public void forceToSendReport(){
+        if (getBattery().getByteLevel()< 14) {
+            cntReport = 0;
+            controllerTX(prepareReport());
+        }
+    }
+
     /**
      * Runs the corresponding action.
      *

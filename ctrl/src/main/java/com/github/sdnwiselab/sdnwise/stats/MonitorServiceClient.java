@@ -81,7 +81,7 @@ public class MonitorServiceClient {
                     SdnWise.ForecastResponse response = responseIterator.next();
                     List<ForecastNode> nodes = StatsUtils.forecastNodesGrpcToLocal(response);
                     this.callback.predictedBatteries(nodes);
-                    logger.info(response+" is received");
+                    logger.info("Forecast: "+response+" is received");
                 }
             }catch (StatusRuntimeException e) {
                 logger.info("RPC failed: "+e.getStatus());

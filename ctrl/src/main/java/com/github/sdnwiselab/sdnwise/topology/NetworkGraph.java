@@ -27,6 +27,9 @@ import com.github.sdnwiselab.sdnwise.util.NodeAddress;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -89,6 +92,8 @@ public class NetworkGraph extends Observable {
      */
     private StatService statService;
 
+    private ScheduledExecutorService observerService;
+
     /**
      * Creates the NetworkGraph object. It requires a time to live for each node
      * in the network and a value representing the RSSI resolution in order to
@@ -118,6 +123,9 @@ public class NetworkGraph extends Observable {
         if(this.batteryWeight > 0) {
             this.statService.initialize();
         }
+        observerService = Executors.newScheduledThreadPool(1);
+        observerService.scheduleAtFixedRate(new NetworkObserver(),
+                1,20, TimeUnit.SECONDS);
     }
 
     /**
@@ -287,6 +295,10 @@ public class NetworkGraph extends Observable {
         Node node = getNode(fullNodeId);
         LOGGER.log(Level.INFO, "Src: "+fullNodeId + " battery: "+currentBatt);
         statService.add(new BatteryInfoNode(fullNodeId,currentBatt));
+        LifeTimeMonitorController.Instance().updateBatteryValue(fullNodeId, batt);
+        if (batt < 14) {
+            LifeTimeMonitorController.Instance().end();
+        }
         if (node == null) {
             node = addNode(fullNodeId);
             setupNode(node, batt, now, net, addr);
@@ -347,7 +359,6 @@ public class NetworkGraph extends Observable {
 
             if (!oldEdges.isEmpty()) {
                 oldEdges.stream().forEach((e) -> {
-                    LifeTimeMonitorController.Instance().end();
                     removeEdge(e);
                 });
                 modified = true;
@@ -403,6 +414,7 @@ public class NetworkGraph extends Observable {
                         && n.getAttribute("lastSeen", Long.class) != null
                         && !isAlive(timeout, (long) n.getNumber("lastSeen"),
                                 now)) {
+                    LOGGER.log(Level.WARNING, "Node: "+n.toString()+" could not be reached");
                     LifeTimeMonitorController.Instance().end();
                     removeNode(n);
                     modified = true;
@@ -411,6 +423,29 @@ public class NetworkGraph extends Observable {
             }
         }
         return modified;
+    }
+
+
+    /**
+     * Checks if there were modifications in the graph. This method deletes dead
+     * nodes.
+     *
+     * @param now actual time in milliseconds
+     * @return true if the graph was changed, false otherwise
+     */
+    private void checkLastConsistency(final long now) {
+        if (now - lastCheck > (timeout * MILLIS_IN_SECOND)) {
+            for (Node n : graph) {
+                if (n.getAttribute("net", Integer.class) < NetworkPacket.THRES
+                        && n.getAttribute("lastSeen", Long.class) != null
+                        && !isAlive(timeout, (long) n.getNumber("lastSeen"),
+                        now)) {
+                    LOGGER.log(Level.WARNING, "Node: "+n.toString()+" could not be reached");
+                    LifeTimeMonitorController.Instance().end();
+                }
+
+            }
+        }
     }
 
     /**
@@ -424,6 +459,16 @@ public class NetworkGraph extends Observable {
      */
     private boolean isAlive(final long thrs, final long last, final long now) {
         return ((now - last) < thrs * MILLIS_IN_SECOND);
+    }
+
+    private class NetworkObserver implements Runnable {
+
+        @Override
+        public void run() {
+            LOGGER.log(Level.INFO, "Observer Triggered");
+            long now = System.currentTimeMillis();
+            checkLastConsistency(now);
+        }
     }
 
 }

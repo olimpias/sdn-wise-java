@@ -52,7 +52,7 @@ public final class SdnWise {
     /**
      * Dafault config file location.
      */
-    private static final String CONFIG_FILE = "/config.ini";
+    private static final String CONFIG_FILE = "/config.json";
     /**
      * Set to true to start an emulated network.
      */
@@ -187,10 +187,11 @@ public final class SdnWise {
         try {
             int nOfNodes = Integer.parseInt(conf.getController().getMap().get("N_OF_NODES"));
             int nOfCommandedNodes = Integer.parseInt(conf.getController().getMap().get("N_OF_COMMANDED_NODES"));
+            int topologyLabel = Integer.parseInt(conf.getController().getMap().get("LABEL"));
             enterFlowRulesForMonitorNodes(controller, nOfNodes, nOfCommandedNodes);
             startSendingMessages(controller, nOfNodes, nOfCommandedNodes);
             LifeTimeMonitorController.Instance().setNumberOfNodes(nOfNodes);
-            LifeTimeMonitorController.Instance().start();
+            LifeTimeMonitorController.Instance().setLabel(topologyLabel);
         }catch (Exception e) {
             e.printStackTrace();
         }

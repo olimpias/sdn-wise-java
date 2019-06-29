@@ -102,10 +102,10 @@ public final class ControllerDijkstra extends AbstractController {
                 nodeAddresses.push(node.getAttribute("nodeAddress"));
             }
             log(Level.INFO, "Graph Update Path: " + nodeAddresses);
-            getResults().put(nodeAddresses.getLast(),nodeAddresses);
             if (nodeAddresses.isEmpty()) {
                 continue;
             }
+            getResults().put(nodeAddresses.getLast(),nodeAddresses);
             if(!ControllerUtils.doNodeAddresslistsEqual(service.getPath(pair), nodeAddresses)) {
                 LifeTimeMonitorController.Instance().increaseHopCount();
                 updatePath(pair, nodeAddresses);

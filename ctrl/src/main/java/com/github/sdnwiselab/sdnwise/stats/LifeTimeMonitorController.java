@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,10 +24,13 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
     private Date startTime;
     private Date endTime;
     private boolean isEnded;
+    private boolean hasStarted;
     private float rssiWeight;
     private float batteryWeight;
+    private int topologyLabel;
     private AtomicInteger hopCount;
     private int numberOfNodes;
+    private final Map<String, Integer> lastBatteryStats =  new ConcurrentHashMap<>();;
 
     public synchronized static LifeTimeMonitorService Instance(){
         if(service == null) {
@@ -48,6 +53,14 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
         this.type = type;
     }
 
+    public int getLabel() {
+        return topologyLabel;
+    }
+
+    public void setLabel(int topologyLabel) {
+        this.topologyLabel = topologyLabel;
+    }
+
     @Override
     public void setBatteryWeight(float bWeight) {
         this.batteryWeight = bWeight;
@@ -66,7 +79,11 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
 
     @Override
     public void start() {
+        if(hasStarted){
+            return;
+        }
         this.startTime = new Date();
+        hasStarted = true;
         isEnded = false;
         logger.info("Monitor timer has started");
     }
@@ -81,6 +98,7 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
         isEnded = true;
         this.endTime = new Date();
         dataExporter();
+        hasStarted = false;
         logger.log(Level.INFO,"End time: "+(endTime.getTime() - startTime.getTime())/1000);
         System.exit(0);
     }
@@ -90,12 +108,23 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
         hopCount.incrementAndGet();
     }
 
+    @Override
+    public void updateBatteryValue(String nodeId, int battery) {
+        this.lastBatteryStats.put(nodeId, battery);
+    }
+
     private void dataExporter(){
         SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
+        int totalBatteryLeft = 0;
+        synchronized (this.lastBatteryStats) {
+            for(Map.Entry<String, Integer> entry : this.lastBatteryStats.entrySet()) {
+                totalBatteryLeft += entry.getValue();
+            }
+        }
         UUID uuid = UUID.randomUUID();
         PrintWriter printWriter = null;
         try {
-            File file = new File(String.format("%d/%.3f/%s.data",this.numberOfNodes,this.rssiWeight,uuid.toString()));
+            File file = new File(String.format("%d/%.3f/%s-t%d.data",this.numberOfNodes,this.rssiWeight,uuid.toString(),this.topologyLabel));
             file.getParentFile().mkdirs();
             printWriter = new PrintWriter(file);
             StringBuffer stringBuffer = new StringBuffer();
@@ -105,7 +134,9 @@ public class LifeTimeMonitorController implements LifeTimeMonitorService {
             stringBuffer.append("Test start time: "+ dt.format(startTime)+"\n");
             stringBuffer.append("Test end time: "+ dt.format(endTime)+"\n");
             stringBuffer.append("Spend time: "+(endTime.getTime() - startTime.getTime())/1000+"s\n");
-            stringBuffer.append("Hop Count: "+hopCount.get());
+            stringBuffer.append("Hop Count: "+hopCount.get()+"\n");
+            stringBuffer.append("Total remaining battery: "+totalBatteryLeft+"\n");
+            stringBuffer.append("Total battery consumption: "+ ((this.lastBatteryStats.size() * 255) - totalBatteryLeft)+"\n");
             printWriter.write(stringBuffer.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
